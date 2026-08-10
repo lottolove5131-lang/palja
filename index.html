@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>여덟글자 — 팔자를 읽다</title>
+<meta name="description" content="생년월일시로 사주 원국을 정밀 계산하고, 검증된 명리 해석으로 당신의 팔자를 읽어드립니다.">
+<style>
+/* ── 디자인 토큰: 밤하늘 먹색 + 한지 + 주사(진사) + 금박 ── */
+:root{
+  --ink:#0b0f1a;          /* 밤 먹색 배경 */
+  --ink-2:#121829;        /* 카드 배경 */
+  --hanji:#efe6d3;        /* 한지 본문 */
+  --hanji-dim:#b6ab93;    /* 한지 흐림 */
+  --jusa:#c73e3a;         /* 주사 빨강 (도장·강조) */
+  --gold:#c9a227;         /* 금박 (귀인·길신) */
+  --line:#2a3350;         /* 하늘 경계선 */
+  --elem-목:#5a9367; --elem-화:#c73e3a; --elem-토:#c9a227; --elem-금:#aab4c4; --elem-수:#4a6fa5;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--ink); color:var(--hanji);
+  font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+  word-break:keep-all; overflow-wrap:break-word;
+  line-height:1.75; min-height:100vh;
+}
+.serif{font-family:'Noto Serif KR','Nanum Myeongjo',serif}
+.wrap{max-width:680px;margin:0 auto;padding:0 20px}
+
+/* ── 히어로 ── */
+header{padding:64px 0 40px;text-align:center;position:relative}
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0}
+.stars i{position:absolute;width:2px;height:2px;background:var(--hanji);border-radius:50%;opacity:.25;animation:tw 4s infinite}
+@keyframes tw{0%,100%{opacity:.1}50%{opacity:.5}}
+@media (prefers-reduced-motion:reduce){.stars i{animation:none}}
+h1{font-size:2.2rem;font-weight:700;letter-spacing:.35em;text-indent:.35em}
+.sub{color:var(--hanji-dim);margin-top:12px;font-size:.95rem;letter-spacing:.08em}
+.seal{display:inline-block;margin-top:20px;border:1.5px solid var(--jusa);color:var(--jusa);
+  padding:6px 10px;font-size:.8rem;letter-spacing:.3em;text-indent:.3em}
+
+/* ── 입력 ── */
+.card{background:var(--ink-2);border:1px solid var(--line);border-radius:14px;padding:28px 24px;margin:20px 0;position:relative;z-index:1}
+label{display:block;font-size:.85rem;color:var(--hanji-dim);margin:14px 0 6px;letter-spacing:.05em}
+input,select{width:100%;background:var(--ink);border:1px solid var(--line);border-radius:8px;
+  color:var(--hanji);padding:13px 14px;font-size:1.05rem;font-family:inherit}
+input:focus,select:focus{outline:2px solid var(--gold);outline-offset:1px;border-color:var(--gold)}
+.row{display:flex;gap:10px}.row>div{flex:1}
+/* [8/6] 생년월일·시간 입력 개편 — 기본 date/time 위젯은 1983년까지 화살표로 내려가야 하고
+   오전/오후 영역이 작아 누르기 어렵다는 지적. 년/월/일·시/분을 나누고 오전오후는 큰 버튼으로. */
+.ymd{display:flex;gap:8px}
+.ymd>div{flex:1;position:relative}
+.ymd input,.ymd select{padding-right:30px;text-align:center;font-size:1.1rem}
+/* 기본 드롭다운 화살표가 단위 글자(년·월·일)와 겹쳐 보여 제거하고 단위만 남긴다 */
+.ymd select{-webkit-appearance:none;-moz-appearance:none;appearance:none}
+.ymd input[type=number]{-moz-appearance:textfield}
+.ymd input::-webkit-outer-spin-button,.ymd input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.ymd .unit{position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  font-size:.85rem;color:var(--hanji-dim);pointer-events:none}
+.ampm{display:flex;gap:8px}
+.seg{flex:1;min-height:52px;background:var(--ink);color:var(--hanji-dim);
+  border:1px solid var(--line);border-radius:10px;font-size:1.05rem;font-family:inherit;
+  cursor:pointer;transition:all .12s}
+.seg:hover{border-color:var(--gold)}
+.seg.on{background:var(--jusa);color:#fff;border-color:var(--jusa);font-weight:700}
+.seg:focus-visible{outline:3px solid var(--gold);outline-offset:1px}
+.chk{display:flex;align-items:center;gap:10px;margin:14px 0 0;padding:12px 14px;
+  background:var(--ink);border:1px solid var(--line);border-radius:10px;cursor:pointer;
+  font-size:.95rem;color:var(--hanji);word-break:keep-all}
+.chk input{width:20px;height:20px;flex:0 0 auto;accent-color:var(--jusa)}
+.chk em{font-style:normal;color:var(--hanji-dim);font-size:.85rem}
+.dim{opacity:.4;pointer-events:none}
+.btn{width:100%;margin-top:26px;padding:16px;background:var(--jusa);color:#fff;border:0;border-radius:10px;
+  font-size:1.1rem;font-weight:700;letter-spacing:.2em;text-indent:.2em;cursor:pointer;font-family:inherit;transition:transform .15s}
+.btn:hover{transform:translateY(-1px)}.btn:focus-visible{outline:3px solid var(--gold)}
+.note{font-size:.78rem;color:var(--hanji-dim);margin-top:10px;text-align:center}
+
+/* ── 원국 병풍 (signature) ── */
+#report{display:none}
+.byeongpung{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0 4px}
+.pillar{background:linear-gradient(180deg,#171e33,#101527);border:1px solid var(--line);border-radius:10px;
+  padding:14px 6px;text-align:center;position:relative}
+.pillar .pos{font-size:.7rem;color:var(--hanji-dim);letter-spacing:.15em;margin-bottom:8px}
+.pillar .han{font-size:2rem;line-height:1.25;display:block}
+.pillar .kr{font-size:.72rem;color:var(--hanji-dim);margin-top:6px}
+.pillar .hanja{font-size:.7rem;color:var(--hanji-dim);opacity:.65;margin-top:4px;letter-spacing:.05em}
+.pillar .tg{font-size:.68rem;margin-top:4px;color:var(--gold)}
+.e-목{color:var(--elem-목)}.e-화{color:var(--elem-화)}.e-토{color:var(--elem-토)}.e-금{color:var(--elem-금)}.e-수{color:var(--elem-수)}
+
+/* ── 오행 바 ── */
+.elembar{display:flex;height:14px;border-radius:7px;overflow:hidden;margin:14px 0 6px;border:1px solid var(--line)}
+.elembar div{transition:width .8s}
+.elemlegend{display:flex;justify-content:space-between;font-size:.78rem;color:var(--hanji-dim);flex-wrap:wrap;gap:4px}
+.zero{color:var(--jusa);font-weight:700}
+
+/* ── 섹션 ── */
+.sec{margin:34px 0}
+.sec h2{font-size:1.15rem;color:var(--gold);letter-spacing:.12em;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.sec h2::after{content:'';flex:1;height:1px;background:var(--line)}
+.headline{font-size:1.22rem;line-height:1.85;padding:22px;border-left:3px solid var(--jusa);background:var(--ink-2);border-radius:0 12px 12px 0}
+.block{background:var(--ink-2);border:1px solid var(--line);border-radius:12px;padding:20px;margin:12px 0}
+.block h3{font-size:1.02rem;color:var(--hanji);margin-bottom:8px}
+.block h3 .tag{font-size:.72rem;color:var(--gold);border:1px solid var(--gold);border-radius:20px;padding:2px 9px;margin-left:8px;vertical-align:2px}
+.block p{font-size:.95rem;color:#d8cfbc}
+.block .adv{margin-top:10px;font-size:.87rem;color:var(--gold)}
+.sinsal-grid{display:grid;grid-template-columns:1fr;gap:10px}
+details.block summary{list-style:none}
+details.block summary::-webkit-details-marker{display:none}
+details.block summary::before{content:"▸ ";color:var(--gold)}
+details.block[open] summary::before{content:"▾ "}
+.quote{text-align:center;padding:30px 16px;font-size:1.15rem;line-height:2}
+.quote em{color:var(--gold);font-style:normal}
+
+/* ── 대운 타임라인 ── */
+.dw{display:flex;gap:6px;overflow-x:auto;padding:6px 0}
+.dw .d{min-width:74px;text-align:center;background:var(--ink-2);border:1px solid var(--line);border-radius:10px;padding:12px 4px}
+.dw .d.hit{border-color:var(--gold);box-shadow:0 0 12px rgba(201,162,39,.25)}
+.dw .d.now{border-color:var(--jusa)}
+.dw .age{font-size:.7rem;color:var(--hanji-dim)}
+.dw .g{font-size:1.25rem;margin:4px 0}
+.dw .lbl{font-size:.64rem;color:var(--gold)}
+footer{text-align:center;padding:44px 0 60px;color:var(--hanji-dim);font-size:.78rem;position:relative;z-index:1}
+.disc{text-align:left;background:var(--ink-2);border:1px solid var(--line);border-radius:12px;padding:22px;font-size:.84rem;line-height:1.85}
+.disc h4{color:var(--gold);font-size:.92rem;margin-bottom:12px;letter-spacing:.06em}
+.disc p{margin-bottom:10px;color:#c4baa6}
+.disc b{color:var(--hanji)}
+.disc .tiny{font-size:.76rem;color:var(--hanji-dim);margin-top:14px;margin-bottom:0}
+.again{background:none;border:1px solid var(--line);color:var(--hanji-dim);border-radius:8px;padding:10px 22px;cursor:pointer;font-family:inherit;margin-top:14px}
+@media(min-width:560px){.sinsal-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+
+<header class="wrap">
+  <h1 class="serif">여덟글자</h1>
+  <p class="sub">태어난 순간의 하늘이 남긴 여덟 글자를 읽습니다</p>
+  <span class="seal serif">정확한 팔자</span>
+</header>
+
+<main class="wrap">
+  <section class="card" id="form">
+    <label>생년월일 (양력)</label>
+    <div class="ymd">
+      <div><input type="number" id="by" inputmode="numeric" placeholder="1990" min="1900" max="2100" value="1990"><span class="unit">년</span></div>
+      <div><select id="bm"></select><span class="unit">월</span></div>
+      <div><select id="bd"></select><span class="unit">일</span></div>
+    </div>
+
+    <label id="lb-time">태어난 시간</label>
+    <div class="ampm" id="ampm" role="radiogroup" aria-labelledby="lb-time">
+      <button type="button" class="seg" data-ap="0" role="radio" aria-checked="false">오전</button>
+      <button type="button" class="seg on" data-ap="1" role="radio" aria-checked="true">오후</button>
+    </div>
+    <div class="ymd" style="margin-top:8px">
+      <div><select id="bh"></select><span class="unit">시</span></div>
+      <div><select id="bmin"></select><span class="unit">분</span></div>
+    </div>
+    <label class="chk"><input type="checkbox" id="notime"><span>태어난 시간을 몰라요 <em>(시주를 빼고 세 기둥만 봅니다)</em></span></label>
+
+    <label id="lb-gender">성별 <em style="font-style:normal;color:var(--jusa)">— 대운 방향이 달라지니 꼭 골라주세요</em></label>
+    <div class="ampm" id="gsel" role="radiogroup" aria-labelledby="lb-gender">
+      <button type="button" class="seg" data-g="F" role="radio" aria-checked="false">여성</button>
+      <button type="button" class="seg" data-g="M" role="radio" aria-checked="false">남성</button>
+    </div>
+    <select id="gender" hidden><option value=""></option><option value="F">여성</option><option value="M">남성</option></select>
+    <select id="timeknown" hidden><option value="1">알아요</option><option value="0">몰라요</option></select>
+    <input type="date" id="bdate" hidden value="1990-01-01">
+    <input type="time" id="btime" hidden value="12:00">
+    <button class="btn" id="go">팔자를 읽는다</button>
+    <p class="note">절기 경계·진태양시(서울 −32분)·서머타임까지 반영한 정밀 계산입니다.<br>입력한 정보는 저장되지 않습니다.</p>
+  </section>
+
+  <section id="report"></section>
+</main>
+
+<footer class="wrap">
+  <div class="disc">
+    <h4>이 리포트를 어떻게 읽어야 하나</h4>
+    <p><b>계산은 정확합니다.</b> 사주 여덟 글자와 절기·대운은 천문 데이터로 계산한 결과이며, 한국천문연구원 표준 만세력 및 공개 만세력 구현체들과 대조해 일치를 확인했습니다.</p>
+    <p><b>해석은 하나의 관점입니다.</b> 명리는 유파마다 판단이 갈리는 분야이고, 이 리포트는 고전(자평진전·적천수·궁통보감 등)과 현대 통용 기준을 따랐습니다. 다른 곳에서 다르게 볼 수 있습니다.</p>
+    <p><b>다른 만세력과 결과가 다르다면</b> 대개 계산이 틀린 게 아니라 관습이 달라서입니다. 이 앱이 쓰는 기준은 다음과 같습니다.
+      <br>· 시간 보정: 서울 기준 진태양시(−32분)를 적용합니다. 보정하지 않는 곳과는 시주가 다를 수 있습니다.
+      <br>· 하루의 경계: 밤 11시가 넘어도 그날의 일주를 유지합니다(야자시). 자정부터 다음 날로 넘기는 곳과 다를 수 있습니다.
+      <br>· 절기 시각: 한국 시각(KST) 기준입니다. 중국 시각을 쓰는 곳과는 1시간 차이가 나, 절기 경계에 태어난 경우 년·월주가 갈릴 수 있습니다.
+      <br>· 옛 표준시: 1954~1961년생은 당시 한국 표준시(동경 127.5도)를 반영합니다.</p>
+    <p><b>정해진 운명을 알려주는 글이 아닙니다.</b> 여기 적힌 시기와 성향은 참고를 위한 것이지 예언이 아닙니다. 진학·이직·결혼·투자·건강처럼 인생이 걸린 결정은 이 글이 아니라 당신의 판단과 해당 분야 전문가의 조언으로 하시기 바랍니다. 특히 <b>의료·법률·투자 결정의 근거로 사용하지 마십시오.</b></p>
+    <p class="tiny">본 서비스는 오락 및 자기이해 목적으로 제공됩니다. 입력한 생년월일시는 저장되지 않으며 브라우저 안에서만 계산됩니다.</p>
+  </div>
+  <p style="margin-top:20px">인생의 주인은 팔자가 아니라 당신입니다.</p>
+</footer>
+
+<script src="terms_data.js"></script>
+<script src="saju_engine.js"></script>
+<script src="saju_cards.js"></script>
+<script>
+(function(){
+'use strict';
+const $ = s => document.querySelector(s);
+const E = window.SajuEngine, C = window.SajuCards, TERMS = window.SOLAR_TERMS;
+
+// 별 배경
+const stars = $('#stars');
+for (let i = 0; i < 40; i++) {
+  const s = document.createElement('i');
+  s.style.left = Math.random()*100+'%'; s.style.top = Math.random()*100+'%';
+  s.style.animationDelay = (Math.random()*4)+'s';
+  stars.appendChild(s);
+}
+
+const ELMAP = {목:'木',화:'火',토:'土',금:'金',수:'水'};
+
+// [8/6] 한글 조사 자동 선택 — 오행 이름은 목·금이 받침 있고 화·토·수는 없어서
+// 조사를 하드코딩하면 25.4%에서 "수·목는" 같은 오류가 난다(CLAUDE.md 최상위 어절 룰).
+// kind: '은'(은/는) · '이'(이/가) · '을'(을/를) · '과'(과/와) · '으로'(으로/로)
+function josa(word, kind) {
+  const w = String(word || '');
+  const last = w.charCodeAt(w.length - 1);
+  if (!(last >= 0xAC00 && last <= 0xD7A3)) return kind;   // 한글이 아니면 그대로
+  const jong = (last - 0xAC00) % 28;                       // 0 = 받침 없음
+  const T = { 은:['는','은'], 이:['가','이'], 을:['를','을'], 과:['와','과'], 으로:['로','으로'] };
+  const pair = T[kind]; if (!pair) return kind;
+  // '으로'는 ㄹ 받침(=8)도 '로'를 쓴다
+  if (kind === '으로' && jong === 8) return '로';
+  return pair[jong ? 1 : 0];
+}
+
+// ── [8/6] 입력 위젯 초기화 ──────────────────────────────
+(function initInputs(){
+  const fill = (el, from, to, fmt) => {
+    for (let i = from; i <= to; i++) {
+      const o = document.createElement('option');
+      o.value = i; o.textContent = fmt ? fmt(i) : i;
+      el.appendChild(o);
+    }
+  };
+  fill($('#bm'), 1, 12);
+  fill($('#bd'), 1, 31);
+  fill($('#bh'), 1, 12);              // 12시간제 — 오전/오후 버튼과 짝
+  for (let i = 0; i < 60; i += 5) {   // 분은 5분 단위(출생시각을 분 단위로 아는 경우가 드물다)
+    const o = document.createElement('option');
+    o.value = i; o.textContent = String(i).padStart(2, '0');
+    $('#bmin').appendChild(o);
+  }
+  $('#bm').value = 1; $('#bd').value = 1; $('#bh').value = 12; $('#bmin').value = 0;
+
+  // 월 바뀌면 그 달의 마지막 날에 맞춰 '일' 목록 조정 (2월 30일 같은 입력 차단)
+  const syncDays = () => {
+    const y = +$('#by').value || 1990, m = +$('#bm').value;
+    const last = new Date(y, m, 0).getDate();
+    const cur = +$('#bd').value;
+    $('#bd').innerHTML = '';
+    fill($('#bd'), 1, last);
+    $('#bd').value = Math.min(cur, last);
+  };
+  $('#by').addEventListener('change', syncDays);
+  $('#bm').addEventListener('change', syncDays);
+
+  // 오전/오후 · 성별 세그먼트 버튼
+  const seg = (wrap, attr, onPick) => {
+    wrap.addEventListener('click', (e) => {
+      const b = e.target.closest('.seg'); if (!b) return;
+      [...wrap.querySelectorAll('.seg')].forEach(x => {
+        const on = x === b;
+        x.classList.toggle('on', on);
+        x.setAttribute('aria-checked', on ? 'true' : 'false');  // 스크린리더가 선택 상태를 읽도록
+      });
+      onPick(b.dataset[attr]);
+    });
+  };
+  let ampm = 1;   // 기본 = 오후 12시(정오). 오전 12시는 자정이라 기본값으로 부적절
+  seg($('#ampm'), 'ap', v => { ampm = +v; });
+  seg($('#gsel'), 'g', v => { $('#gender').value = v; });
+  window.__getAmPm = () => ampm;
+
+  // 시간 모름이면 시·분·오전오후를 흐리게 하고 입력을 막는다
+  $('#notime').addEventListener('change', (e) => {
+    const off = e.target.checked;
+    $('#ampm').classList.toggle('dim', off);
+    $('#bh').closest('.ymd').classList.toggle('dim', off);
+    $('#timeknown').value = off ? '0' : '1';
+    // [8/6 2차수정] .dim의 pointer-events:none은 마우스만 막아 키보드로는 값이 바뀌었다.
+    // 실제로 잠그려면 disabled여야 한다(스크린리더에도 잠김이 전달된다).
+    [$('#bh'), $('#bmin'), ...$('#ampm').querySelectorAll('.seg')].forEach(el => { el.disabled = off; });
+  });
+})();
+
+$('#go').addEventListener('click', () => {
+  const g = $('#gender').value;
+  const knowTime = !$('#notime').checked;
+  const y = +$('#by').value, m = +$('#bm').value, dd = +$('#bd').value;
+  if (!y || y < 1900 || y > 2100) return alert('태어난 해를 1900~2100 사이로 입력해 주세요.');
+  if (!m || !dd) return alert('태어난 달과 날을 골라주세요.');
+  // [8/6 2차수정] 성별 기본 선택이 '여성'이라 남성이 지나치면 대운 방향이 반대로 계산됐다.
+  // 기본 선택을 없애고 미선택이면 진행을 막는다.
+  if (!g) return alert('성별을 골라주세요. 성별에 따라 대운이 흐르는 방향이 반대가 됩니다.');
+  // 12시간제 → 24시간제 (오전 12시 = 0시, 오후 12시 = 12시)
+  let h12 = +$('#bh').value, hh;
+  if (window.__getAmPm() === 0) hh = (h12 === 12 ? 0 : h12);
+  else hh = (h12 === 12 ? 12 : h12 + 12);
+  const mm = +$('#bmin').value;
+  if (!knowTime) { hh = 12; }
+  try { render(y, m, dd, hh, mm, g, knowTime); }
+  catch(e){ alert('계산 범위(1900~2100)를 확인해 주세요.'); console.error(e); }
+});
+
+function pillarHTML(p, pos, tg, show) {
+  if (!show) return `<div class="pillar"><div class="pos">${pos}</div><span class="han serif" style="color:var(--hanji-dim)">?<br>?</span><div class="kr">시간 미상</div></div>`;
+  const se = E.STEM_ELEM[p.stem], be = E.BRANCH_ELEM[p.branch];
+  return `<div class="pillar"><div class="pos">${pos}</div>
+    <span class="han serif"><span class="e-${se}">${E.STEMS[p.stem]}</span><br><span class="e-${be}">${E.BRANCHES[p.branch]}</span></span>
+    <div class="hanja">${E.STEMS_H[p.stem]}${E.BRANCHES_H[p.branch]}</div>
+    ${tg ? `<div class="tg">${tg}</div>` : '<div class="tg">일간(나)</div>'}</div>`;
+}
+
+function render(y, m, dd, hh, mm, gender, knowTime) {
+  const P = E.calcPillars(y, m, dd, hh, mm, { terms: TERMS });
+  const A = E.analyze(P, { knowTime });
+  const DW = E.calcDaewoon(P, gender, TERMS);
+  const nowY = new Date().getFullYear();
+  const SW = E.calcSewoon(A, nowY, 8);
+  const age = nowY - P.meta.sajuYear + 1; // 세는나이 기준 근사
+
+  let h = '';
+
+  // ① 원국 병풍
+  h += `<div class="sec"><h2 class="serif">내 사주 여덟 글자</h2><div class="byeongpung">`;
+  h += pillarHTML(P.hour, '시주 · 열매', E.tenGod(P.day.stem, P.hour.stem), knowTime);
+  h += pillarHTML(P.day, '일주 · 나', null, true);
+  h += pillarHTML(P.month, '월주 · 무대', E.tenGod(P.day.stem, P.month.stem), true);
+  h += pillarHTML(P.year, '년주 · 뿌리', E.tenGod(P.day.stem, P.year.stem), true);
+  h += `</div>`;
+
+  // 오행 바
+  const total = knowTime ? 8 : 6;
+  h += `<div class="elembar">`;
+  for (const k of ['목','화','토','금','수']) {
+    if (A.elem[k] > 0) h += `<div style="width:${A.elem[k]/total*100}%;background:var(--elem-${k})" title="${k} ${A.elem[k]}"></div>`;
+  }
+  h += `</div><div class="elemlegend">`;
+  for (const k of ['목','화','토','금','수'])
+    h += `<span class="${A.elem[k]===0?'zero':''}">${ELMAP[k]} ${k} ${A.elem[k]}${A.elem[k]===0?' 없음':''}</span>`;
+  h += `</div></div>`;
+
+  // ② 가장 눈에 띄는 것
+  const HL = C.headline(A);
+  let hlText = '';
+  if (HL.type === 'double_missing') hlText = HL.text;
+  else if (HL.type === 'missing') hlText = `이 사주에서 가장 먼저 눈에 들어오는 건 <b style="color:var(--jusa)">${HL.elem}(${ELMAP[HL.elem]})${josa(ELMAP[HL.elem], "이")} 단 하나도 없다</b>는 점입니다.`;
+  else if (HL.type === 'special') hlText = C.SPECIAL[HL.id].title + ' — 이 사주의 정체입니다.';
+  else if (HL.type === 'strength') hlText = C.STRENGTH[A.strength].title + '. 흔치 않은 힘의 구조입니다.';
+  else if (HL.type === 'excess') hlText = `${HL.elem}(${ELMAP[HL.elem]}) 기운이 사주의 절반을 차지합니다.`;
+  else hlText = `${C.DAY_MASTER[A.dayMaster.charAt(0)].name} — ${C.DAY_MASTER[A.dayMaster.charAt(0)].img}의 사주입니다.`;
+  h += `<div class="sec"><h2 class="serif">이 사주에서 가장 눈에 띄는 것</h2><p class="headline serif">${hlText}</p></div>`;
+
+  // ③-0 일주 — 사주에서 가장 중요한 두 글자
+  if (C.ILJU_ROOT) {
+    const rootState = A.unsung['일'];
+    const spouseGod = E.tenGodBranch(P.day.stem, P.day.branch);
+    const de = E.STEM_ELEM[P.day.stem], be = E.BRANCH_ELEM[P.day.branch];
+    const ganyeo = de === be;   // 간여지동
+    const BAEKHO = [[0,4],[1,7],[2,10],[3,1],[4,4],[8,10],[9,1]];
+    const GOEGANG = [[6,4],[6,10],[8,4],[4,10]];
+    const isBaekho = BAEKHO.some(([s,b]) => P.day.stem===s && P.day.branch===b);
+    const isGoegang = GOEGANG.some(([s,b]) => P.day.stem===s && P.day.branch===b);
+    h += `<div class="sec"><h2 class="serif">일주 — 나의 두 글자</h2>
+      <div class="block"><h3>${P.day.str}일주 <span class="tag">${rootState}(힘 ${(C.ILJU_ROOT[rootState]||{}).force||"-"}) · 일지 ${spouseGod}</span></h3>
+      <p style="font-size:.88rem;color:var(--hanji-dim)">${C.ILJU_NOTE}</p>
+      <p style="margin-top:12px">${(C.ILJU_ROOT[rootState]||{}).t || ''}</p>
+      <p style="margin-top:8px;font-size:.85rem;color:var(--hanji-dim)">${C.ILJU_FORCE_NOTE[(C.ILJU_ROOT[rootState]||{}).force] || ''}</p>
+      <p style="margin-top:10px">${C.ILJU_SPOUSE[spouseGod] || ''}</p></div>`;
+    if (ganyeo) h += `<div class="block"><h3>${C.ILJU_SPECIAL.간여지동.t}</h3><p>${C.ILJU_SPECIAL.간여지동.b}</p></div>`;
+    if (isBaekho) h += `<div class="block"><h3>${C.ILJU_SPECIAL.백호.t}</h3><p>${C.ILJU_SPECIAL.백호.b}</p></div>`;
+    if (isGoegang) h += `<div class="block"><h3>${C.ILJU_SPECIAL.괴강.t}</h3><p>${C.ILJU_SPECIAL.괴강.b}</p></div>`;
+    h += `</div>`;
+  }
+
+  // ③ 나의 본질 (일간)
+  const dm = C.DAY_MASTER[E.STEMS[P.day.stem]];
+  h += `<div class="sec"><h2 class="serif">타고난 본질</h2><div class="block">
+    <h3>${dm.name} <span class="tag">${dm.img}</span></h3><p>${dm.core}</p></div>`;
+  // 신강약 (판정 근거 노출)
+  const st = C.STRENGTH[A.strength];
+  const sd = A.strengthDetail;
+  const basis = sd ? `득령 ${sd.deukryeong ? '○' : '×'}(월지 ${sd.wangsang}) · 득지 ${sd.deukji ? '○' : '×'} · 세력비 ${Math.round(sd.ratio*100)}%` : '';
+  h += `<div class="block"><h3>${st.title} ${basis ? `<span class="tag">${basis}</span>` : ''}</h3><p>${st.body}</p>`;
+  // [8/6 신설] 종격(從格) 경고 — 앱은 종격 판정을 구현하지 않아 태약 명식을 전부 정격·억부로 읽는다.
+  // 종격으로 보는 유파에서는 인성·비겁운이 오히려 격을 깨는 운이라 운의 부호가 정반대가 된다.
+  // 판정을 구현하기 전까지, 해당 구조에는 반드시 이 사실을 고지한다.
+  if (A.jonggyeok) {
+    const jg = A.jonggyeok;
+    h += `<p class="adv"><b>${jg.type}</b> · ${jg.grade} — ${jg.reason}
+      억지로 일간을 살리기보다 <b>강한 세력을 따르는 것</b>으로 보는 관법입니다.
+      ${jg.reverse}</p>
+      <p style="margin-top:8px;font-size:.84rem;color:var(--hanji-dim)">※ 종격은 이 앱에서 <b>유파차가 가장 큰</b> 항목입니다.
+      엄격한 유파는 일간을 돕는 글자가 하나라도 있으면 종격으로 보지 않고(진종), 완화된 유파는 미약한 뿌리를 인정해 가종으로 봅니다.
+      두 관법의 처방이 어떻게 갈리는지는 아래 <b>조후·처방</b>에서 나란히 보여드립니다.</p>`;
+  }
+  h += `</div></div>`;
+
+  // ③-2 격국 + 조후 (v2 신규)
+  if (A.gyeok && C.GYEOK[A.gyeok.name]) {
+    const gk = C.GYEOK[A.gyeok.name];
+    const sg = A.gyeok.seonggyeok;
+    h += `<div class="sec"><h2 class="serif">사주의 격</h2><div class="block">
+      <h3>${gk.t} <span class="tag">${A.gyeok.basis}</span></h3><p>${gk.b}</p>
+      ${/* [8/6] 이 판정은 '일간이 그 격을 감당하는가'(억부)이고, 아래 자평진전 성패는 '격이 이루어졌는가'(월령 격국법)다.
+            축이 다른데 둘 다 "격이 섰다/파격"으로 쓰면 정면 모순으로 읽히므로 라벨을 분리한다. */''}
+      ${/* [8/6 2차수정] 흉신격 분기는 강약을 전혀 보지 않고 '제화 글자의 유무'만 판정하는데
+            라벨은 「일간이 감당할 힘」이었다 → 태약 10%에도 "갖췄다"가 나갔다.
+            계산이 실제로 재는 축(axis)에 맞춰 라벨을 나눈다. */''}
+      ${sg ? (sg.axis === '제화'
+        ? `<p class="adv" style="color:${sg.ok ? 'var(--gold)' : 'var(--hanji-dim)'}">제어 장치 · ${sg.ok ? '있다' : '없다'} — ${sg.note}</p>`
+        : `<p class="adv" style="color:${sg.ok ? 'var(--gold)' : 'var(--hanji-dim)'}">일간이 감당할 힘 · ${sg.ok ? '갖췄다' : '아직 부족하다'} — ${sg.note}</p>`) : ''}</div>`;
+    // [8/6 신설] 자평진전 「論用神成敗救應」 — 격이 성립했는지·깨졌는지·무엇이 구제하는지
+    const jp = A.gyeok.jpjj;
+    if (jp && jp.ok !== null) {
+      h += `<div class="block">
+        <h3>격의 성패 <span class="tag">${jp.ok ? '성격(成格)' : '파격(破格)'}</span></h3>
+        <p style="font-size:.88rem;color:var(--hanji-dim)">자평진전은 격을 정하는 데서 끝내지 않고, 사주 전체와 맞춰 그 격이 <b>이루어졌는지(成)·깨졌는지(破)</b>를 봅니다 — 「用神專尋月令，以四柱配之，必有成敗」. 바로 위의 <b>${sg && sg.axis === '제화' ? '제어 장치' : '일간이 감당할 힘'}</b>과는 보는 축이 다릅니다. ${sg && sg.axis === '제화' ? '제어할 글자가 있어도' : '힘은 넉넉해도'} 격은 깨져 있을 수 있고, 그 반대도 있습니다.</p>
+        <p style="margin-top:10px">${jp.ok ? jp.seong : jp.pa}</p>
+        ${/* [8/6 3차수정] 원문은 「成中有敗，必是帶忌；敗中有成，全憑救應」로 둘을 정반대로 나눈다.
+             帶忌(성격 속의 흠)를 救應(파격의 구제) 라벨로 감싸면 성격인데 "깨진 격"이라 말하게 된다. */''}
+        ${jp.daegi ? `<p class="adv" style="color:var(--hanji-dim)">대기(帶忌) · ${jp.daegi} 자평진전은 「成中有敗，必是帶忌」 — 격이 섰는데도 흠이 생기는 것은 꺼리는 글자를 동반한 탓이라고 봅니다.</p>` : ''}
+        ${jp.gu ? `<p class="adv">구응(救應) · ${jp.gu} 자평진전은 「敗中有成，全憑救應」 — 깨진 격이 살아나는 것은 오로지 이 구제에 달렸다고 봅니다.</p>` : ''}
+        ${!jp.ok && !jp.gu ? `<p class="adv">지금 원국에는 이를 구제할 글자가 보이지 않습니다. 그 글자가 운에서 들어오는 시기가 곧 기회입니다.</p>` : ''}
+        ${A.gyeok.sangshin ? (A.gyeok.sangshin.found
+          ? `<p class="adv" style="color:var(--hanji)">상신(相神) · <b>${A.gyeok.sangshin.name}</b> — 이 격을 완성시키는 한 글자<br>
+             <span style="font-size:.9rem">${A.gyeok.sangshin.why}</span><br>
+             <span style="font-size:.9rem;color:${A.gyeok.sangshin.damaged ? 'var(--jusa)' : 'var(--hanji-dim)'}">${A.gyeok.sangshin.damageNote}</span></p>`
+          : `<p class="adv" style="color:var(--hanji-dim)">상신(相神) · ${A.gyeok.sangshin.note}</p>`) : ''}
+        ${A.gyeok.gojeo ? `<p class="adv" style="color:var(--hanji)">격의 두 축 · <b>${A.gyeok.gojeo.label}</b><br>
+          <span style="font-size:.85rem;color:var(--hanji-dim)">${A.gyeok.gojeo.basis}</span><br>${A.gyeok.gojeo.desc}</p>` : ''}
+        ${jp.note ? `<p style="margin-top:10px;font-size:.84rem;color:var(--hanji-dim)">${jp.note}</p>` : ''}
+        <p style="margin-top:10px;font-size:.84rem;color:var(--hanji-dim)">※ 자평진전은 글자의 <b>힘의 경중</b>까지 저울질하라고 합니다(「其中權輕權重，甚是活潑」). 이 판정은 글자의 유무를 기준으로 한 것이라 참고 신호이지 확정이 아닙니다.</p>
+      </div>`;
+    }
+    // 조후
+    if (A.johu) {
+      const MONTHNAME = ['자월(한겨울)','축월(늦겨울)','인월(초봄)','묘월(한봄)','진월(늦봄)','사월(초여름)','오월(한여름)','미월(늦여름)','신월(초가을)','유월(한가을)','술월(늦가을)','해월(초겨울)'];
+      const mn = MONTHNAME[P.month.branch];
+      const dmName = C.DAY_MASTER[E.STEMS[P.day.stem]].name;
+      const johuTxt = `${A.johu.mainStem}(${A.johu.mainElem})` + (A.johu.support.length ? `, 보좌로 ${A.johu.support.map(s=>s.stem).join('·')}` : '');
+      // [8/6 수정] 엔진 라벨은 '한(寒)'·'난조(暖燥)'라 '한'/'난조'와 완전일치가 성립하지 않았다.
+      // 그 탓에 모든 명식이 '중화'로 떨어져 JOHU_CARD.한/난조가 배포 이후 한 번도 출력되지 않았다.
+      // [8/6 3차수정] 엔진의 5단계 라벨을 그대로 카드 키로 쓴다.
+      // 종전엔 한/난조만 분기하고 나머지를 '중화'로 뭉개, 헤더(따뜻함)와 본문(무난하다)이 어긋났다.
+      const _tl = A.temp.label.replace(/\(.*\)/, '');   // '한(寒)' → '한'
+      let key = C.JOHU_CARD[_tl] ? _tl : '중화';
+      const body = C.JOHU_CARD[key].replace('{month}', mn).replace('{dm}', dmName).replace('{johu}', johuTxt);
+      h += `<div class="block"><h3>조후 — 이 사주의 온도 <span class="tag">${A.temp.label}</span></h3>
+        <p>${C.JOHU_CARD.intro}</p><p style="margin-top:10px">${body}</p>
+        ${A.johu.disputed ? `<p class="adv" style="color:var(--hanji-dim)">※ 이 간지·월 조합은 조후표에서 <b>판본에 따라 처방이 갈리는 구간</b>입니다(궁통보감 본문과 후대 평주의 희용이 어긋나는 셀). 다른 책·다른 만세력과 처방이 다르게 나올 수 있으니, 이 칸은 단정하지 않고 참고로 읽어주세요.</p>` : ''}
+        <p class="adv">처방 · ${A.yongshin ? A.yongshin + ' (' + A.yongshinBasis + ')' : '중화 — 뚜렷한 처방 불요'}</p>
+        ${/* [8/6 2차수정] 종격 후보인데 처방이 종격이 "격을 거스른다"고 한 오행인 경우가 93.4%였다.
+             종격 고지문은 멀리 떨어져 있어 실질적으로 무력했다 → 충돌 지점 바로 옆에 붙인다. */''}
+        ${/* [8/6 3차수정] 경고만 붙이면 사용자가 직접 뒤집어야 한다 → 종격 기준 처방을 실제로 계산해 병기한다. */''}
+        ${A.jonggyeok ? `<p class="adv" style="color:var(--jusa)">${A.jonggyeok.conflictsWithFinal
+            ? `※ <b>이 사주는 처방이 둘로 갈립니다.</b>` : `※ 이 사주는 <b>${A.jonggyeok.type} ${A.jonggyeok.grade}</b>입니다.`}<br>
+          · <b>정격(억부·조후)으로 보면</b> — 처방은 <b>${A.yongshin || '중화'}</b> (위 표시)<br>
+          ${A.jonggyeok.yongshin ? `· <b>${A.jonggyeok.type}으로 보면</b> — 처방은 <b>${A.jonggyeok.yongshin}</b>이고,
+            ${A.jonggyeok.against && A.jonggyeok.against.length ? `<b>${A.jonggyeok.against.join('·')}</b>${josa(A.jonggyeok.against[A.jonggyeok.against.length-1], '은')} 오히려 격을 거스르는 기운이 됩니다` : ''}<br>` : ''}
+          ${A.jonggyeok.conflictsWithFinal
+            ? `즉 정격 처방(${A.yongshin})이 종격에서는 <b>피해야 할 기운</b>이 됩니다. 두 관법이 정반대라 어느 쪽으로 볼지가 이 사주의 핵심 갈림길입니다.`
+            : `두 관법의 방향이 크게 어긋나지는 않습니다.`}
+          아래 대운·세운의 「처방의 계절/해」 표시는 <b>정격 기준</b>으로 붙어 있습니다.</p>` : ''}</div>`;
+    }
+    h += `</div>`;
+  }
+
+  // ③-3 십성 분포 (사주쟁이가 제일 먼저 보는 것)
+  if (C.SIPSUNG) {
+    const total = knowTime ? 8 : 6;
+    const order = ['비겁','식상','재성','관성','인성'];
+    h += `<div class="sec"><h2 class="serif">십성 분포</h2><div class="block">
+      <p style="font-size:.9rem;color:var(--hanji-dim)">십성은 여덟 글자가 나와 맺는 관계입니다. 무엇이 많고 무엇이 없는지가 성향과 인생의 무게중심을 만듭니다.</p>
+      <div class="elembar" style="margin-top:14px">`;
+    const COL = { 비겁:'#5a9367', 식상:'#c73e3a', 재성:'#c9a227', 관성:'#aab4c4', 인성:'#4a6fa5' };
+    order.forEach(k => { if (A.groups[k] > 0) h += `<div style="width:${A.groups[k]/total*100}%;background:${COL[k]}"></div>`; });
+    h += `</div><div class="elemlegend">`;
+    order.forEach(k => h += `<span class="${A.groups[k]===0?'zero':''}">${k} ${A.groups[k]}${A.groups[k]===0?' 없음':''}</span>`);
+    h += `</div>${C.SIPSUNG_NOTE ? `<p style="font-size:.78rem;color:var(--hanji-dim);margin-top:16px;line-height:1.7;padding-top:12px;border-top:1px solid var(--line)">${C.SIPSUNG_NOTE}</p>` : ''}</div>`;
+    // 두드러진 것만 카드로 (많음 3개 이상 / 없음 0개)
+    order.forEach(k => {
+      const n = A.groups[k], c = C.SIPSUNG[k];
+      if (!c) return;
+      if (n >= 3) h += `<div class="block"><h3>${c.name} 많음 <span class="tag">${n}개 · ${c.what}</span></h3><p>${c.many}</p></div>`;
+      else if (n === 0) h += `<div class="block"><h3>${c.name} 없음 <span class="tag">${c.what}</span></h3><p>${c.none}</p></div>`;
+    });
+    h += `</div>`;
+  }
+
+  // ④ 사주의 구조 (결손·과다·특수격)
+  const structs = [];
+  A.missing.forEach(e => structs.push({ t: C.MISSING[e].title, b: C.MISSING[e].body, adv: C.MISSING[e].advice, elem: e }));
+  A.excess.forEach(e => { if (C.EXCESS[e]) structs.push({ t: C.EXCESS[e].title, b: C.EXCESS[e].body.replace('{n}', A.elem[e]) }); });
+  A.labels.forEach(l => {
+    if (l.id.startsWith('missing_') || l.id.startsWith('excess_')) return;
+    const c = C.SPECIAL[l.id]; if (!c) return;
+    let body = c.body.replace('{n}', A.groups[l.type === '재다신약' ? '재성' : '인성'] || '');
+    structs.push({ t: c.title, b: body });
+  });
+  if (structs.length) {
+    h += `<div class="sec"><h2 class="serif">사주의 구조</h2>`;
+    // [8/6 수정] 결손·특수격 카드가 각자 다른 오행을 "이 사주에 좋은 것"으로 말해
+    // 한 리포트 안에 처방이 2~3개 병존했다. 최종 용신과 다르면 보완재임을 명시한다.
+    structs.forEach(s => {
+      let advHtml = '';
+      if (s.adv) {
+        const differs = s.elem && A.yongshin && s.elem !== A.yongshin;
+        advHtml = `<p class="adv">개운 · ${s.adv}`
+          + (differs ? ` <b>다만 이 사주의 최종 처방은 ${A.yongshin}입니다</b> — 위는 빈 자리를 메우는 보완재로 읽어주세요.` : '')
+          + `</p>`;
+      }
+      h += `<div class="block"><h3>${s.t}</h3><p>${s.b}</p>${advHtml}</div>`;
+    });
+    h += `</div>`;
+  }
+
+  // ⑤ 타고난 별 (신살)
+  if (A.sinsal.length) {
+    h += `<div class="sec"><h2 class="serif">타고난 별</h2><div class="sinsal-grid">`;
+    const shown = new Set();
+    const seenSpot = new Set();   // 같은 자리 설명 반복 방지
+    // [8/6 3차수정] 자리 설명 축약이 '먼저 나온 신살'에 전문을 줘서, 문헌근거 '약함' 신살이
+    //   자리를 선점하고 천을귀인·역마 같은 근거 있는 신살의 월지 설명이 잘렸다(14.4%).
+    //   → 문헌근거가 강한 순으로 렌더해 중요한 신살이 전문을 갖게 한다.
+    const GRADE_RANK = { 강: 0, 보통: 1, 약함: 2, 미확인: 3 };
+    const sinsalOrder = [...A.sinsal].sort((a, b) => {
+      const ga = C.SINSAL_GRADE && C.SINSAL_GRADE[a.name], gb = C.SINSAL_GRADE && C.SINSAL_GRADE[b.name];
+      return (GRADE_RANK[ga && ga.g] ?? 2) - (GRADE_RANK[gb && gb.g] ?? 2);
+    });
+    sinsalOrder.forEach(s => {
+      if (shown.has(s.name)) return; shown.add(s.name);
+      const c = C.SINSAL[s.name]; if (!c) return;
+      const spots = A.sinsal.filter(x => x.name === s.name).map(x => x.where);
+      const wheres = spots.join('·');
+      let body = c.body.replace('{where}', wheres).replace('{whereMean}', C.WHERE_MEAN[s.where] || '');
+      // [8/6] 같은 신살이라도 월지에 있을 때와 일지에 있을 때 뜻이 다르다(궁위론).
+      // 종전엔 자리 이름만 갈아끼우고 문장은 하나였다 → 자리마다 해석을 따로 붙인다.
+      const kind = (C.SINSAL_KIND && C.SINSAL_KIND[s.name]) || '특성';
+      let spotHtml = '';
+      if (C.WHERE_DETAIL) {
+        spotHtml = spots.map(w => {
+          const wd = C.WHERE_DETAIL[w]; if (!wd) return '';
+          // [8/6 2차수정] 자리 설명이 신살마다 반복돼 한 리포트에 같은 문단이 최대 6번 나왔다.
+          // 같은 (자리+톤)이 다시 나오면 전문 대신 한 줄로 줄인다.
+          const key = w + '|' + kind;
+          if (seenSpot.has(key)) {
+            return `<p style="margin-top:8px;font-size:.85rem;color:var(--hanji-dim)"><b style="color:var(--gold)">${w}</b> · ${wd.who} — 위에서 설명한 자리와 같습니다.</p>`;
+          }
+          seenSpot.add(key);
+          return `<p style="margin-top:10px"><b style="color:var(--gold)">${w}</b>
+            <span style="font-size:.8rem;color:var(--hanji-dim)"> · ${wd.who} · ${wd.when}</span><br>${wd[kind] || wd.특성}</p>`;
+        }).join('');
+      }
+      // [8/6] 신살은 근거의 무게가 제각각이다(양인=자평진전 8격 편입 / 백호=3대 고서 미등장 등).
+      // 자평진전이 신살을 격국에 종속시킨 취지를 살려, 표시는 하되 근거 등급을 함께 밝힌다.
+      const gr = C.SINSAL_GRADE && C.SINSAL_GRADE[s.name];
+      const grHtml = gr
+        ? `<p style="margin-top:10px;font-size:.8rem;color:var(--hanji-dim)">문헌 근거 · <b>${gr.g}</b> — ${gr.why}</p>` : '';
+      // [8/6 3차수정] 신살이 리포트의 23.2%를 먹어 격·용신(12.1%)보다 커졌다.
+      //   앱 스스로 「格局既成，即使滿盤孤辰入煞，何損其貴」라 써놓고 지면은 반대로 준 셈이라,
+      //   문헌 근거가 약한 신살은 접어서 핵심이 묻히지 않게 한다.
+      const weak = gr && (gr.g === '약함' || gr.g === '미확인');
+      if (weak) {
+        h += `<details class="block"><summary style="cursor:pointer;color:var(--hanji)">${c.title}
+          <span class="tag">${wheres}</span>
+          <span style="font-size:.75rem;color:var(--hanji-dim)">문헌 근거 ${gr.g} · 펼쳐보기</span></summary>
+          <div style="margin-top:10px"><p>${body}</p>${spotHtml}${grHtml}</div></details>`;
+      } else {
+        h += `<div class="block"><h3>${c.title} <span class="tag">${wheres}</span></h3><p>${body}</p>${spotHtml}${grHtml}</div>`;
+      }
+    });
+    if (C.SINSAL_GRADE_NOTE) h += `<div class="block"><p style="font-size:.84rem;color:var(--hanji-dim)">${C.SINSAL_GRADE_NOTE}</p></div>`;
+    h += `</div></div>`;
+  }
+
+  // ⑤-2 기둥별 기운 (12운성·12신살)
+  if (A.unsung && A.sinsal12) {
+    const POSLBL = { 년:'년주 · 뿌리', 월:'월주 · 무대', 일:'일주 · 나', 시:'시주 · 열매' };
+    h += `<div class="sec"><h2 class="serif">자리마다의 기운</h2>`;
+    ['년','월','일','시'].forEach(k => {
+      if (k === '시' && !knowTime) return;
+      const u = A.unsung[k], s = A.sinsal12[k];
+      h += `<div class="block"><h3>${POSLBL[k]} <span class="tag">${u} · ${s}</span></h3>
+        <p>${C.UNSUNG_CARD[u] || ''} / ${C.SINSAL12_CARD[s] || ''}</p></div>`;
+    });
+    h += `</div>`;
+  }
+
+  // ⑤-3 납음·태원·명궁·신궁
+  if (A.nayin && C.NAYIN_DESC) {
+    h += `<div class="sec"><h2 class="serif">납음과 궁</h2>`;
+    const POSL = { 년:'년주', 월:'월주', 일:'일주', 시:'시주' };
+    h += `<div class="block"><h3>납음오행 <span class="tag">타고난 재질</span></h3>
+      <p style="font-size:.9rem;color:var(--hanji-dim);margin-bottom:10px">간지 두 글자가 만나 만들어내는 물상입니다. 특히 <b>일주 납음</b>이 자기 자신의 재질을 나타냅니다.</p>`;
+    ['년','월','일','시'].forEach(k => {
+      const n = A.nayin[k]; if (!n) return;
+      const desc = C.NAYIN_DESC[n.name] || '';
+      const mine = k === '일';
+      h += `<p style="margin-top:8px${mine?';color:var(--gold)':''}">${mine?'★ ':''}<b>${POSL[k]}</b> ${n.name}(${n.han}) — ${desc}</p>`;
+    });
+    h += `</div>`;
+    const gungs = [['taewon', A.taewon], ['myeong', A.myeonggung], ['sin', A.singung]];
+    gungs.forEach(([key, g]) => {
+      if (!g) return;
+      const c = C.GUNG_CARD[key];
+      h += `<div class="block"><h3>${c.t} <span class="tag">${g.str} · ${g.nayin ? g.nayin.name : ''}</span></h3><p>${c.b}</p></div>`;
+    });
+    h += `</div>`;
+  }
+
+  // ⑤-4 관계의 자리 (궁위 기반, 성중립)
+  if (C.GUNGWI) {
+    const pilMap = { 년:P.year, 월:P.month, 일:P.day, 시:P.hour };
+    // [8/6] 시주 카드는 아래에서 건너뛰지만, 충·형 판정 재료에는 가정 시지가 남아 있었다
+    const allB = [P.year.branch, P.month.branch, P.day.branch].concat(knowTime ? [P.hour.branch] : []);
+    h += `<div class="sec"><h2 class="serif">관계의 자리</h2>
+      <div class="block"><p style="font-size:.88rem;color:var(--hanji-dim)">${C.GUNGWI_NOTE}</p></div>`;
+    ['년','월','일','시'].forEach(k => {
+      if (k === '시' && !knowTime) return;
+      const g = C.GUNGWI[k], p = pilMap[k];
+      // 해당 지지가 충·형을 맞았는지
+      const hit = A.relations.지지충.some(r => r.pos.includes(k)) || A.relations.형.some(r => r.pos.includes(k));
+      const gm = A.gongmang.includes(E.BRANCHES[p.branch]);
+      const shaken = hit || (k !== '일' && gm);
+      h += `<div class="block"><h3>${g.name} <span class="tag">${g.what}</span></h3>
+        <p>${shaken ? g.shaken : g.stable}</p>${gm && k !== '일' ? `<p class="adv">이 자리가 공망입니다 — 명리에서는 비어 있기에 집착이 덜하고, 채우려는 노력이 오히려 성취로 돌아오는 자리로 봅니다.</p>` : ''}</div>`;
+    });
+    h += `</div>`;
+  }
+
+  // ⑤-5 힘을 쓰는 환경 (직업 — 단정 없이 환경 프레임)
+  if (C.JOB_BY_SIPSUNG) {
+    const top = ['비겁','식상','재성','관성','인성'].sort((a,b) => A.groups[b] - A.groups[a])[0];
+    h += `<div class="sec"><h2 class="serif">힘을 쓰는 환경</h2>
+      <div class="block"><p style="font-size:.88rem;color:var(--hanji-dim)">${C.JOB_NOTE}</p>
+`;
+    // [8/6 2차수정] 종전엔 틀린 문장을 남긴 채 아래에 반박을 붙여, 인접한 두 문단이 반대말을 했다.
+    // 먼저 오는 문장이 인상에 남으므로 반박을 덧붙이는 게 아니라 문장 자체를 교체한다.
+    const drains = ['관성','재성','식상'];
+    const isWeakChart = ['신약','태약'].includes(A.strength);
+    if (isWeakChart && drains.includes(top)) {
+      h += `<p style="margin-top:12px">이 사주는 일간의 힘이 약한 편인데 <b>${top}</b>이 가장 두텁습니다.
+        명리에서는 이런 구조를 "그 환경이 잘 맞는다"가 아니라 <b>오래 노출되면 빨리 소모되는 자리</b>로 읽습니다.
+        익숙해서 계속 그 자리에 있게 되더라도, 기댈 곳(비겁·인성 — 같은 편과 배움)을 함께 두는 편이 낫다고 봅니다.</p>`;
+    } else {
+      h += `<p style="margin-top:12px">${C.JOB_BY_SIPSUNG[top]}</p>`;
+    }
+    if (A.yongshin && C.JOB_BY_YONGSHIN[A.yongshin]) {
+      h += `<p class="adv">${C.JOB_BY_YONGSHIN[A.yongshin]}</p>`;
+    }
+    h += `</div>`;
+    // 신살이 가리키는 결
+    const jobSinsal = [...new Set(A.sinsal.map(s => s.name))].filter(n => C.JOB_BY_SINSAL[n]);
+    if (jobSinsal.length) {
+      h += `<div class="block"><h3>타고난 별이 가리키는 결</h3>`;
+      jobSinsal.slice(0, 4).forEach(n => h += `<p style="margin-top:6px"><b>${n}</b> — ${C.JOB_BY_SINSAL[n]}</p>`);
+      h += `</div>`;
+    }
+    h += `</div>`;
+  }
+
+  // ⑥ 관계·공망
+  const rels = [];
+  A.relations.천간합.forEach(r => rels.push(C.RELATION.천간합.replace('{pair}', r.pair).replace('{pos}', r.pos.join('·'))));
+  A.relations.지지충.forEach(r => rels.push(C.RELATION.지지충.replace('{pair}', r.pair).replace('{pos}', r.pos.join('·'))));
+  A.relations.형.forEach(r => rels.push(C.RELATION.형.replace('{pair}', r.pair).replace('{pos}', r.pos.join('·'))));
+  rels.push(C.RELATION.공망.replace('{gm}', A.gongmang.join('·')));
+  h += `<div class="sec"><h2 class="serif">글자들의 관계</h2>`;
+  // 합국(삼합·반합·방합) — 오행 개수보다 크게 작용
+  const HG = A.relations;
+  if (C.HAPGUK && ((HG.삼합||[]).length || (HG.반합||[]).length || (HG.방합||[]).length)) {
+    h += `<div class="block"><h3>합국 — 뭉친 기운</h3><p style="font-size:.88rem;color:var(--hanji-dim)">${C.HAPGUK.intro}</p>`;
+    (HG.삼합||[]).forEach(x => h += `<p style="margin-top:10px;color:var(--gold)">${C.HAPGUK.삼합.replace('{name}',x.name).replace('{elem}',x.elem)}</p>`);
+    (HG.방합||[]).forEach(x => h += `<p style="margin-top:10px;color:var(--gold)">${C.HAPGUK.방합.replace('{name}',x.name).replace('{elem}',x.elem)}</p>`);
+    (HG.반합||[]).forEach(x => h += `<p style="margin-top:10px">${(x.grade==='강'?C.HAPGUK.반합강:C.HAPGUK.반합약).replace('{name}',x.name).replace('{elem}',x.elem)}</p>`);
+    h += `<p class="adv">${C.HAPGUK.note}</p></div>`;
+  }
+  rels.forEach(r => h += `<div class="block"><p>${r}</p></div>`);
+  h += `</div>`;
+
+  // ⑦ 대운
+  // 십성 그룹 판별 (운으로 들어오는 기운)
+  const GRP_OF = g => ['비견','겁재'].includes(g) ? '비겁' : ['식신','상관'].includes(g) ? '식상'
+    : ['편재','정재'].includes(g) ? '재성' : ['편관','정관'].includes(g) ? '관성' : '인성';
+  // [8/6 수정] 종전엔 중화·태약이 한 덩어리로 weak 분기에 들어가, "가장 귀한 균형"이라 해놓고
+  // 처방은 신약용을 주는 모순이 있었다. 중화는 세력비 50%를 기준으로 가른다.
+  const _sd = A.strengthDetail || A.sd || null;
+  const _ratio = _sd && typeof _sd.ratio === 'number' ? _sd.ratio : null;
+  const isMidChart = A.strength === '중화';
+  const isStrongChart = ['태강','신강'].includes(A.strength)
+    || (isMidChart && _ratio !== null && _ratio >= 0.5);
+
+  h += `<div class="sec"><h2 class="serif">인생의 계절</h2><div class="block"><p>${C.LUCK_NOTE ? C.LUCK_NOTE.intro : C.DAEWOON.intro}</p></div><div class="dw">`;
+  DW.list.forEach(d => {
+    const de = E.STEM_ELEM[d.stem], be = E.BRANCH_ELEM[d.branch];
+    const hit = A.yongshin && (de === A.yongshin || be === A.yongshin);
+    const isNow = age >= d.age && age < d.age + 10;
+    const grp = GRP_OF(E.tenGod(P.day.stem, d.stem));
+    h += `<div class="d ${hit?'hit':''} ${isNow?'now':''}"><div class="age">${d.age}세${isNow?' · 지금':''}</div>
+      <div class="g serif"><span class="e-${de}">${E.STEMS[d.stem]}</span><span class="e-${be}">${E.BRANCHES[d.branch]}</span></div>
+      <div class="lbl">${hit ? '처방의 계절' : grp}</div></div>`;
+  });
+  h += `</div>`;
+
+  // ★현재 대운 상세 해석 (십성 기준, 신강/신약에 따라 정반대로 읽음)
+  const nowDw = DW.list.find(d => age >= d.age && age < d.age + 10);
+  if (nowDw && C.LUCK_SIPSUNG) {
+    const gStem = GRP_OF(E.tenGod(P.day.stem, nowDw.stem));
+    const gBranch = GRP_OF(E.tenGodBranch(P.day.stem, nowDw.branch));
+    const c1 = C.LUCK_SIPSUNG[gStem];
+    // [8/6] 중화는 어느 쪽으로도 크게 기울지 않으므로, 강/약 처방문을 그대로 주기 전에 완충한다
+    if (isMidChart) h += `<div class="block"><p class="adv">이 사주는 중화에 가까워, 아래 운 해석이 한쪽으로 크게 기울지 않습니다.
+      강한 쪽·약한 쪽 어느 처방도 절대적이지 않다는 전제로 읽어주세요.</p></div>`;
+    h += `<div class="block"><h3>지금 걷고 있는 10년 <span class="tag">${nowDw.age}~${nowDw.age+9}세 · ${nowDw.str}</span></h3>
+      <p style="color:var(--gold);margin-bottom:8px">${gStem}의 시기 — ${c1.what}</p>
+      <p>${isStrongChart ? c1.strong : c1.weak}</p>`;
+    if (gBranch !== gStem) {
+      const c2 = C.LUCK_SIPSUNG[gBranch];
+      h += `<p style="margin-top:12px;color:var(--gold)">아래 글자는 ${gBranch} — ${c2.what}</p><p>${isStrongChart ? c2.strong : c2.weak}</p>
+        <p style="margin-top:10px;font-size:.85rem;color:var(--hanji-dim)">※ 적천수는 대운을 <b>내가 향하는 곳</b>에 비유해 <b>지지(아래 글자)</b>를 더 무겁게 봅니다.
+        반대로 그해의 운(세운)은 <b>만나는 사람</b>에 비유해 천간을 더 봅니다. 그래서 위 두 글자 중 이 10년은 아래 글자 쪽에 무게를 두고 읽습니다.</p>`;
+    }
+    // 대운 간지 결합 상태 (개두·절각·전일)
+    if (E.daewoonBond) {
+      const bond = E.daewoonBond(nowDw.stem, nowDw.branch);
+      if (bond.desc) h += `<p style="margin-top:12px;font-size:.9rem;color:var(--hanji-dim)">${bond.type} — ${bond.desc}${bond.type==='개두'||bond.type==='절각' ? ' 명리에서는 이런 대운만 전·후반을 나눠 보라고 합니다.' : ''}</p>`;
+    }
+    // 대운 지지가 원국 일지와 충 — 합충 상쇄 게이트를 거쳐 강도 조절
+    if (E.clashLevel) {
+      // [8/6] 시간 모름이면 가정 시지가 합충 상쇄 재료에 섞여 판정을 왜곡한다 → 제외
+      const allB = [P.year.branch, P.month.branch, P.day.branch].concat(knowTime ? [P.hour.branch] : []);
+      const isYong = A.yongshin && (E.STEM_ELEM[nowDw.stem] === A.yongshin || E.BRANCH_ELEM[nowDw.branch] === A.yongshin);
+      const cl = E.clashLevel(P.day.branch, nowDw.branch, allB, isYong);
+      if (cl.level >= 2) h += `<p class="adv">${C.LUCK_NOTE.clash.replace('{pos}', '일지(나 자신의 자리)')}</p>`;
+      else if (cl.level === 1) h += `<p class="adv">일지와 충이 들지만 ${cl.relief.join(', ')}. 변화의 폭이 크지 않은 구간으로 봅니다.</p>`;
+    }
+    h += `</div>`;
+  }
+  if (A.yongshin) {
+    const hitDw = DW.list.find(d => { const de=E.STEM_ELEM[d.stem], be=E.BRANCH_ELEM[d.branch]; return (de===A.yongshin||be===A.yongshin) && d.age + 10 > age; });
+    if (hitDw) h += `<div class="block"><p>${C.DAEWOON.yongshin.replace('{age}', hitDw.age).replace('{gz}', hitDw.str).replace('{elem}', A.yongshin)}</p></div>`;
+  }
+  h += `</div>`;
+
+  // ⑧ 다가오는 해 (세운)
+  h += `<div class="sec"><h2 class="serif">다가오는 해</h2>
+    <div class="block"><p style="font-size:.85rem;color:var(--hanji-dim)">※ 적천수는 그해의 운(세운)을 <b>내가 만나는 사람</b>에 비유해 <b>천간(위 글자)</b>을 더 무겁게 봅니다.
+    대운이 지지를 중시하는 것과 반대 축입니다 — 아래 해석은 그 전제로 읽어주세요.</p></div>`;
+  // 천을귀인 지지 (일간 기준) — 운에서 귀인이 들어오는 해를 표시
+  const CHEONEUL_MAP = {0:[1,7],4:[1,7],6:[1,7], 1:[0,8],5:[0,8], 2:[11,9],3:[11,9], 7:[2,6], 8:[5,3],9:[5,3]};
+  const myGuiin = CHEONEUL_MAP[P.day.stem] || [];
+  // [8/6 수정] "평생 없던 오행이 처음 들어온다"는 원국하고만 비교해 그 오행이 오는 해마다 참이 됐다.
+  // 결과적으로 같은 문장이 6년 연속 붙고 결혼·이직 권유가 매년 반복됐다.
+  // 한 번 들어온 오행은 소진 처리해 최초 1회만 '처음'으로 읽는다.
+  const usedNewElems = new Set();
+  SW.forEach(s => {
+    const firstTime = s.newElems.filter(e => !usedNewElems.has(e));
+    firstTime.forEach(e => usedNewElems.add(e));
+    let txt;
+    if (firstTime.length) txt = C.FORTUNE.new_elem.replace('{year}', s.year).replace('{gz}', s.str).replace('{elem}', firstTime.join('·'));
+    else if (s.yongshinHit) txt = C.FORTUNE.yongshin_hit.replace('{year}', s.year).replace('{gz}', s.str).replace('{elem}', A.yongshin);
+    else txt = C.FORTUNE.normal.replace('{year}', s.year).replace('{gz}', s.str).replace('{elems}', s.elems.join('·'));
+    // ★세운 십성 해석 (대운과 같은 원리: 신강이면 발산운, 신약이면 충전운)
+    const yGrp = GRP_OF(E.tenGod(P.day.stem, s.stem));
+    const yc = C.LUCK_SIPSUNG ? C.LUCK_SIPSUNG[yGrp] : null;
+    // 원국 지지와 충하는가
+    const clashPos = ['년','월','일','시'].filter((k,i) => {
+      // [8/6 수정] 시간 모름일 때 내부 가정값(12:00=午)이 남아 없는 시주로 충 판정이 나갔다.
+      if (k === '시' && !knowTime) return false;
+      const b = [P.year.branch,P.month.branch,P.day.branch,P.hour.branch][i];
+      return (b + 6) % 12 === s.branch;
+    });
+    const guiinYear = myGuiin.includes(s.branch);
+    const tags = [];
+    if (firstTime.length) tags.push('인생의 새 챕터');
+    else if (s.yongshinHit) tags.push('처방의 해');
+    if (guiinYear) tags.push('귀인의 해');
+    h += `<div class="block"><h3>${s.year}년 ${s.str}년 ${tags.map(t=>`<span class="tag">${t}</span>`).join('')}</h3>
+      <p style="color:var(--gold);font-size:.9rem">${yGrp}의 해 — ${yc ? yc.what : ''}</p>
+      <p style="margin-top:6px">${txt.replace(/^\S+년 \S+년 — /,'')}</p>
+      ${yc ? `<p style="margin-top:8px">${isStrongChart ? yc.strong : yc.weak}</p>` : ''}
+      ${guiinYear ? `<p class="adv">이 해의 지지가 내 천을귀인 자리입니다. 명리에서는 사람의 도움이 닿기 쉬운 해로 봅니다.</p>` : ''}
+      ${clashPos.length ? `<p class="adv">${clashPos.join('·')}주와 충이 드는 해 — 해당 영역에 움직임이 늘어나는 시기로 봅니다.</p>` : ''}</div>`;
+  });
+  h += `</div>`;
+
+  // ⑨ 오늘의 일진
+  const today = new Date();
+  const tP = E.calcPillars(today.getFullYear(), today.getMonth()+1, today.getDate(), 12, 0, { terms: TERMS });
+  const clash = (tP.day.branch + 6) % 12 === P.day.branch;
+  const hap = [[0,1],[2,11],[3,10],[4,9],[5,8],[6,7]].some(([a,b]) => (tP.day.branch===a&&P.day.branch===b)||(tP.day.branch===b&&P.day.branch===a));
+  const todayGod = E.tenGod(P.day.stem, tP.day.stem);
+  h += `<div class="sec"><h2 class="serif">오늘 하루</h2><div class="block">
+    <h3>오늘은 ${tP.day.str}일 <span class="tag">내게는 ${todayGod}의 날</span></h3>
+    <p>${clash ? C.FORTUNE.clash_day : hap ? C.FORTUNE.good_day : `오늘의 기운은 ${E.STEM_ELEM[tP.day.stem]}·${E.BRANCH_ELEM[tP.day.branch]}입니다. 내 일간에서 보면 ${todayGod}에 해당하는 날로 읽습니다.`}</p>
+    ${C.FORTUNE.day_note ? `<p style="margin-top:12px;font-size:.82rem;color:var(--hanji-dim)">${C.FORTUNE.day_note}</p>` : ''}</div></div>`;
+
+  // ⑩ 총평
+  h += `<div class="sec"><div class="quote serif">「 ${makeClosing(A)} 」</div>
+  <div style="text-align:center"><button class="again" onclick="location.reload()">다른 사주 보기</button></div></div>`;
+
+  $('#report').innerHTML = h;
+  $('#report').style.display = 'block';
+  $('#form').style.display = 'none';
+  window.scrollTo({top: 0});
+}
+
+function makeClosing(A) {
+  if (A.yongshin) return `이 사주의 처방은 <em>${A.yongshin}(${ELMAP[A.yongshin]})</em> — 그 기운이 들어오는 계절에, 쌓아온 것이 꽃이 됩니다`;
+  return `과하지도 모자라지도 않은 팔자 — 꾸준함이 이 사주의 가장 큰 무기입니다`;
+}
+})();
+</script>
+</body>
+</html>

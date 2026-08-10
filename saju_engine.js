@@ -218,7 +218,8 @@ function calcDaewoon(pillars, gender, terms) {
   let mIdx = pillars.month.stem * 6 % 60; // 월주 60갑자 idx 계산
   // 월주 idx 정확 계산
   for (let i = 0; i < 60; i++) { const g = gz(i); if (g.stem === pillars.month.stem && g.branch === pillars.month.branch) { mIdx = i; break; } }
-  for (let i = 1; i <= 8; i++) {
+  // 전 생애 표가 80대에서 끊기지 않도록 10대운(약 100년)을 계산한다.
+  for (let i = 1; i <= 10; i++) {
     const g = gz(forward ? mIdx + i : mIdx - i);
     list.push({ age: start + (i-1)*10, ...g });
   }
@@ -316,23 +317,41 @@ function analyze(pillars, opts = {}) {
   const johu = johuYongshin(dayStem, pillars.month.branch);
   const temp = hannan(elem, pillars.month.branch);
 
-  // 용신 (간이): 신강→설기/극(식상·재성·관성 중 있는 것 우선), 신약→인성·비겁
-  let yongshin;
+  // 용신 (억부): 원국에 실제로 작동하는 글자를 먼저 취한다.
+  // 종전 코드는 신강할수록 원국에 0개인 오행을 최우선으로 골랐다. 그 값은
+  // '필요한 기운'일 수는 있어도 원국의 용신처럼 말할 수 없다. 이제는
+  // ① 원국에 있는 후보를 우선하고 ② 전부 없을 때만 운에서 기다리는 기운으로 표시한다.
+  let yongshin, yongshinMode = '균형', yongshinRole = null;
   if (strength === '태강' || strength === '신강') {
     const cands = [['식상', ELEM_GEN[dayElem]], ['재성', ELEM_CTRL[dayElem]], ['관성', Object.keys(ELEM_CTRL).find(k=>ELEM_CTRL[k]===dayElem)]];
-    const zero = cands.find(([g, e]) => elem[e] === 0);
-    yongshin = zero ? zero[1] : cands.sort((a,b)=>elem[a[1]]-elem[b[1]])[0][1];
+    const present = cands.filter(([, e]) => elem[e] > 0);
+    const picked = present[0] || cands[0]; // 태강·신강은 먼저 설기(식상), 다음 재성·관성
+    [yongshinRole, yongshin] = picked;
+    yongshinMode = present.length ? '원국취용' : '운대기';
   } else if (strength === '신약' || strength === '태약') {
     const ins = Object.keys(ELEM_GEN).find(k => ELEM_GEN[k] === dayElem);
-    yongshin = elem[ins] <= elem[dayElem] ? ins : dayElem;
-  } else yongshin = null;
+    const cands = [['인성', ins], ['비겁', dayElem]];
+    const present = cands.filter(([, e]) => elem[e] > 0);
+    const picked = present[0] || cands[0]; // 신약·태약은 먼저 생조(인성), 다음 비겁
+    [yongshinRole, yongshin] = picked;
+    yongshinMode = present.length ? '원국취용' : '운대기';
+  } else {
+    yongshin = null;
+    yongshinMode = '중화';
+  }
 
   // 조후 우선 판정: 한/난이 극단이고 조후용신 오행이 원국에 부족하면 조후를 최종 용신으로
   let finalYongshin = yongshin, yongshinBasis = '억부';
   if (johu && (temp.label === '한(寒)' || temp.label === '난조(暖燥)')) {
-    if (elem[johu.mainElem] <= 1) { finalYongshin = johu.mainElem; yongshinBasis = '조후'; }
+    if (elem[johu.mainElem] <= 1) {
+      finalYongshin = johu.mainElem;
+      yongshinBasis = '조후';
+      yongshinRole = '조후';
+      yongshinMode = elem[finalYongshin] > 0 ? '원국취용' : '운대기';
+    }
   }
   if (johu && finalYongshin === johu.mainElem && yongshinBasis === '억부') yongshinBasis = '억부·조후 일치';
+  let yongshinInChart = !!(finalYongshin && elem[finalYongshin] > 0);
 
   // ── 격국 (자평진전 계열: 월지에서 격을 정한다) ──
   // 절차: ①월지 지장간 중 천간에 투출한 것이 있으면 그 십성으로 격
@@ -425,6 +444,33 @@ function analyze(pillars, opts = {}) {
     //   따라서 이것은 등급이 아니라 "무엇이 강하고 무엇이 약한지"를 보여주는 좌표다.
     gyeok.gojeo = gyeokGojeo(gyeok, strengthDetail, monthSupport, monthClashed);
     gyeok.sangshin = findSangshin(gyeok.name, tg, grp, gyeok.jpjj && gyeok.jpjj.ok);
+
+    // 억부가 큰 방향을 정한 뒤, 같은 방향 안에서는 격의 상신으로 구체화한다.
+    // 자평진전의 월령용신(격)과 현대 억부용신을 같은 말로 섞지 않고,
+    // 조후가 급한 명식은 건드리지 않으며 상신이 원국에 실제 있을 때만 채택한다.
+    if (yongshinBasis !== '조후' && gyeok.sangshin && gyeok.sangshin.found) {
+      const sn = gyeok.sangshin.name || '';
+      const sgGroup = /식신|상관|식상/.test(sn) ? '식상' : /재/.test(sn) ? '재성'
+        : /관|칠살/.test(sn) ? '관성' : /인/.test(sn) ? '인성' : /비|겁/.test(sn) ? '비겁' : null;
+      const insElem = Object.keys(ELEM_GEN).find(k => ELEM_GEN[k] === dayElem);
+      const groupElem = {
+        식상: ELEM_GEN[dayElem], 재성: ELEM_CTRL[dayElem],
+        관성: Object.keys(ELEM_CTRL).find(k => ELEM_CTRL[k] === dayElem),
+        인성: insElem, 비겁: dayElem,
+      };
+      const sgElem = groupElem[sgGroup];
+      const allowed = ['태강','신강'].includes(strength) ? ['식상','재성','관성']
+        : ['신약','태약'].includes(strength) ? ['인성','비겁']
+        : ['식상','재성','관성','인성','비겁'];
+      if (sgElem && allowed.includes(sgGroup) && elem[sgElem] > 0) {
+        const same = finalYongshin === sgElem;
+        finalYongshin = sgElem;
+        yongshinRole = sgGroup;
+        yongshinMode = '원국취용';
+        yongshinBasis = same ? '억부·격국 일치' : '격국·상신';
+        yongshinInChart = true;
+      }
+    }
   }
 
   // ── [8/6 신설] 종격(從格) 판정 ──
@@ -451,6 +497,11 @@ function analyze(pillars, opts = {}) {
       : [insungElem, dayElem].filter(Boolean);
     jong.conflictsWithFinal = !!(finalYongshin && jong.against.includes(finalYongshin));
   }
+
+  // ── 십성 조합(組合) ──
+  // 낱개 십성의 개수보다 '무엇이 무엇을 낳고/제어하는가'를 먼저 읽기 위한 층이다.
+  // 카운트만으로 성립을 확정하지 않고, 격·상신과 맞물리면 '주요', 아니면 '후보'로 낸다.
+  const patterns = detectTenGodPatterns(tg, grp, strength, gyeok);
 
   // ── 납음·태원·명궁·신궁 ──
   const nayinTable = {
@@ -499,11 +550,55 @@ function analyze(pillars, opts = {}) {
 
   return { pillars, elem, missing, excess, tenGods: tg, groups: grp, strength, monthSupport, strengthDetail, jonggyeok: jong,
     yongshin: finalYongshin, yongshinEokbu: yongshin, yongshinBasis,
+    yongshinMode, yongshinRole, yongshinInChart,
     johu, temp, wangsang: ws, gyeok,
-    relations: rel, gongmang, sinsal, labels, dayElem,
+    relations: rel, gongmang, sinsal, labels, dayElem, patterns,
     unsung: unsungTable, sinsal12: sinsal12Table,
     nayin: nayinTable, taewon: taewonGZ, myeonggung: myeongGZ, singung: sinGZ,
     dayMaster: STEMS[dayStem] + dayElem.charAt(0) };
+}
+
+// 십성은 개별 별점이 아니라 생극의 흐름으로 읽는다.
+// 아래 조합은 '글자가 함께 있다'는 구조 신호이며, 통근·투간·격의 성패가 받쳐줘야 완성된다.
+function detectTenGodPatterns(tg, grp, strength, gyeok) {
+  const n = k => tg[k] || 0;
+  const out = [];
+  const sangshin = gyeok && gyeok.sangshin && gyeok.sangshin.name;
+  const add = (id, title, needed, reading, tension = false) => {
+    const evidence = needed.map(([name, count]) => `${name} ${count}`).join(' · ');
+    const names = needed.map(([name]) => name);
+    const aligned = !!(sangshin && names.some(name => sangshin.includes(name) || name.includes(sangshin)));
+    out.push({ id, title, grade: aligned ? '주요' : '후보', evidence, reading, tension,
+      score: (aligned ? 4 : 0) + needed.reduce((s, [, count]) => s + Math.min(count, 2), 0) + (tension ? 1 : 0) });
+  };
+
+  if (n('편관') > 0 && n('식신') > 0)
+    add('siksin_jesal', '식신제살의 흐름', [['편관', n('편관')], ['식신', n('식신')]],
+      '압박과 경쟁의 기운을 결과물·기술·표현으로 다스리는 구조입니다. 어려운 일을 맡을수록 실력을 산출물로 증명해야 격이 맑아집니다.');
+  else if (n('편관') > 0 && n('상관') > 0)
+    add('sanggwan_jesal', '상관제살의 후보', [['편관', n('편관')], ['상관', n('상관')]],
+      '압박에 정면으로 맞서며 돌파하는 기운이 함께 있습니다. 제어는 되지만 말과 행동이 앞서기 쉬워, 규칙 안에서 전문성으로 쓰는지가 관건입니다.');
+
+  if (grp.관성 > 0 && grp.인성 > 0)
+    add('gwanin_sangsaeng', '관인상생의 흐름', [['관성', grp.관성], ['인성', grp.인성]],
+      '책임과 규율의 기운이 배움·문서·자격을 거쳐 나를 돕는 흐름입니다. 맡은 일을 공부해 자기 체계로 만들 때 힘이 이어집니다.');
+  if (grp.식상 > 0 && grp.재성 > 0)
+    add('siksang_saengjae', '식상생재의 흐름', [['식상', grp.식상], ['재성', grp.재성]],
+      '아이디어와 기술을 밖으로 내보내 현실 성과로 바꾸는 길이 열려 있습니다. 표현만 하거나 돈만 좇기보다, 만든 것이 거래로 이어지는 구조를 갖출 때 강점이 살아납니다.');
+  if (grp.재성 > 0 && grp.관성 > 0)
+    add('jae_saenggwan', '재생관의 흐름', [['재성', grp.재성], ['관성', grp.관성]],
+      '현실의 자원과 성과가 책임·직위·신뢰로 이어지는 흐름입니다. 규모를 키울수록 관리와 약속이 함께 커져야 오래 갑니다.');
+  if (n('상관') > 0 && grp.인성 > 0)
+    add('sanggwan_paein', '상관패인의 후보', [['상관', n('상관')], ['인성', grp.인성]],
+      '날카로운 표현과 비판력이 배움·문서·근거로 정리될 수 있는 구조입니다. 즉흥적인 말보다 연구와 기록을 거칠 때 재능이 권위로 바뀝니다.');
+  if (n('상관') > 0 && n('정관') > 0)
+    add('sanggwan_gyeongwan', '상관과 정관의 긴장', [['상관', n('상관')], ['정관', n('정관')]],
+      '자기 방식으로 고치려는 힘과 정해진 질서를 지키려는 힘이 함께 있습니다. 어느 하나를 없애기보다, 문제 제기를 제도 안의 개선안으로 바꾸는 것이 이 구조의 해법입니다.', true);
+  if (grp.재성 > 0 && grp.인성 > 0 && ['신약','태약'].includes(strength))
+    add('jae_in_tension', '재성과 인성의 긴장', [['재성', grp.재성], ['인성', grp.인성]],
+      '현실 성과를 급히 좇는 힘과 배우고 축적하려는 힘이 맞섭니다. 일간이 약한 편에서는 준비를 소진해 성과를 내기보다, 배운 것을 지킬 여유를 남기는 편이 구조를 살립니다.', true);
+
+  return out.sort((a, b) => b.score - a.score).slice(0, 4).map(({ score, ...p }) => p);
 }
 
 // ── 삼합·방합·반합 판정 ──
@@ -890,6 +985,8 @@ function findSangshin(gyeokName, tg, grp, gyeokOk) {
       break;
     case '편관격':
       if (식신 > 0) { name = '식신'; why = '칠살을 식신이 제어해 격이 섭니다 — 원문의 「煞逢食制, 則煞爲用, 食爲相」입니다.'; }
+      // [8/11] 성격 경로는 식상(식신+상관) 합계를 보므로 상관만 있는 경우도 후보에 둔다(성격인데 상신 없음 방지)
+      else if (상관 > 0) { name = '상관'; why = '상관이 칠살을 제어하는 자리에 있습니다. 식신제살만큼 깨끗하지는 않으나 같은 제살의 결로 봅니다.'; }
       else if (인 > 0) { name = '인성'; why = '인성이 칠살의 기운을 받아 나에게 전달합니다(살인상생).'; }
       break;
     case '정인격': case '편인격':

@@ -79,7 +79,7 @@ function inDST(iso){ return DST.some(([a,b]) => iso >= a && iso <= b); }
 
 function calcPillars(y, m, d, hh, mm, opts = {}) {
   const terms = opts.terms; // solar_terms JSON 필수
-  const lonCorr = opts.lonMinutes ?? -32; // 서울 진태양시 보정(분)
+  const lonCorr = opts.lonMinutes ?? -32; // 표준자오선(135°E) 대비 출생지 경도 보정(분)
   const useDST = opts.autoDST ?? true;
 
   // 1) 시각 보정: 서머타임 → 표준시 이력 → 경도 → 균시차
@@ -139,6 +139,8 @@ function calcPillars(y, m, d, hh, mm, opts = {}) {
 
   // 5) 시주 — 진태양시 기준 12시진
   const tm = tTrue.getUTCHours() * 60 + tTrue.getUTCMinutes();
+  const boundaryRemainder = (tm + 60) % 120;
+  const hourBoundaryDistanceMin = Math.min(boundaryRemainder, 120 - boundaryRemainder);
   // 자시 23:00~01:00, 축 01~03, ... (경계: 홀수시 정각)
   let hourBranch = Math.floor(((tm + 60) % 1440) / 120); // 23:00→0(자)
   // 시두법: 갑기→갑자시, 을경→병자시, 병신→무자시, 정임→경자시, 무계→임자시
@@ -148,7 +150,9 @@ function calcPillars(y, m, d, hh, mm, opts = {}) {
   return {
     year: yearGZ, month: gz2(monthStem, monthBranch), day: dayGZ, hour: gz2(hourStem, hourBranch),
     meta: { sajuYear, monthIdx, dstApplied, stdOffsetMin: stdOff,
-      eotMin: Math.round(eot*10)/10, trueTime: isoOf(tTrue), civilTime: isoOf(civil) }
+      lonCorrMin: Math.round(lonCorr*10)/10, eotMin: Math.round(eot*10)/10,
+      hourBoundaryDistanceMin: Math.round(hourBoundaryDistanceMin*10)/10,
+      trueTime: isoOf(tTrue), civilTime: isoOf(civil) }
   };
 }
 function gz2(s, b){ return { stem:s, branch:b, str:STEMS[s]+BRANCHES[b], han:STEMS_H[s]+BRANCHES_H[b] }; }
@@ -520,9 +524,19 @@ function analyze(pillars, opts = {}) {
     sinGZ.nayin = nayin(sinGZ.stem, sinGZ.branch);
   }
 
-  // 합충형해공망
+  // 합충형해공망 — 합(만남)과 합화(오행 전환)는 구분해 기록한다.
   const rel = detectRelations(P);  // P는 이미 시주 제외 반영
   const gongmang = calcGongmang(pillars.day);
+
+  // 고수의 판독은 결론보다 먼저 "그 글자가 실제로 뿌리와 투출을 얻었는가"를 재확인한다.
+  const evidence = buildClassicalEvidence(P, gyeok);
+  const readingAudit = buildReadingAudit({
+    knowTime, strengthDetail, gyeok, jong, johu, temp,
+    finalYongshin, yongshinBasis, yongshinMode, yongshinInChart, rel,
+    hourBoundaryDistanceMin: pillars.meta.hourBoundaryDistanceMin,
+    timeVariantConflict: !!opts.timeVariantConflict,
+    locationLabel: opts.locationLabel || null,
+  });
 
   // 신살 (만세력 기준 — 풍성하게)
   const sinsal = detectSinsal(pillars, knowTime);
@@ -552,10 +566,104 @@ function analyze(pillars, opts = {}) {
     yongshin: finalYongshin, yongshinEokbu: yongshin, yongshinBasis,
     yongshinMode, yongshinRole, yongshinInChart,
     johu, temp, wangsang: ws, gyeok,
-    relations: rel, gongmang, sinsal, labels, dayElem, patterns,
+    relations: rel, gongmang, sinsal, labels, dayElem, patterns, evidence, readingAudit,
     unsung: unsungTable, sinsal12: sinsal12Table,
     nayin: nayinTable, taewon: taewonGZ, myeonggung: myeongGZ, singung: sinGZ,
     dayMaster: STEMS[dayStem] + dayElem.charAt(0) };
+}
+
+// ── 통근·투간 증거 ──
+// 통근은 같은 오행의 지장간 뿌리를 찾고, 정확히 같은 천간인지도 별도로 남긴다.
+// 여기·중기·정기의 깊이를 숨기지 않아 "뿌리가 있다/없다"를 이분법으로 만들지 않는다.
+function buildClassicalEvidence(P, gyeok) {
+  const pos = ['년','월','일','시'];
+  const roleAt = (layers, i) => i === layers.length - 1 ? '정기' : (i === 0 ? '여기' : '중기');
+  const stems = P.map((p, pi) => {
+    const roots = [];
+    P.forEach((q, qi) => {
+      const layers = JIJANGGAN_DAYS[q.branch] || [];
+      layers.forEach(([sn], li) => {
+        const hs = STEMS.indexOf(sn);
+        if (STEM_ELEM[hs] !== STEM_ELEM[p.stem]) return;
+        roots.push({
+          where: pos[qi] + '지', branch: BRANCHES[q.branch], hidden: sn,
+          layer: roleAt(layers, li), exact: hs === p.stem,
+        });
+      });
+    });
+    const deep = roots.some(r => r.layer === '정기' && r.exact);
+    const solid = roots.some(r => r.layer === '정기' || r.exact);
+    return {
+      where: pos[pi] + '간', stem: STEMS[p.stem], elem: STEM_ELEM[p.stem],
+      roots, grade: deep ? '깊은 뿌리' : solid ? '뿌리 있음' : roots.length ? '얕은 뿌리' : '무근',
+    };
+  });
+
+  const monthLayers = JIJANGGAN_DAYS[P[1].branch] || [];
+  const monthHidden = monthLayers.map(([sn, days], li) => {
+    const hs = STEMS.indexOf(sn);
+    // 격의 투출은 일간 자체를 제외한 년·월·시간에서 확인한다.
+    const visibleAt = P.map((p, i) => ({ p, i })).filter(x => x.i !== 2 && x.p.stem === hs).map(x => pos[x.i] + '간');
+    return {
+      stem: sn, days, layer: roleAt(monthLayers, li), visibleAt,
+      selectedForGyeok: !!(gyeok && gyeok.stem === sn),
+    };
+  });
+  return {
+    stems,
+    monthCommand: { branch: BRANCHES[P[1].branch], hidden: monthHidden },
+  };
+}
+
+// ── 판독 감사 ──
+// 이 등급은 미래 예측 확률이 아니라, 전통 명리 체계 안에서 입력과 근거가 얼마나 한 방향으로
+// 모였는지 보여주는 완결도다. 갈림을 숨기지 않는 것이 단정적인 숫자보다 중요하다.
+function buildReadingAudit({ knowTime, strengthDetail: sd, gyeok, jong, johu, temp,
+  finalYongshin, yongshinBasis, yongshinMode, yongshinInChart, rel,
+  hourBoundaryDistanceMin, timeVariantConflict, locationLabel }) {
+  const agreements = [], limits = [], conflicts = [];
+  if (knowTime) agreements.push('시주까지 네 기둥을 모두 판정에 사용');
+  else limits.push('시주 미상 — 말년·자녀 자리와 일부 통근·합충 제외');
+  if (knowTime && typeof hourBoundaryDistanceMin === 'number') {
+    if (hourBoundaryDistanceMin < 10) limits.push(`보정 시각이 시주 경계에서 ${Math.round(hourBoundaryDistanceMin)}분 거리 — 출생지·기록 오차 재확인 필요`);
+    else agreements.push(`보정 시각이 시주 경계에서 ${Math.round(hourBoundaryDistanceMin)}분 이상 떨어져 있음`);
+  }
+  if (timeVariantConflict) conflicts.push('경도 보정만 쓴 관법과 균시차까지 쓴 관법에서 시주가 달라짐');
+  if (locationLabel) agreements.push(`출생지 ${locationLabel} 경도 보정을 계산에 반영`);
+
+  const borders = [0.30,0.45,0.55,0.70];
+  const dist = sd && typeof sd.ratio === 'number' ? Math.min(...borders.map(v => Math.abs(sd.ratio-v))) : 0;
+  if (dist < 0.03) limits.push('신강약 경계에 가까워 출생시각·가중치에 따라 한 단계 달라질 수 있음');
+  else agreements.push('신강약이 경계값에서 충분히 떨어져 있음');
+
+  if (gyeok && gyeok.jpjj) {
+    if (gyeok.jpjj.ok) agreements.push(`${gyeok.name}의 성격 조건이 원국에서 확인됨`);
+    else if (gyeok.jpjj.gu) limits.push(`${gyeok.name}은 파격이나 구응의 실마리가 있음`);
+    else conflicts.push(`${gyeok.name}의 파격을 되돌릴 구응이 원국에서 뚜렷하지 않음`);
+  }
+  if (gyeok && gyeok.sangshin) {
+    if (gyeok.sangshin.found && !gyeok.sangshin.damaged) agreements.push(`상신 ${gyeok.sangshin.name}이 있고 손상 신호가 약함`);
+    else if (gyeok.sangshin.damaged) conflicts.push(`상신 ${gyeok.sangshin.name}이 원국에서 손상됨`);
+    else limits.push('격을 완성할 상신이 원국에 뚜렷하지 않음');
+  }
+  if (finalYongshin) {
+    if (yongshinInChart) agreements.push(`최종 처방 ${finalYongshin}이 원국에 실제로 있음`);
+    else limits.push(`최종 처방 ${finalYongshin}이 원국에 없어 운에서 확인해야 함`);
+  }
+  if (yongshinBasis && yongshinBasis.includes('일치')) agreements.push(`${yongshinBasis}로 서로 다른 관법의 방향이 일치`);
+  if (jong && jong.conflictsWithFinal) conflicts.push(`${jong.type} 관법과 정격 처방의 방향이 반대`);
+  if (johu && temp && ['한(寒)','난조(暖燥)'].includes(temp.label) && finalYongshin !== johu.mainElem)
+    conflicts.push(`급한 조후 ${johu.mainElem}과 최종 처방 ${finalYongshin || '중화'}이 다름`);
+  const uncertainHap = (rel.삼합 || []).filter(x => x.status !== '합화 강후보');
+  if (uncertainHap.length) limits.push(`삼합 ${uncertainHap.map(x=>x.name).join('·')}은 모였으나 합화 강도는 확정하지 않음`);
+
+  const grade = conflicts.length >= 2 || (!knowTime && conflicts.length) ? '갈림 큼'
+    : conflicts.length || limits.length >= 2 ? '갈림 있음' : limits.length ? '근거 보통' : '근거 높음';
+  return {
+    grade, agreements, limits, conflicts,
+    note: '명리 체계 내부의 근거 완결도이며 과학적 예측 확률이 아닙니다.',
+    yongshinMode,
+  };
 }
 
 // 십성은 개별 별점이 아니라 생극의 흐름으로 읽는다.
@@ -602,8 +710,10 @@ function detectTenGodPatterns(tg, grp, strength, gyeok) {
 }
 
 // ── 삼합·방합·반합 판정 ──
-// 삼합: 생지+왕지+묘지 3개 → 왕지 오행으로 합화(化). 새 오행을 생성하는 "화학적 합".
-// 반합: 왕지 포함 2개. 생지+왕지 > 왕지+묘지 순으로 강함. 왕지 빠진 2개 = 가합(매우 약함).
+// 삼합: 생지+왕지+묘지 3개가 모두 있어야 "화국"을 논할 수 있다(삼명통회).
+// 다만 세 글자의 집합과 실제 합화는 별개다. 득령·투출·충극을 보고 강도를 표시하며,
+// 이 함수는 원래 오행을 삭제하거나 새 오행으로 치환하지 않는다.
+// 반합: 왕지 포함 2개. 화국이 아니라 해당 방향의 결집 신호로만 쓴다.
 // 방합: 같은 계절·방위 3개 → 기운이 세지는 "물리적 합". 합화 아님.
 // 강도 서열(통설): 삼합 > 방합 > 육합 > 반합 > 암합
 const SAMHAP_SETS = [
@@ -618,12 +728,26 @@ const BANGHAP_SETS = [
   { name:'신유술', bs:[8,9,10],  elem:'금', season:'가을' },
   { name:'해자축', bs:[11,0,1],  elem:'수', season:'겨울' },
 ];
-function detectHapguk(branches) {
+function detectHapguk(P) {
   const out = { 삼합:[], 반합:[], 방합:[] };
+  const branches = P.map(p => p.branch);
   const has = b => branches.includes(b);
   for (const s of SAMHAP_SETS) {
     const cnt = [s.gen, s.wang, s.myo].filter(has).length;
-    if (cnt === 3) { out.삼합.push({ name:s.name, elem:s.elem, grade:'완전', desc:`세 글자가 모두 모여 ${s.elem} 기운으로 합화합니다` }); continue; }
+    if (cnt === 3) {
+      const seasonal = BRANCH_ELEM[P[1].branch] === s.elem;
+      const exposed = P.some(p => STEM_ELEM[p.stem] === s.elem);
+      const clashed = [s.gen,s.wang,s.myo].some(b => branches.includes((b+6)%12));
+      const strongCandidate = seasonal && exposed && !clashed;
+      out.삼합.push({
+        name:s.name, elem:s.elem,
+        grade: strongCandidate ? '강' : (seasonal || exposed) && !clashed ? '중' : '후보',
+        status: strongCandidate ? '합화 강후보' : '합국 성향',
+        seasonal, exposed, clashed,
+        reason: `${seasonal ? '월령의 지지를 받고' : '월령의 직접 지지는 약하고'}, ${exposed ? `${s.elem} 기운이 천간에 드러나며` : `${s.elem} 기운이 천간에 드러나지 않으며`}${clashed ? ', 구성 지지가 충을 맞습니다' : ', 구성 지지의 직접 충은 없습니다'}`,
+      });
+      continue;
+    }
     if (!has(s.wang)) continue;              // 왕지 없으면 반합 불성립(가합은 채택 안 함)
     if (has(s.gen)) out.반합.push({ name:BRANCHES[s.gen]+BRANCHES[s.wang], elem:s.elem, grade:'강', desc:`생지와 왕지가 만나 ${s.elem} 기운이 뭉칩니다` });
     else if (has(s.myo)) out.반합.push({ name:BRANCHES[s.wang]+BRANCHES[s.myo], elem:s.elem, grade:'약', desc:`왕지와 고지가 만나 ${s.elem} 기운이 어느 정도 모입니다` });
@@ -637,13 +761,23 @@ function detectHapguk(branches) {
 
 function detectRelations(P) {
   const out = { 천간합:[], 지지육합:[], 지지충:[], 형:[], 삼합:[], 방합:[], 반합:[] };
-  const HAP5 = {'04':'토','15':'금','26':'수','37':'목','48':'화'}; // 갑기 을경 병신 정임 무계
+  const HAP5 = {'05':'토','16':'금','27':'수','38':'목','49':'화'}; // 갑기 을경 병신 정임 무계
   const names = ['년','월','일','시'];
   const n = P.length; // 시간 모름이면 3
   for (let i = 0; i < n; i++) for (let j = i+1; j < n; j++) {
     // 천간합: 갑(0)기(5), 을(1)경(6), 병(2)신(7), 정(3)임(8), 무(4)계(9) → 차이 5
-    if (Math.abs(P[i].stem - P[j].stem) === 5)
-      out.천간합.push({ pos:[names[i],names[j]], pair:STEMS[P[i].stem]+STEMS[P[j].stem]+'합' });
+    if (Math.abs(P[i].stem - P[j].stem) === 5) {
+      const key = [P[i].stem,P[j].stem].sort((a,b)=>a-b).join('');
+      const target = HAP5[key];
+      const adjacent = j - i === 1;
+      const seasonal = BRANCH_ELEM[P[1].branch] === target;
+      const rooted = P.some(p => BRANCH_ELEM[p.branch] === target || (JIJANGGAN_DAYS[p.branch] || []).some(([sn]) => STEM_ELEM[STEMS.indexOf(sn)] === target));
+      const status = adjacent && seasonal && rooted ? '합화 강후보' : '합하되 불화';
+      out.천간합.push({
+        pos:[names[i]+'간',names[j]+'간'], pair:STEMS[P[i].stem]+STEMS[P[j].stem]+'합', target, status,
+        reason: `${adjacent ? '서로 가까이 붙어 있으나' : '서로 멀리 떨어져 있고'}, ${seasonal ? `월령이 화신 ${target}을 돕습니다` : `월령이 화신 ${target}을 직접 돕지 않습니다`}`,
+      });
+    }
     // 지지육합: 자축 인해 묘술 진유 사신 오미
     const LH = [[0,1],[2,11],[3,10],[4,9],[5,8],[6,7]];
     if (LH.some(([a,b]) => (P[i].branch===a&&P[j].branch===b)||(P[i].branch===b&&P[j].branch===a)))
@@ -661,7 +795,7 @@ function detectRelations(P) {
       out.형.push({ pos:[names[i],names[j]], pair:BRANCHES[P[i].branch]+BRANCHES[P[i].branch]+' 자형(自刑)' });
   }
   // 삼합·반합·방합 병합
-  const hg = detectHapguk(P.map(p => p.branch));
+  const hg = detectHapguk(P);
   out.삼합 = hg.삼합; out.반합 = hg.반합; out.방합 = hg.방합;
   return out;
 }

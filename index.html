@@ -133,6 +133,26 @@ input:focus,select:focus{outline:2px solid var(--gold);outline-offset:1px;border
 .life-decade summary{cursor:pointer;color:var(--hanji)}
 .life-decade .decade-body{padding:0 0 16px;color:#d8cfbc;font-size:.89rem;line-height:1.78}
 .life-decade .decade-evidence{display:block;margin-top:8px;color:var(--hanji-dim);font-size:.72rem}
+.audit-box{margin:12px 0 4px;padding:15px;border:1px solid rgba(201,162,39,.28);border-radius:10px;background:rgba(8,12,22,.45)}
+.audit-box h3{font-size:.88rem;color:var(--gold);margin-bottom:8px}
+.audit-cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.audit-col{padding:9px;background:rgba(18,24,41,.75);border-radius:7px}
+.audit-col b{display:block;color:var(--hanji);font-size:.74rem;margin-bottom:5px}
+.audit-col span{display:block;color:var(--hanji-dim);font-size:.7rem;line-height:1.55;margin-top:3px}
+.root-table{display:grid;gap:8px}
+.root-row{display:grid;grid-template-columns:88px 1fr auto;gap:10px;align-items:start;padding:12px;border:1px solid var(--line);border-radius:9px;background:var(--ink-2)}
+.root-row .root-stem{font-family:'Noto Serif KR','Nanum Myeongjo',serif;color:var(--gold)}
+.root-row .root-detail{font-size:.82rem;color:#d8cfbc;line-height:1.65}
+.root-row .root-grade{font-size:.7rem;color:var(--hanji-dim);white-space:nowrap}
+.hidden-strip{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.hidden-chip{padding:7px 9px;border:1px solid var(--line);border-radius:8px;font-size:.77rem;color:#d8cfbc}
+.hidden-chip.selected{border-color:var(--gold);color:var(--gold)}
+.place-custom{margin-top:8px}.place-custom[hidden]{display:none}.chart-meta{margin-top:10px;color:var(--hanji-dim);font-size:.76rem;text-align:center}
+.calibration-form{display:grid;grid-template-columns:110px 1fr auto;gap:8px;margin-top:12px}
+.calibration-form input,.calibration-form select{font-size:.9rem;padding:10px}
+.calibration-form button{border:1px solid var(--gold);background:transparent;color:var(--gold);border-radius:8px;padding:9px 12px;cursor:pointer;font-family:inherit}
+.past-result{margin-top:10px;padding:13px;border-left:2px solid var(--jusa);background:rgba(11,15,26,.72);font-size:.84rem;color:#d8cfbc}
+.past-result b{color:var(--gold)}
 .block{background:var(--ink-2);border:1px solid var(--line);border-radius:12px;padding:20px;margin:12px 0}
 .block h3{font-size:1.02rem;color:var(--hanji);margin-bottom:8px}
 .block h3 .tag{font-size:.72rem;color:var(--gold);border:1px solid var(--gold);border-radius:20px;padding:2px 9px;margin-left:8px;vertical-align:2px}
@@ -161,7 +181,7 @@ footer{text-align:center;padding:44px 0 60px;color:var(--hanji-dim);font-size:.7
 .disc b{color:var(--hanji)}
 .disc .tiny{font-size:.76rem;color:var(--hanji-dim);margin-top:14px;margin-bottom:0}
 .again{background:none;border:1px solid var(--line);color:var(--hanji-dim);border-radius:8px;padding:10px 22px;cursor:pointer;font-family:inherit;margin-top:14px}
-@media(max-width:420px){.master-reading{padding-left:16px;padding-right:16px}.reading-line{grid-template-columns:46px 1fr;gap:10px}.method-book-grid,.dossier-grid{grid-template-columns:1fr}.reading-confidence{margin:7px 0 0}.dossier-item{min-height:0}}
+@media(max-width:420px){.master-reading{padding-left:16px;padding-right:16px}.reading-line{grid-template-columns:46px 1fr;gap:10px}.method-book-grid,.dossier-grid,.audit-cols{grid-template-columns:1fr}.reading-confidence{margin:7px 0 0}.dossier-item{min-height:0}.root-row{grid-template-columns:70px 1fr}.root-row .root-grade{grid-column:2}.calibration-form{grid-template-columns:1fr}.calibration-form button{min-height:44px}}
 @media(min-width:560px){.sinsal-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
@@ -181,6 +201,20 @@ footer{text-align:center;padding:44px 0 60px;color:var(--hanji-dim);font-size:.7
       <div><input type="number" id="by" inputmode="numeric" placeholder="1990" min="1900" max="2100" value="1990"><span class="unit">년</span></div>
       <div><select id="bm"></select><span class="unit">월</span></div>
       <div><select id="bd"></select><span class="unit">일</span></div>
+    </div>
+
+    <label for="birthplace">태어난 곳 <em style="font-style:normal;color:var(--jusa)">— 시주 경도 보정에 필요합니다</em></label>
+    <select id="birthplace">
+      <option value="126.978">서울</option><option value="129.076">부산</option><option value="128.601">대구</option>
+      <option value="126.705">인천</option><option value="126.852">광주</option><option value="127.385">대전</option>
+      <option value="129.312">울산</option><option value="127.290">세종</option><option value="127.029">수원</option>
+      <option value="127.730">춘천</option><option value="128.876">강릉</option><option value="127.489">청주</option>
+      <option value="127.148">전주</option><option value="126.392">목포</option><option value="129.366">포항</option>
+      <option value="126.532">제주</option><option value="custom">직접 경도 입력</option>
+    </select>
+    <div class="place-custom" id="customlonwrap" hidden>
+      <input type="number" id="customlon" inputmode="decimal" min="124" max="132" step="0.001" value="126.978" aria-label="출생지 동경 경도">
+      <p class="note" style="text-align:left;margin-top:5px">대한민국 출생지만 지원합니다. 예: 서울 126.978, 부산 129.076</p>
     </div>
 
     <label id="lb-time">태어난 시간</label>
@@ -204,7 +238,7 @@ footer{text-align:center;padding:44px 0 60px;color:var(--hanji-dim);font-size:.7
     <input type="date" id="bdate" hidden value="1990-01-01">
     <input type="time" id="btime" hidden value="12:00">
     <button class="btn" id="go">팔자를 읽는다</button>
-    <p class="note">절기 경계·진태양시(서울 −32분)·서머타임까지 반영한 정밀 계산입니다.<br>입력한 정보는 저장되지 않습니다.</p>
+    <p class="note">절기 경계·출생지 지역시·옛 표준시·서머타임까지 반영합니다.<br>입력한 정보는 저장되지 않습니다.</p>
   </section>
 
   <section id="report"></section>
@@ -213,10 +247,10 @@ footer{text-align:center;padding:44px 0 60px;color:var(--hanji-dim);font-size:.7
 <footer class="wrap">
   <div class="disc">
     <h4>이 리포트를 어떻게 읽어야 하나</h4>
-    <p><b>계산은 정확합니다.</b> 사주 여덟 글자와 절기·대운은 천문 데이터로 계산한 결과이며, 한국천문연구원 표준 만세력 및 공개 만세력 구현체들과 대조해 일치를 확인했습니다.</p>
+    <p><b>계산 규칙을 검증했습니다.</b> 사주 여덟 글자와 절기·대운은 천문 데이터로 계산하며, 한국천문연구원 표준 만세력 및 공개 만세력 구현체들과 대조했습니다. 출생지·생시 경계와 유파 옵션에 따라 달라질 수 있는 값은 아래에서 따로 밝힙니다.</p>
     <p><b>해석은 하나의 관점입니다.</b> 명리는 유파마다 판단이 갈리는 분야이고, 이 리포트는 고전(자평진전·적천수·궁통보감 등)과 현대 통용 기준을 따랐습니다. 다른 곳에서 다르게 볼 수 있습니다.</p>
     <p><b>다른 만세력과 결과가 다르다면</b> 대개 계산이 틀린 게 아니라 관습이 달라서입니다. 이 앱이 쓰는 기준은 다음과 같습니다.
-      <br>· 시간 보정: 서울 기준 진태양시(−32분)를 적용합니다. 보정하지 않는 곳과는 시주가 다를 수 있습니다.
+      <br>· 시간 보정: 선택한 출생지의 경도를 한국 표준자오선과 비교한 지역시를 적용합니다. 균시차까지 적용했을 때 시주가 달라지면 판독 갈림으로 표시합니다.
       <br>· 하루의 경계: 밤 11시가 넘어도 그날의 일주를 유지합니다(야자시). 자정부터 다음 날로 넘기는 곳과 다를 수 있습니다.
       <br>· 절기 시각: 한국 시각(KST) 기준입니다. 중국 시각을 쓰는 곳과는 1시간 차이가 나, 절기 경계에 태어난 경우 년·월주가 갈릴 수 있습니다.
       <br>· 옛 표준시: 1954~1961년생은 당시 한국 표준시(동경 127.5도)를 반영합니다.</p>
@@ -291,6 +325,9 @@ function josa(word, kind) {
   };
   $('#by').addEventListener('change', syncDays);
   $('#bm').addEventListener('change', syncDays);
+  $('#birthplace').addEventListener('change', e => {
+    $('#customlonwrap').hidden = e.target.value !== 'custom';
+  });
 
   // 오전/오후 · 성별 세그먼트 버튼
   const seg = (wrap, attr, onPick) => {
@@ -335,8 +372,15 @@ $('#go').addEventListener('click', () => {
   if (window.__getAmPm() === 0) hh = (h12 === 12 ? 0 : h12);
   else hh = (h12 === 12 ? 12 : h12 + 12);
   const mm = +$('#bmin').value;
+  const placeSelect = $('#birthplace');
+  const customPlace = placeSelect.value === 'custom';
+  const longitude = customPlace ? +$('#customlon').value : +placeSelect.value;
+  if (!Number.isFinite(longitude) || longitude < 124 || longitude > 132)
+    return alert('대한민국 출생지의 동경 경도를 124~132 사이로 입력해 주세요.');
+  const placeLabel = customPlace ? `동경 ${longitude.toFixed(3)}°` : placeSelect.options[placeSelect.selectedIndex].text;
+  const lonMinutes = (longitude - 135) * 4;
   if (!knowTime) { hh = 12; }
-  try { render(y, m, dd, hh, mm, g, knowTime); }
+  try { render(y, m, dd, hh, mm, g, knowTime, { placeLabel, longitude, lonMinutes }); }
   catch(e){ alert('계산 범위(1900~2100)를 확인해 주세요.'); console.error(e); }
 });
 
@@ -420,17 +464,94 @@ function masterReadingHTML(A, P, DW, age, knowTime) {
     ['病藥','막힘과 처방',layerMedicine,medicineEvidence],
     ['運','지금의 큰 흐름',layerLuck,luckEvidence],
   ];
-  // 경계값과 시주 미상은 단정하지 않는다. 이 등급은 명리 체계 내부 판독의 일관성이지 과학적 확률이 아니다.
-  const strengthBorders = [.30,.45,.55,.70];
-  const borderDistance = Math.min(...strengthBorders.map(v => Math.abs(sd.ratio - v)));
-  const confidence = (!knowTime || (A.jonggyeok && A.jonggyeok.conflictsWithFinal)) ? '낮음'
-    : (borderDistance < .03 || !A.gyeok) ? '중간' : '높음';
+  const audit = A.readingAudit || { grade:'미확정', agreements:[], limits:[], conflicts:[], note:'' };
   const books = (C.METHOD_BOOKS || []).map(b => `<a class="method-book" href="${b.url}" target="_blank" rel="noopener noreferrer"><span class="seal-mark">${b.mark}</span><span><b>${b.title} · ${b.role}</b><small>${b.note}</small></span></a>`).join('');
+  const auditCol = (title, arr, empty) => `<div class="audit-col"><b>${title}</b>${(arr.length?arr:[empty]).map(x=>`<span>· ${x}</span>`).join('')}</div>`;
   return `<div class="sec"><h2 class="serif">명식 종합 판독</h2><div class="master-reading">
-    <p class="reading-intro">여덟 글자를 따로 점치지 않고, 월령에서 시작해 격의 성패와 처방을 정한 뒤 현재 운에 대입했습니다.<span class="reading-confidence">판독 신뢰도 · ${confidence}</span></p>
+    <p class="reading-intro">여덟 글자를 따로 점치지 않고, 월령에서 시작해 격의 성패와 처방을 정한 뒤 현재 운에 대입했습니다.<span class="reading-confidence">근거 완결도 · ${audit.grade}</span></p>
     ${rows.map(([mark,title,text,evidence]) => `<div class="reading-line"><span class="reading-mark">${mark}</span><div class="reading-copy"><h3>${title}</h3><p>${text}</p><span class="evidence">판독 근거 · ${evidence}</span></div></div>`).join('')}
+    <div class="audit-box"><h3>대가의 재검증 — 맞물림과 갈림을 따로 확인</h3><div class="audit-cols">
+      ${auditCol('서로 맞는 근거',audit.agreements,'강한 일치 신호 없음')}
+      ${auditCol('한계·추가 확인',audit.limits,'추가 확인 항목 없음')}
+      ${auditCol('관법 충돌',audit.conflicts,'정면 충돌 없음')}
+    </div><p style="margin-top:9px;font-size:.7rem;color:var(--hanji-dim)">${audit.note}</p></div>
   </div><details class="block method-books"><summary>이 판독이 따르는 고전과 각 책의 역할</summary><div class="method-book-grid">${books}</div></details></div>`;
 }
+
+function classicalEvidenceHTML(A) {
+  if (!A.evidence) return '';
+  const rootRows = A.evidence.stems.map(s => {
+    const detail = s.roots.length ? s.roots.map(r => `${r.where} ${r.branch} 속 ${r.hidden}(${r.layer}${r.exact?'·동일간':''})`).join(' · ') : '같은 오행의 지장간 뿌리가 없습니다.';
+    return `<div class="root-row"><span class="root-stem">${s.where} ${s.stem}(${s.elem})</span><span class="root-detail">${detail}</span><span class="root-grade">${s.grade}</span></div>`;
+  }).join('');
+  const mc = A.evidence.monthCommand;
+  const hidden = mc.hidden.map(x => `<span class="hidden-chip${x.selectedForGyeok?' selected':''}">${x.stem} · ${x.layer} ${x.days}일${x.visibleAt.length?' · '+x.visibleAt.join('·')+' 투출':' · 무투출'}${x.selectedForGyeok?' · 격 선택':''}</span>`).join('');
+  return `<div class="sec"><h2 class="serif">글자의 실제 힘 — 통근과 투출</h2>
+    <div class="block"><p style="font-size:.86rem;color:var(--hanji-dim)">겉에 보이는 천간이 지지 속에 같은 오행의 뿌리를 두었는지, 월령의 지장간이 겉으로 투출했는지를 다시 확인합니다. 같은 개수라도 깊은 정기 뿌리와 얕은 여기 뿌리는 무게가 다릅니다.</p></div>
+    <div class="root-table">${rootRows}</div>
+    <div class="block"><h3>월령 ${mc.branch}의 지장간</h3><div class="hidden-strip">${hidden}</div></div></div>`;
+}
+
+function pastCalibrationHTML(P) {
+  const now = new Date().getFullYear();
+  const first = Math.max(P.meta.sajuYear, now - 10);
+  return `<div class="sec"><h2 class="serif">과거 변곡 대조 — 대가의 문진</h2><div class="block">
+    <p>기억나는 실제 한 해를 넣으면 그때의 대운·세운이 원국 어디를 건드렸는지 거꾸로 확인합니다. 사건을 억지로 맞추거나 결론을 자동 변경하지 않으며, 여러 해가 같은 관법을 반복해서 지지할 때만 참고 신호로 삼습니다.</p>
+    <div class="calibration-form"><input type="number" id="pastyear" min="${P.meta.sajuYear}" max="${now}" value="${first}" aria-label="대조할 과거 연도">
+      <select id="pastkind" aria-label="그해 실제 경험"><option value="move">이동·직업·관계의 큰 변화</option><option value="success">큰 성취·확장</option><option value="pressure">큰 압박·손실</option><option value="quiet">특별한 일 없음</option></select>
+      <button type="button" onclick="window.__runPastCheck()">이 해 대조</button></div>
+    <div id="pastresults" aria-live="polite"></div>
+    <p style="margin-top:10px;font-size:.72rem;color:var(--hanji-dim)">이 기록은 현재 화면 메모리에만 있으며 새로고침하면 사라집니다. 한 사건은 우연일 수 있으므로 최소 2~3개 연도를 대조해야 합니다.</p>
+  </div></div>`;
+}
+
+window.__runPastCheck = function(){
+  const ctx = window.__lastSaju; if (!ctx) return;
+  const {A,P,DW,knowTime} = ctx;
+  const year = +$('#pastyear').value, now = new Date().getFullYear();
+  if (!Number.isInteger(year) || year < P.meta.sajuYear || year > now) return alert(`과거 연도를 ${P.meta.sajuYear}~${now} 사이로 입력해 주세요.`);
+  const kind = $('#pastkind').value;
+  const kindName = {move:'큰 변화',success:'성취·확장',pressure:'압박·손실',quiet:'특별한 일 없음'}[kind];
+  const s = E.calcSewoon(A,year,1)[0];
+  const age = year - P.meta.sajuYear + 1;
+  const dw = DW.list.find(d => age >= d.age && age < d.age+10);
+  const original = [P.year.branch,P.month.branch,P.day.branch].concat(knowTime?[P.hour.branch]:[]);
+  const pos = ['년주','월주','일주'].concat(knowTime?['시주']:[]);
+  const clashes = original.map((b,i)=>(b+6)%12===s.branch?pos[i]:null).filter(Boolean);
+  const stemGrp = tenGodGroup(E.tenGod(P.day.stem,s.stem));
+  const branchGrp = tenGodGroup(E.tenGodBranch(P.day.stem,s.branch));
+  const signals = [`${s.str}년 · 천간 ${stemGrp} · 지지 ${branchGrp}`];
+  if (dw) signals.push(`${dw.str} 대운(${dw.age}~${dw.age+9}세) 안`);
+  if (s.yongshinHit) signals.push(`최종 처방 ${A.yongshin} 도착`);
+  if (clashes.length) signals.push(`${clashes.join('·')}와 충`);
+  else signals.push('원국 지지와 직접 충 없음');
+
+  let model = '';
+  let vote = null;
+  if (A.jonggyeok && A.jonggyeok.conflictsWithFinal && s.yongshinHit) {
+    if (kind === 'success') { vote='regular'; model=`이 해의 성취는 정격 처방(${A.yongshin}) 쪽과 맞는 신호입니다.`; }
+    else if (kind === 'pressure') { vote='follow'; model=`정격 처방(${A.yongshin})이 오히려 압박으로 나타났다면 ${A.jonggyeok.type} 관법을 재검토할 신호입니다.`; }
+  }
+  if (!model) {
+    if (kind==='move' && clashes.length) model='실제 큰 변화와 원국 충이 함께 잡혀 변곡 시점 신호가 맞물립니다.';
+    else if (kind==='quiet' && (clashes.length||s.yongshinHit)) model='명리상 신호는 있으나 실제 사건이 없었습니다. 생시·출생지 또는 이 관법의 설명력을 낮춰 봐야 합니다.';
+    else if (kind==='success' && s.yongshinHit) model='실제 성취와 처방 기운의 도착이 같은 해에 겹쳤습니다.';
+    else if (kind==='pressure' && clashes.length) model='실제 압박과 원국 충이 같은 해에 겹쳤습니다.';
+    else model='실제 경험과 계산 신호가 한 방향으로 뚜렷하게 모이지 않습니다. 이 한 해만으로 관법을 고르지 않습니다.';
+  }
+  window.__pastChecks = window.__pastChecks || [];
+  window.__pastChecks.push({year,kind,vote});
+  const votes = window.__pastChecks.reduce((o,x)=>(x.vote&&(o[x.vote]++),o),{regular:0,follow:0});
+  let summary = '';
+  if (votes.regular + votes.follow >= 2) {
+    summary = votes.regular > votes.follow ? `누적 문진은 정격 관법 ${votes.regular} : 종격 관법 ${votes.follow}로 정격 쪽이 더 맞습니다.`
+      : votes.follow > votes.regular ? `누적 문진은 정격 관법 ${votes.regular} : 종격 관법 ${votes.follow}로 종격 가능성을 더 무겁게 봐야 합니다.`
+      : `누적 문진이 정격 ${votes.regular} : 종격 ${votes.follow}로 갈려 아직 확정할 수 없습니다.`;
+  }
+  const row = document.createElement('div'); row.className='past-result';
+  row.innerHTML=`<b>${year}년 · 실제 ${kindName}</b><br>${signals.join(' · ')}<br>${model}${summary?`<br><b>${summary}</b>`:''}`;
+  $('#pastresults').prepend(row);
+};
 
 // 흩어진 카드를 다시 읽지 않아도 되도록, 한 명식의 결론을 여섯 축으로 압축한다.
 // 각 문장은 최소 두 신호(강약+십성, 일지+합충, 용신+원국 유무 등)가 겹칠 때만 만든다.
@@ -499,9 +620,13 @@ function allDaewoonHTML(A, P, DW, age) {
   return `<div class="block"><h3>평생 대운 상세 — 모든 10년의 과제와 변곡</h3><p style="font-size:.84rem;color:var(--hanji-dim)">아래 나이는 대운수에 따른 명리 나이이며 시작 연도는 근사치입니다. 각 구간을 펼치면 그 10년의 중심 십성과 원국과의 충·처방 도착 여부를 볼 수 있습니다.</p><div class="decade-list">${rows}</div></div>`;
 }
 
-function render(y, m, dd, hh, mm, gender, knowTime) {
-  const P = E.calcPillars(y, m, dd, hh, mm, { terms: TERMS });
-  const A = E.analyze(P, { knowTime });
+function render(y, m, dd, hh, mm, gender, knowTime, birthOpt = { placeLabel:'서울', longitude:126.978, lonMinutes:-32.088 }) {
+  const P = E.calcPillars(y, m, dd, hh, mm, { terms: TERMS, lonMinutes:birthOpt.lonMinutes });
+  // 고전·현대 만세력은 균시차 채택이 갈린다. 정본 계산은 경도 보정만 유지하되,
+  // 균시차까지 적용한 시주와 달라질 때는 결론을 숨기지 않고 감사 항목에 올린다.
+  const Peot = knowTime ? E.calcPillars(y, m, dd, hh, mm, { terms: TERMS, lonMinutes:birthOpt.lonMinutes, applyEoT:true }) : P;
+  const timeVariantConflict = knowTime && Peot.hour.str !== P.hour.str;
+  const A = E.analyze(P, { knowTime, timeVariantConflict, locationLabel:birthOpt.placeLabel });
   const DW = E.calcDaewoon(P, gender, TERMS);
   const nowY = new Date().getFullYear();
   const SW = E.calcSewoon(A, nowY, 8);
@@ -526,7 +651,7 @@ function render(y, m, dd, hh, mm, gender, knowTime) {
   h += `</div><div class="elemlegend">`;
   for (const k of ['목','화','토','금','수'])
     h += `<span class="${A.elem[k]===0?'zero':''}">${ELMAP[k]} ${k} ${A.elem[k]}${A.elem[k]===0?' 없음':''}</span>`;
-  h += `</div></div>`;
+  h += `</div><p class="chart-meta">출생지 ${birthOpt.placeLabel} · 동경 ${birthOpt.longitude.toFixed(3)}° · 경도 보정 ${P.meta.lonCorrMin > 0 ? '+' : ''}${P.meta.lonCorrMin}분${timeVariantConflict ? ' · 균시차 관법에서 시주 갈림' : ''}</p></div>`;
 
   // ② 가장 눈에 띄는 것
   const HL = C.headline(A);
@@ -542,6 +667,8 @@ function render(y, m, dd, hh, mm, gender, knowTime) {
   // ②-1 전체 명식 종합 판독 — 월령·격·병약·운을 한 흐름으로 먼저 제시한다.
   h += masterReadingHTML(A, P, DW, age, knowTime);
   h += lifeDossierHTML(A, P, DW, age, knowTime);
+  h += classicalEvidenceHTML(A);
+  h += pastCalibrationHTML(P);
 
   // ③-0 일주 — 사주에서 가장 중요한 두 글자
   if (C.ILJU_ROOT) {
@@ -854,7 +981,7 @@ function render(y, m, dd, hh, mm, gender, knowTime) {
 
   // ⑥ 관계·공망
   const rels = [];
-  A.relations.천간합.forEach(r => rels.push(C.RELATION.천간합.replace('{pair}', r.pair).replace('{pos}', r.pos.join('·'))));
+  A.relations.천간합.forEach(r => rels.push(C.RELATION.천간합.replace('{pair}', r.pair).replace('{pos}', r.pos.join('·')).replace('{status}',r.status).replace('{reason}',r.reason)));
   A.relations.지지육합.forEach(r => rels.push(C.RELATION.지지육합.replace('{pair}', r.pair).replace('{pos}', r.pos.join('·'))));
   A.relations.지지충.forEach(r => rels.push(C.RELATION.지지충.replace('{pair}', r.pair).replace('{pos}', r.pos.join('·'))));
   A.relations.형.forEach(r => rels.push(C.RELATION.형.replace('{pair}', r.pair).replace('{pos}', r.pos.join('·'))));
@@ -864,7 +991,10 @@ function render(y, m, dd, hh, mm, gender, knowTime) {
   const HG = A.relations;
   if (C.HAPGUK && ((HG.삼합||[]).length || (HG.반합||[]).length || (HG.방합||[]).length)) {
     h += `<div class="block"><h3>합국 — 뭉친 기운</h3><p style="font-size:.88rem;color:var(--hanji-dim)">${C.HAPGUK.intro}</p>`;
-    (HG.삼합||[]).forEach(x => h += `<p style="margin-top:10px;color:var(--gold)">${C.HAPGUK.삼합.replace('{name}',x.name).replace('{elem}',x.elem)}</p>`);
+    (HG.삼합||[]).forEach(x => {
+      const tpl = x.status === '합화 강후보' ? C.HAPGUK.삼합강 : C.HAPGUK.삼합후보;
+      h += `<p style="margin-top:10px;color:var(--gold)">${tpl.replace('{name}',x.name).replace('{elem}',x.elem).replace('{reason}',x.reason)}</p>`;
+    });
     (HG.방합||[]).forEach(x => h += `<p style="margin-top:10px;color:var(--gold)">${C.HAPGUK.방합.replace('{name}',x.name).replace('{elem}',x.elem)}</p>`);
     (HG.반합||[]).forEach(x => h += `<p style="margin-top:10px">${(x.grade==='강'?C.HAPGUK.반합강:C.HAPGUK.반합약).replace('{name}',x.name).replace('{elem}',x.elem)}</p>`);
     h += `<p class="adv">${C.HAPGUK.note}</p></div>`;
@@ -997,6 +1127,8 @@ function render(y, m, dd, hh, mm, gender, knowTime) {
   <div style="text-align:center"><button class="again" onclick="location.reload()">다른 사주 보기</button></div></div>`;
 
   $('#report').innerHTML = h;
+  window.__lastSaju = { A, P, DW, knowTime };
+  window.__pastChecks = [];
   $('#report').style.display = 'block';
   $('#form').style.display = 'none';
   window.scrollTo({top: 0});

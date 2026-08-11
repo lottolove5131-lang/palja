@@ -639,8 +639,23 @@
     const fb = C.E.fuFanYin ? C.E.fuFanYin(P.day, s) : null;
     if (fb === '반음') kind = 'hold';
     else if (fb === '복음' && kind === 'push') kind = 'adjust';
-    return { kind, clash, hap, yong, g, fb };
+    // 신뢰도 계층(8/11 11차, 4AI 크로스체크 지적 ② 반영) — 이 판정을 지탱하는 독립 근거가 몇 겹인가.
+    // 처방 도착 / 지지 충(기둥 수만큼) / 지지 합 / 복음·반음은 서로 다른 계산에서 나오므로 각각 1겹으로 센다.
+    let ev = 0;
+    if (kind === 'push') ev = (yong ? 1 : 0) + (hap.length ? 1 : 0);
+    else if (kind === 'hold') ev = (fb === '반음' ? 1 : 0) + (clash.length >= 2 ? clash.length : 0);
+    else ev = (yong || clash.length || fb === '복음') ? 1 : 0;   // adjust = 혼합 신호라 1겹 상한
+    return { kind, clash, hap, yong, g, fb, ev };
   }
+
+  // ── 신뢰도 계층 — 근거 겹수에 따라 문장의 형식 자체를 바꾼다 ──
+  // 2겹 이상 = 단정 / 1겹 = 조건문(무엇이 확인되면 맞는지 같이 적음) / 0겹 = 점검 항목.
+  // data-conf 속성은 confidence_gate.js가 어휘 규칙(조건문에 단정 어투 금지 등)을 검사하는 표지다.
+  function confTier(n) { return n >= 2 ? 'firm' : n === 1 ? 'cond' : 'check'; }
+  function confSpan(tier, ev, txt) {
+    return '<span data-conf="' + tier + '" data-conf-ev="' + ev + '">' + txt + '</span>';
+  }
+  const CONF_LABEL = { firm: n => '근거 ' + n + '겹', cond: () => '근거 1겹', check: () => '간접' };
 
   rule('when_calendar', 970, (A, P, DW, C, F) => {
     if (!C.E || !C.E.calcSewoon) return null;
@@ -665,7 +680,8 @@
         `<table class="rd-tbl rd-cal"><tr><th>해</th><th>나이</th><th>신호</th><th>이 해에 맞는 방식</th></tr>` +
         rows.map(r => {
           const S = SIGNAL[r.sig.kind];
-          const detail = r.sig.fb === '반음'
+          const tier = confTier(r.sig.ev);
+          let detail = r.sig.fb === '반음'
             ? `일주와 천간·지지가 모두 마주 충하는 해(반음)입니다. 변동폭이 가장 크니 큰 결정은 물러날 자리부터 정합니다`
             : r.sig.fb === '복음'
             ? `일주와 글자가 그대로 겹치는 해(복음)입니다. 하던 일의 부피가 커지니 담을 그릇부터 넓힙니다`
@@ -674,15 +690,25 @@
             : r.sig.yong
               ? `${EL_LIFE[A.yongshin] ? EL_LIFE[A.yongshin].act : '준비한 일'}을 벌이기 좋습니다`
               : `크게 흔들리지 않습니다. 하던 것을 이어가십시오`;
+          // 신뢰도 계층 — 근거가 한 겹이면 단정 대신 조건문으로, 없으면 점검 문구로 바꾼다.
+          if (tier === 'cond') detail += ` — 근거가 한 겹이라 단정하지 않습니다. 연초에 실제로 그런 조짐이 보이는지 확인되면 그대로 따르십시오`;
+          else if (tier === 'check') detail = `단정할 근거가 없는 해입니다. 연초에 제안·계약·이동의 조짐이 있는지 직접 점검하고 계획의 크기를 맞추십시오`;
           return `<tr class="${S.cls}"><td><b>${r.s.year}</b></td><td>${r.age != null ? '만 ' + r.age : '-'}</td>` +
-            `<td><b>${S.tag}</b></td><td>${detail}</td></tr>`;
+            `<td><b>${S.tag}</b><br><span class="rd-dim">${CONF_LABEL[tier](r.sig.ev)}</span></td><td>${confSpan(tier, r.sig.ev, detail)}</td></tr>`;
         }).join('') + `</table>`,
         BOX(`<b>이 표를 읽는 법</b><br>
           <b>밀 때</b> — 계약·이직·시작처럼 <b>내가 정해서 벌이는 일</b>을 여기 배치하십시오.<br>
           <b>조정할 때</b> — 새로 벌이기보다 <b>이미 있는 것의 조건을 고치는</b> 데 씁니다.<br>
-          <b>지킬 때</b> — 무슨 일이 생기는 해가 아니라, <b>큰 결정을 미루면 손해가 적은</b> 해입니다.`),
-        first ? P_(`가장 가까운 <b>밀 때</b>는 <b>${first.s.year}년(만 ${first.age}세)</b>입니다.
-                   미뤄둔 큰 결정이 있다면 이 해를 먼저 고려하십시오.`) : '',
+          <b>지킬 때</b> — 무슨 일이 생기는 해가 아니라, <b>큰 결정을 미루면 손해가 적은</b> 해입니다.<br><br>
+          <b>근거 겹수</b> — 같은 신호라도 <b>서로 다른 계산 몇 개가 같은 방향을 가리켰는가</b>입니다.
+          2겹 이상이면 그대로 적었고, 1겹이면 조건을 달았고, 간접이면 단정 대신 점검 문구로 바꿨습니다.
+          겹수가 낮은 해일수록 표보다 <b>그해의 실제 조건</b>을 크게 보십시오.`),
+        first ? P_(confSpan(confTier(first.sig.ev), first.sig.ev,
+          confTier(first.sig.ev) === 'firm'
+            ? `가장 가까운 <b>밀 때</b>는 <b>${first.s.year}년(만 ${first.age}세)</b>입니다.
+               미뤄둔 큰 결정이 있다면 이 해를 먼저 고려하십시오.`
+            : `가장 가까운 <b>밀 때</b> 후보는 <b>${first.s.year}년(만 ${first.age}세)</b>입니다.
+               다만 근거가 한 겹이라 단정하지 않습니다 — 그 해 초에 실제 제안이나 기회가 확인되면 그때 무게를 실으십시오.`)) : '',
         firstHold ? P_(`반대로 <b>${firstHold.s.year}년(만 ${firstHold.age}세)</b>은 <b>지킬 때</b>입니다.
                    이 해에는 되돌리기 어려운 결정을 한 박자 늦추는 편이 낫습니다.`) : ''
       ],
@@ -811,12 +837,17 @@
 
     const best = rows.filter(function (r) { return r.sig.kind === 'push' && r.gungHit !== '충' && r.sig.fb !== '반음'; })[0]
       || rows.filter(function (r) { return r.sig.kind === 'adjust' && r.gungHit !== '충'; })[0];
+    // 신뢰도 계층 — 결론에 쓰이는 근거 겹수. 질문 축(궁위 합·질문 기운)도 독립 근거로 센다.
+    const bestEv = best ? best.sig.ev + (best.gungHit === '합' ? 1 : 0) + (best.grpHit ? 1 : 0) : 0;
+    const bestTier = best ? confTier(bestEv) : 'check';
     const verdict = best && best.sig.kind === 'push'
-      ? '물으신 시한 안에서 고르라면 <b>' + best.s.year + '년</b>입니다. ' + (best.grpHit || best.sig.yong ? '질문의 기운이 실제로 들어오고 마찰도 적은 해라서입니다.' : '마찰이 가장 적은 해라서입니다.') +
-        ' 다만 해가 좋다는 것은 조건이 좋다는 뜻이 아닙니다 — <b>그 해에 실제 조건(금액·상대·계약)이 갖춰졌을 때</b> 움직이십시오.'
+      ? confSpan(bestTier, bestEv, bestTier === 'firm'
+        ? '물으신 시한 안에서 고르라면 <b>' + best.s.year + '년</b>입니다. ' + (best.grpHit || best.sig.yong ? '질문의 기운이 실제로 들어오고 마찰도 적은 해라서입니다.' : '마찰이 가장 적은 해라서입니다.') +
+          ' 서로 다른 계산 ' + bestEv + '겹이 같은 해를 가리켜 단정해 적습니다. 다만 해가 좋다는 것은 조건이 좋다는 뜻이 아닙니다 — <b>그 해에 실제 조건(금액·상대·계약)이 갖춰졌을 때</b> 움직이십시오.'
+        : '물으신 시한 안에서 고르라면 <b>' + best.s.year + '년</b>입니다. 다만 정직하게 적으면 이 판정의 근거는 <b>한 겹</b>입니다. 그 해 초에 물으신 쪽의 조짐 — 제안·자리·상대 — 이 실제로 확인되면 그때 무게를 실으시고, 확인되지 않으면 해를 넘겨도 됩니다. <b>실제 조건(금액·상대·계약)이 갖춰졌을 때</b> 움직이는 원칙은 같습니다.')
       : best
-      ? '물으신 시한 안에는 마찰이 적은 해가 없습니다. 그래도 정해야 한다면 <b>' + best.s.year + '년</b>이 그중 낫고, 이때는 <b>되돌릴 수 있는 형태</b> — 조건부 계약, 물릴 수 있는 약속 — 로 하는 것이 맞습니다.'
-      : '물으신 시한 안의 해가 전부 지키는 해입니다. 이 시한 자체를 한 해 늦출 수 있는지 먼저 검토하시길 권합니다. 늦출 수 없다면 결정의 크기를 줄여서 — 전부가 아니라 일부만 — 움직이는 방법이 남습니다.';
+      ? confSpan(bestTier, bestEv, '물으신 시한 안에는 마찰이 적은 해가 없습니다. 그래도 정해야 한다면 <b>' + best.s.year + '년</b>이 그중 낫고, 이때는 <b>되돌릴 수 있는 형태</b> — 조건부 계약, 물릴 수 있는 약속 — 로 하는 것이 맞습니다.')
+      : confSpan('check', 0, '물으신 시한 안의 해가 전부 지키는 해입니다. 이 시한 자체를 한 해 늦출 수 있는지 먼저 검토하시길 권합니다. 늦출 수 없다면 결정의 크기를 줄여서 — 전부가 아니라 일부만 — 움직이는 방법이 남습니다.');
 
     const p5 = '마지막으로, 이 답을 믿기 전에 뒤의 <b>「이 감명서가 맞는지 재는 법」</b> 장을 먼저 펴 보시길 권합니다. 이미 지나간 해의 굴곡이 맞아야, 앞으로의 해를 읽은 이 면도 무게가 생깁니다. 그것이 이 감명서가 스스로에게 요구하는 순서입니다.';
 
@@ -1631,11 +1662,25 @@
       const q5 = '<b>일</b>은 ' + ((LIFE_BY_GOD[gb] || {}).job || '') + ' <b>사람</b>은 ' + ((LIFE_BY_GOD[gb] || {}).love || '') +
         (gs !== gb ? ' 겉으로 요구받는 것은 이와 달라서, ' + ((LIFE_BY_GOD[gs] || {}).job || '') + ' 두 가지를 같이 다뤄야 하는 해입니다.' : '');
 
+      // 신뢰도 계층 — 이 해 읽기를 지탱하는 근거가 몇 겹인지 독자에게 그대로 보인다.
+      const sig = yearSignal(A, P, sw, C, !!(P.hour && A.knowTime !== false));
+      const evParts = [];
+      if (sw.yongshinHit) evParts.push('모자란 기운의 도착');
+      if (cl.length) evParts.push(nm(cl) + ' 자리의 충');
+      if (hp.length) evParts.push(nm(hp) + ' 자리의 합');
+      if (fb) evParts.push('일주 ' + fb);
+      const tier = confTier(sig.ev);
+      const q6 = tier === 'firm'
+        ? confSpan('firm', sig.ev, '위 읽기는 서로 다른 계산 <b>' + evParts.length + '겹</b>(' + evParts.join(' · ') + ')이 같은 방향을 가리켜 그대로 단정해 적었습니다. 이 해의 계획은 이 글을 기준으로 세우셔도 됩니다.')
+        : tier === 'cond'
+        ? confSpan('cond', sig.ev, '정직하게 적습니다. 위 읽기의 근거는 <b>' + (evParts[0] || '한 가지 신호') + ' 한 겹</b>입니다. 그래서 단정이 아니라 조건입니다 — 이 해 초에 그 방향의 조짐이 실제로 보이는지 확인되면 위 문장대로 읽으시고, 보이지 않으면 조용한 해로 낮춰 읽으십시오.')
+        : confSpan('check', sig.ev, '정직하게 적습니다. 이 해는 원국을 직접 건드리는 근거가 없어 <b>단정할 수 있는 것이 없습니다.</b> 그래서 점검 목록으로 대신합니다 — 연초에 ①제안·계약이 오는지 ②소속·역할이 바뀌는지 ③큰 지출 요인이 생기는지 세 가지를 직접 점검하고, 하나라도 나타나면 그쪽 장을 다시 펴서 읽으십시오.');
+
       return page({
         cls: 'rd-prose',
         kicker: year + '년 운세',
         title: year + '년, ' + C.you + '에게 어떤 해인가',
-        blocks: [q1, q2, q3, q35, q4, q5].filter(Boolean).map(function (t) { return P_(t); }),
+        blocks: [q1, q2, q3, q35, q4, q5, q6].filter(Boolean).map(function (t) { return P_(t); }),
         action: UL([
           '<b>' + year + '년 초에</b> — 위에서 ' + (cl.length ? '흔들린다고 적힌 자리' : '가장 마음에 걸리는 대목') + '의 조건을 종이에 적으세요.',
           '<b>연중</b> — 큰 결정은 뒤의 월별 표에서 <b>잘 풀리는 달</b>에 배치하세요.',
@@ -1644,7 +1689,8 @@
         evidence: year + '년 ' + sw.str + ' · 천간 ' + gs + ' · 지지 ' + gb + (dw ? ' · ' + dw.str + ' 대운 안' : '') +
           (touch.length ? ' · 원국 접점 ' + touch.map(function (t) { return t.k + '주' + t.t; }).join('·') : ' · 원국 직접 접점 없음') +
           (sw.yongshinHit ? ' · 처방 ' + A.yongshin + ' 도착' : '') +
-          (fb ? ' · 일주 ' + fb + ' — 삼명통회 「總論歲運」' : '')
+          (fb ? ' · 일주 ' + fb + ' — 삼명통회 「總論歲運」' : '') +
+          ' · 신뢰도 ' + sig.ev + '겹(' + tier + ')'
       });
     });
   });

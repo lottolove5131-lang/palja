@@ -1009,22 +1009,55 @@ function sinsal12(baseBranch, targetBranch) {
 }
 
 // ── 신살 조견표 (만세력/포스텔러 기준 — 깎지 않음) ──
+// ── 귀인 산출표 ──────────────────────────────────────────────
+// 귀인 표를 화면 코드와 중복 정의하면 한쪽만 고쳐지는 사고가 생긴다. 계산의 단일 정본은
+// 이 함수이며, 화면은 getNobleTargets()가 돌려주는 목표 글자와 근거만 사용한다.
+//
+// 문헌 우선순위
+// 1) 천을: 《五行精紀》·《三命通會》의 甲戊庚牛羊 계열 조견
+// 2) 천덕·월덕: 《御定星曆考原》 권3 및 《三命通會》
+// 3) 문창·학당·천주·문곡·태극: 후대 통용표. 특히 학당은 유파별 표가 갈리므로
+//    화면에서 '일간 장생(음간 역행) 관법'이라고 명시한다.
+const NOBLE_TABLES = {
+  CHEONEUL: {0:[1,7],4:[1,7],6:[1,7],1:[0,8],5:[0,8],2:[11,9],3:[11,9],7:[2,6],8:[5,3],9:[5,3]},
+  MUNGOK:   {0:11,1:0,2:2,3:3,4:2,5:3,6:5,7:6,8:8,9:9},
+  TAEGEUK:  {0:[0,6],1:[0,6],2:[3,9],3:[3,9],4:[4,10,1,7],5:[4,10,1,7],6:[2,11],7:[2,11],8:[5,8],9:[5,8]},
+  MUNCHANG: {0:5,1:6,2:8,4:8,3:9,5:9,6:11,7:0,8:2,9:3},
+  HAKDANG:  {0:11,1:6,2:2,4:2,3:9,5:9,6:5,7:0,8:8,9:3},
+  CHEONJU:  {0:5,1:6,2:5,3:6,4:8,5:9,6:11,7:0,8:2,9:3},
+  // 천덕: 寅丁 卯申 辰壬 巳辛 午亥 未甲 申癸 酉寅 戌丙 亥乙 子巳 丑庚.
+  // 8/11 감사에서 기존 巳월=申지지는 잘못임을 원문 대조로 확인해 巳월=辛천간으로 수정했다.
+  CHEONDEOK: {2:{kind:'stem',value:3},3:{kind:'branch',value:8},4:{kind:'stem',value:8},5:{kind:'stem',value:7},6:{kind:'branch',value:11},7:{kind:'stem',value:0},8:{kind:'stem',value:9},9:{kind:'branch',value:2},10:{kind:'stem',value:2},11:{kind:'stem',value:1},0:{kind:'branch',value:5},1:{kind:'stem',value:6}},
+  WOLDEOK: {2:2,6:2,10:2,8:8,0:8,4:8,11:0,3:0,7:0,5:6,9:6,1:6},
+};
+
+function getNobleTargets(pillars) {
+  const ds = pillars.day.stem, mb = pillars.month.branch;
+  const branchTargets = values => (Array.isArray(values) ? values : [values]).map(value => ({ kind:'branch', value }));
+  const stemTarget = value => [{ kind:'stem', value }];
+  return {
+    천을귀인: { basis:'일간 기준', lineage:'《五行精紀》·《三命通會》 통용표', confidence:'보통', targets:branchTargets(NOBLE_TABLES.CHEONEUL[ds] || []) },
+    천덕귀인: { basis:'월지 기준', lineage:'《御定星曆考原》·《三命通會》', confidence:'보통', targets:NOBLE_TABLES.CHEONDEOK[mb] ? [NOBLE_TABLES.CHEONDEOK[mb]] : [] },
+    월덕귀인: { basis:'월지 삼합국 기준', lineage:'《御定星曆考原》·《三命通會》', confidence:'보통', targets:stemTarget(NOBLE_TABLES.WOLDEOK[mb]) },
+    문창귀인: { basis:'일간의 식신 건록지 관법', lineage:'후대 통용표', confidence:'약함', targets:branchTargets(NOBLE_TABLES.MUNCHANG[ds]) },
+    문곡귀인: { basis:'일간 기준 통용표', lineage:'후대 통용표', confidence:'약함', targets:branchTargets(NOBLE_TABLES.MUNGOK[ds]) },
+    학당귀인: { basis:'일간 장생·음간 역행 관법', lineage:'학당 산식은 문헌·유파별 이견', confidence:'약함', targets:branchTargets(NOBLE_TABLES.HAKDANG[ds]) },
+    천주귀인: { basis:'일간 식신의 건록지 관법', lineage:'후대 통용표', confidence:'약함', targets:branchTargets(NOBLE_TABLES.CHEONJU[ds]) },
+    태극귀인: { basis:'일간 기준 통용표', lineage:'후대 통용표', confidence:'약함', targets:branchTargets(NOBLE_TABLES.TAEGEUK[ds] || []) },
+  };
+}
+
 function detectSinsal(pillars, knowTime = true) {
   const P = knowTime ? [pillars.year, pillars.month, pillars.day, pillars.hour]
                      : [pillars.year, pillars.month, pillars.day];
   const posName = ['년지','월지','일지','시지'];
   const ds = pillars.day.stem, db = pillars.day.branch, yb = pillars.year.branch;
   const out = [];
-  const add = (name, where, basis) => out.push({ name, where, basis });
+  const add = (name, where, basis, targetKind = null, targetValue = null) => out.push({ name, where, basis, targetKind, targetValue });
+  const nobleTargets = getNobleTargets(pillars);
 
-  // 천을귀인 (일간 기준): 갑무경→축미 을기→자신 병정→해유 신→인오 임계→사묘
-  const CHEONEUL = {0:[1,7],4:[1,7],6:[1,7], 1:[0,8],5:[0,8], 2:[11,9],3:[11,9], 7:[2,6], 8:[5,3],9:[5,3]};
   // 천의성 (월지 기준): 해당 월지의 앞 지지 (월지-1)
   const cheonui = (P[1].branch + 11) % 12;
-  // 문곡귀인 (일간): 갑→해 을→자 병→인 정→묘 무→인 기→묘 경→사 신→오 임→신 계→유
-  const MUNGOK = {0:11,1:0,2:2,3:3,4:2,5:3,6:5,7:6,8:8,9:9};
-  // 태극귀인 (일간): 갑을→자오 병정→묘유 무기→진술축미 경신→인해 임계→사신
-  const TAEGEUK = {0:[0,6],1:[0,6],2:[3,9],3:[3,9],4:[4,10,1,7],5:[4,10,1,7],6:[2,11],7:[2,11],8:[5,8],9:[5,8]};
   // 역마살 — 포스텔러 실측: 글자 자체 규칙(인신사해 = 역마지) 채택 (장선미 亥亥 둘 다 역마 표시 확인)
   const YEOKMA_SELF = [2,5,8,11];
   // 도화살 — 포스텔러 실측: 글자 자체 규칙(자오묘유 = 도화지) 채택 (子·卯 모두 도화 표시 확인)
@@ -1036,19 +1069,8 @@ function detectSinsal(pillars, knowTime = true) {
   // 현침살 (글자 모양): 천간 갑신, 지지 묘오미신
   // 건록/정록 (일간): 갑→인 을→묘 병무→사 정기→오 경→신 신→유 임→해 계→자
   const GEONROK = {0:2,1:3,2:5,4:5,3:6,5:6,6:8,7:9,8:11,9:0};
-  // 문창귀인 (일간→식신의 건록지): 갑→사 을→오 병무→신 정기→유 경→해 신→자 임→인 계→묘
-  const MUNCHANG = {0:5,1:6,2:8,4:8,3:9,5:9,6:11,7:0,8:2,9:3};
-  // 학당귀인 (일간의 장생지): 갑→해 을→오 병무→인 정기→유 경→사 신→자 임→신 계→묘
-  const HAKDANG = {0:11,1:6,2:2,4:2,3:9,5:9,6:5,7:0,8:8,9:3};
-  // 천주귀인 (일간): 갑→사 을→오 병→사 정→오 무→신 기→유 경→해 신→자 임→인 계→묘
-  const CHEONJU = {0:5,1:6,2:5,3:6,4:8,5:9,6:11,7:0,8:2,9:3};
   // 암록 (일간의 건록과 육합하는 지지): 갑→해 을→술 병무→신 정기→미 경→사 신→진 임→인 계→축
   const AMROK = {0:11,1:10,2:8,4:8,3:7,5:7,6:5,7:4,8:2,9:1};
-  // 천덕귀인 (월지 기준): 인→정 묘→신 진→임 사→신 오→해 미→갑 신→계 유→인 술→병 해→을 자→사 축→경
-  //   (천간 지정 = 천간에 표시, 지지 지정 = 지지에 표시)
-  const CHEONDEOK = {2:{s:3},3:{b:8},4:{s:8},5:{b:8},6:{b:11},7:{s:0},8:{s:9},9:{b:2},10:{s:2},11:{s:1},0:{b:5},1:{s:6}};
-  // 월덕귀인 (월지 삼합국 기준 천간): 인오술→병 신자진→임 해묘미→갑 사유축→경
-  const WOLDEOK = {2:2,6:2,10:2, 8:8,0:8,4:8, 11:0,3:0,7:0, 5:6,9:6,1:6};
   // 괴강살 — ★간지(기둥) 자체 규칙: 경진·경술·임진·무술. 해당 기둥의 천간·지지 둘 다 태그
   const GOEGANG = [[6,4],[6,10],[8,4],[4,10]];
   // 금여(金輿) — 일간 기준, 건록+2칸: 갑진 을사 병미 정신 무미 기신 경술 신해 임축 계인
@@ -1068,18 +1090,18 @@ function detectSinsal(pillars, knowTime = true) {
 
   P.forEach((p, i) => {
     const b = p.branch;
-    if ((CHEONEUL[ds]||[]).includes(b)) add('천을귀인', posName[i], '일간기준');
+    for (const [name, rule] of Object.entries(nobleTargets)) {
+      for (const target of rule.targets) {
+        const matched = target.kind === 'stem' ? p.stem === target.value : b === target.value;
+        if (matched) add(name, target.kind === 'stem' ? posName[i].replace('지','간') : posName[i], rule.basis, target.kind, target.value);
+      }
+    }
     if (b === cheonui) add('천의성', posName[i], '월지기준');
-    if (MUNGOK[ds] === b) add('문곡귀인', posName[i], '일간기준');
-    if ((TAEGEUK[ds]||[]).includes(b)) add('태극귀인', posName[i], '일간기준');
     if (YEOKMA_SELF.includes(b)) add('역마살', posName[i], '지지자체');
     if (DOHWA_SELF.includes(b)) add('도화살', posName[i], '지지자체');
     if (HWAGAE_SELF.includes(b)) add('화개살', posName[i], '지지자체');
     if (CHEONMUN.includes(b)) add('천문성', posName[i], '지지');
     if (GEONROK[ds] === b) add('건록(정록)', posName[i], '일간기준');
-    if (MUNCHANG[ds] === b) add('문창귀인', posName[i], '일간기준');
-    if (HAKDANG[ds] === b) add('학당귀인', posName[i], '일간기준');
-    if (CHEONJU[ds] === b) add('천주귀인', posName[i], '일간기준');
     if (AMROK[ds] === b) add('암록', posName[i], '일간기준');
     if (GEUMYEO[ds] === b) add('금여', posName[i], '일간기준');
     // 국인귀인: 포스텔러 미표시(장선미 실측 대조) — 유파차로 보고 제외
@@ -1094,11 +1116,6 @@ function detectSinsal(pillars, knowTime = true) {
       add('괴강살', posName[i], '간지조합');
     }
     if (BAEKHO.some(([s2,b2]) => p.stem === s2 && p.branch === b2)) add('백호대살', posName[i], '간지조합');
-    // 천덕/월덕 (월지 기준 → 천간에 오면 표시)
-    const cd = CHEONDEOK[pillars.month.branch];
-    if (cd && cd.b === b) add('천덕귀인', posName[i], '월지기준');
-    if (WOLDEOK[pillars.month.branch] === p.stem) add('월덕귀인', posName[i].replace('지','간'), '월지기준');
-    if (cd && cd.s === p.stem) add('천덕귀인', posName[i].replace('지','간'), '월지기준');
   });
   if ([0,3,6,7].includes(STEMS.indexOf(STEMS[pillars.year.stem]))) {} // (천간 현침 갑신은 표시 생략가능)
   // 중복 제거
@@ -1479,7 +1496,8 @@ function gyeokSeongpae(gyeokName, tg, grp, monthClashed, strength, dayElem, mont
 
 const API = { STEMS, STEMS_H, BRANCHES, BRANCHES_H, STEM_ELEM, BRANCH_ELEM, HIDDEN,
   gz, tenGod, tenGodBranch, calcPillars, calcDaewoon, analyze, calcSewoon, calcGongmang,
-  unsung12, sinsal12, daewoonBond, clashLevel, detectHapguk, gyeokSeongpae, gyeokGojeo, detectJonggyeok, findSangshin };
+  unsung12, sinsal12, daewoonBond, clashLevel, detectHapguk, gyeokSeongpae, gyeokGojeo, detectJonggyeok, findSangshin,
+  getNobleTargets };
 if (typeof module !== 'undefined') module.exports = API;
 else global.SajuEngine = API;
 })(typeof window !== 'undefined' ? window : globalThis);

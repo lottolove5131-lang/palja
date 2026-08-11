@@ -1190,6 +1190,19 @@ function calcSewoon(analysis, fromYear, n) {
   return out;
 }
 
+// ── 복음(伏吟)·반음(反吟) — 삼명통회 「總論歲運」 ──
+// 「若歲運與日相對，謂之返吟，歲運壓日，謂之伏吟，二者不利六親，非橫破財，不為吉兆」
+// 원문의 기준은 일주다(歲運壓日). 세운·대운 간지를 일주와만 대조하고 임의로 전 기둥에 확장하지 않는다.
+// 反吟의 "相對"는 천간 충(甲庚·乙辛·丙壬·丁癸)과 지지 충이 모두 성립하는 것으로 읽는다.
+// 戊(4)·己(5)는 마주 충하는 천간이 없어 완전한 반음이 성립하지 않는다.
+function stemClash(a, b) { return (a < 4 && b === a + 6) || (b < 4 && a === b + 6); }
+function fuFanYin(base, other) {
+  if (!base || !other || base.stem == null || other.stem == null) return null;
+  if (base.stem === other.stem && base.branch === other.branch) return '복음';
+  if (stemClash(base.stem, other.stem) && (base.branch + 6) % 12 === other.branch) return '반음';
+  return null;
+}
+
 // ══════════════════════════════════════════════════════════════
 // 상신(相神) — 자평진전 「論相神緊要」
 //   "月令既得用神，則別位亦必有相，若君之有相，輔者是也"
@@ -1550,7 +1563,7 @@ function gyeokSeongpae(gyeokName, tg, grp, monthClashed, strength, dayElem, mont
 const API = { STEMS, STEMS_H, BRANCHES, BRANCHES_H, STEM_ELEM, BRANCH_ELEM, HIDDEN,
   gz, tenGod, tenGodBranch, calcPillars, calcDaewoon, daewoonAgeParts, addDaewoonAge, daewoonAt, analyze, calcSewoon, calcGongmang,
   unsung12, sinsal12, daewoonBond, clashLevel, detectHapguk, gyeokSeongpae, gyeokGojeo, detectJonggyeok, findSangshin,
-  getNobleTargets };
+  fuFanYin, getNobleTargets };
 if (typeof module !== 'undefined') module.exports = API;
 else global.SajuEngine = API;
 })(typeof window !== 'undefined' ? window : globalThis);

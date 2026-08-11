@@ -327,11 +327,14 @@ footer{text-align:center;padding:44px 0 60px;color:var(--hanji-dim);font-size:.7
 .rd-src{font-size:.78rem;color:#8b8271;border-top:1px dotted #ccc;padding-top:2.5mm;margin-top:5mm;line-height:1.7}
 .rd-dim{color:#8b8271}
 
-/* ── 서술식 ───────────────────────────────────────── */
-.rd-prose .rd-title{font-size:1.42rem}
-.rd-prose p{font-size:1.0rem;line-height:2.05;margin:0 0 5mm;text-align:justify}
+/* ── 서술식 — 책 조판(12차): 본문 명조, 장 표지 느낌 ── */
+.rd-prose .rd-title{font-size:1.5rem;font-family:'Noto Serif KR','Nanum Myeongjo',serif;letter-spacing:.01em}
+.rd-prose p{font-size:1.02rem;line-height:2.1;margin:0 0 5mm;text-align:justify;
+  font-family:'Noto Serif KR','Nanum Myeongjo',serif}
 .rd-prose p b{color:#7a4a12}
-.rd-prose .rd-lede{margin-bottom:7mm}
+.rd-prose .rd-lede{margin-bottom:7mm;font-family:'Noto Serif KR','Nanum Myeongjo',serif}
+.rd-prose .rd-kicker{font-size:.82rem;letter-spacing:.32em;padding-bottom:2mm;margin-bottom:4mm;
+  border-bottom:1px solid #e0d7c2}
 
 /* ── 과거 검증 ────────────────────────────────────── */
 .past-row{display:grid;grid-template-columns:26mm 1fr;gap:4mm;padding:4mm 0;border-top:1px solid #e8e1d0;break-inside:avoid}

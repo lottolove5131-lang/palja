@@ -193,11 +193,41 @@ function clashLevel(targetBranch, runBranch, allBranches, isYongshin) {
 }
 
 // ── 대운 ──
+// 《三命通會》 卷二의 절산법:
+//   절입까지 3일 = 1년, 1일 = 4개월, 1시진(2시간) = 10일.
+// 여기서 말하는 '몇 세'는 세는나이가 아니라 출생 뒤 경과기간을 환산한 교운수다.
+function daewoonAgeParts(daysGap) {
+  // 고전의 1년=360일·1개월=30일 환산 단위. 절입 1일은 생애 120일,
+  // 절입 차이 1분은 생애 2시간에 해당한다. 분 단위 절기표의 정보를 버리지 않는다.
+  const scaledHours = Math.max(0, Math.round(daysGap * 120 * 24));
+  const years = Math.floor(scaledHours / (360 * 24));
+  let rest = scaledHours % (360 * 24);
+  const months = Math.floor(rest / (30 * 24));
+  rest %= 30 * 24;
+  const days = Math.floor(rest / 24);
+  const hours = rest % 24;
+  return { years, months, days, hours, scaledHours };
+}
+
+// 고전에서 얻은 교운 경과기간을 사용자가 입력한 양력 생일에 더해 양력 교운일로 바꾼다.
+// 29~31일생의 월 가산은 해당 월의 마지막 날로 먼저 고정한 뒤 남은 일수를 더한다.
+function addDaewoonAge(birthDate, parts, extraYears = 0) {
+  const targetYear = birthDate.getUTCFullYear() + parts.years + extraYears;
+  const targetMonth = birthDate.getUTCMonth() + parts.months;
+  const monthBase = new Date(Date.UTC(targetYear, targetMonth, 1,
+    birthDate.getUTCHours(), birthDate.getUTCMinutes()));
+  const lastDay = new Date(Date.UTC(monthBase.getUTCFullYear(), monthBase.getUTCMonth() + 1, 0)).getUTCDate();
+  monthBase.setUTCDate(Math.min(birthDate.getUTCDate(), lastDay));
+  monthBase.setUTCDate(monthBase.getUTCDate() + parts.days);
+  monthBase.setUTCHours(monthBase.getUTCHours() + (parts.hours || 0));
+  return monthBase;
+}
+
 function calcDaewoon(pillars, gender, terms) {
   // 순행: 양남음녀 / 역행: 음남양녀 (년간 음양 기준)
   const yang = STEM_YANG[pillars.year.stem] === 1;
   const forward = (yang && gender === 'M') || (!yang && gender === 'F');
-  // 대운수: 생일~다음(순행)/이전(역행) 절입일까지 일수 / 3 (반올림, 최소 1)
+  // 대운수: 출생 일시~다음(순행)/이전(역행) 절입 일시를 3일=1년으로 환산한다.
   const civil = pillars.meta.civilTime;
   const TERM_ORDER = ['입춘','경칩','청명','입하','망종','소서','입추','백로','한로','입동','대설','소한'];
   const sy = pillars.meta.sajuYear;
@@ -217,11 +247,10 @@ function calcDaewoon(pillars, gender, terms) {
     const prev = [...all].reverse().find(t => t <= civil);
     daysGap = (parse(civil) - parse(prev)) / 86400000;
   }
-  // 3일=1년을 정수 나이로만 반올림하면 교운 경계에서 최대 약 1년이 흔들린다.
-  // 기존 age는 호환용으로 유지하고, 월 단위 시작시점과 근사 날짜를 함께 보존한다.
-  const startExact = Math.max(1/12, daysGap / 3);
-  let start = Math.round(startExact); if (start < 1) start = 1;
-  const startTotalMonths = Math.max(1,Math.round(startExact*12));
+  // 정수 대운수는 기존 만세력 대조용으로 남기되, 실제 구간 판정은 양력 교운 일시를 쓴다.
+  const startExact = Math.max(0, daysGap / 3);
+  const start = Math.max(0, Math.round(startExact));
+  const startParts = daewoonAgeParts(daysGap);
   const birthDate = new Date(parse(civil));
   const list = [];
   let mIdx = pillars.month.stem * 6 % 60; // 월주 60갑자 idx 계산
@@ -230,15 +259,32 @@ function calcDaewoon(pillars, gender, terms) {
   // 전 생애 표가 80대에서 끊기지 않도록 10대운(약 100년)을 계산한다.
   for (let i = 1; i <= 10; i++) {
     const g = gz(forward ? mIdx + i : mIdx - i);
-    const d0 = new Date(birthDate.getTime()); d0.setUTCMonth(d0.getUTCMonth()+startTotalMonths+(i-1)*120);
-    const d1 = new Date(d0.getTime()); d1.setUTCMonth(d1.getUTCMonth()+120);
+    const d0 = addDaewoonAge(birthDate, startParts, (i-1)*10);
+    const d1 = addDaewoonAge(birthDate, startParts, i*10);
     list.push({ age: start + (i-1)*10, startAgeExact:Math.round((startExact+(i-1)*10)*100)/100,
-      startYear:d0.getUTCFullYear(),startMonth:d0.getUTCMonth()+1,endYear:d1.getUTCFullYear(),endMonth:d1.getUTCMonth()+1,
-      startDate:isoOf(d0).slice(0,10),endDate:isoOf(d1).slice(0,10),...g });
+      countingAge:d0.getUTCFullYear()-birthDate.getUTCFullYear()+1,
+      startYear:d0.getUTCFullYear(),startMonth:d0.getUTCMonth()+1,startDay:d0.getUTCDate(),
+      endYear:d1.getUTCFullYear(),endMonth:d1.getUTCMonth()+1,endDay:d1.getUTCDate(),
+      startDate:isoOf(d0).slice(0,10),endDate:isoOf(d1).slice(0,10),
+      startDateTime:isoOf(d0),endDateTime:isoOf(d1),...g });
   }
   return { forward, start, startExact:Math.round(startExact*100)/100,
-    startYears:Math.floor(startTotalMonths/12),startMonths:startTotalMonths%12,
-    startDate:list[0]&&list[0].startDate,list };
+    startYears:startParts.years,startMonths:startParts.months,startDays:startParts.days,startHours:startParts.hours,
+    startDate:list[0]&&list[0].startDate,startDateTime:list[0]&&list[0].startDateTime,list };
+}
+
+// start는 포함, end는 제외한다. 문자열은 양력 현지시각(YYYY-MM-DD 또는 YYYY-MM-DDTHH:MM)이다.
+function daewoonAt(DW, when) {
+  if (!DW || !Array.isArray(DW.list) || !when) return null;
+  let key;
+  if (typeof when === 'string') key = when.length === 10 ? `${when}T00:00` : when.slice(0,16);
+  else if (when instanceof Date) key = isoOf(when);
+  else return null;
+  return DW.list.find(d => {
+    const startKey = d.startDateTime || `${d.startDate}T00:00`;
+    const endKey = d.endDateTime || `${d.endDate}T00:00`;
+    return key >= startKey && key < endKey;
+  }) || null;
 }
 function parse(iso){ const [d, t] = iso.split('T'); const [y,m,dd] = d.split('-').map(Number); const [h,mi] = t.split(':').map(Number); return Date.UTC(y, m-1, dd, h, mi); }
 
@@ -791,7 +837,7 @@ function detectHapguk(P) {
 }
 
 function detectRelations(P) {
-  const out = { 천간합:[], 지지육합:[], 지지충:[], 형:[], 삼합:[], 방합:[], 반합:[] };
+  const out = { 천간합:[], 지지육합:[], 지지충:[], 형:[], 해:[], 파:[], 삼합:[], 방합:[], 반합:[] };
   const HAP5 = {'05':'토','16':'금','27':'수','38':'목','49':'화'}; // 갑기 을경 병신 정임 무계
   const names = ['년','월','일','시'];
   const n = P.length; // 시간 모름이면 3
@@ -824,6 +870,13 @@ function detectRelations(P) {
       // [8/6] 自刑의 '자'가 지지 子(자)와 동음이라 亥亥自刑이 '해자형'으로 읽혀
       //   존재하지 않는 형(亥子刑)이 된다(子午는 오히려 충). 지지를 두 번 적고 自刑을 병기한다.
       out.형.push({ pos:[names[i],names[j]], pair:BRANCHES[P[i].branch]+BRANCHES[P[i].branch]+' 자형(自刑)' });
+    // 육해·육파는 합충형보다 뒤에 놓는 보조 관계다. 겹치는 합이 있으면 두 성질을 함께 표시한다.
+    const HARM = [[0,7],[1,6],[2,5],[3,4],[8,11],[9,10]];
+    const BREAK = [[0,9],[1,4],[2,11],[3,6],[5,8],[7,10]];
+    if (HARM.some(([a,b]) => (P[i].branch===a&&P[j].branch===b)||(P[i].branch===b&&P[j].branch===a)))
+      out.해.push({ pos:[names[i],names[j]], pair:BRANCHES[P[i].branch]+BRANCHES[P[j].branch]+'해' });
+    if (BREAK.some(([a,b]) => (P[i].branch===a&&P[j].branch===b)||(P[i].branch===b&&P[j].branch===a)))
+      out.파.push({ pos:[names[i],names[j]], pair:BRANCHES[P[i].branch]+BRANCHES[P[j].branch]+'파' });
   }
   // 삼합·반합·방합 병합
   const hg = detectHapguk(P);
@@ -1495,7 +1548,7 @@ function gyeokSeongpae(gyeokName, tg, grp, monthClashed, strength, dayElem, mont
 }
 
 const API = { STEMS, STEMS_H, BRANCHES, BRANCHES_H, STEM_ELEM, BRANCH_ELEM, HIDDEN,
-  gz, tenGod, tenGodBranch, calcPillars, calcDaewoon, analyze, calcSewoon, calcGongmang,
+  gz, tenGod, tenGodBranch, calcPillars, calcDaewoon, daewoonAgeParts, addDaewoonAge, daewoonAt, analyze, calcSewoon, calcGongmang,
   unsung12, sinsal12, daewoonBond, clashLevel, detectHapguk, gyeokSeongpae, gyeokGojeo, detectJonggyeok, findSangshin,
   getNobleTargets };
 if (typeof module !== 'undefined') module.exports = API;

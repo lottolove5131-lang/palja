@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>여덟글자 — 팔자를 읽다</title>
 <meta name="description" content="생년월일시로 사주 원국을 정밀 계산하고, 검증된 명리 해석으로 당신의 팔자를 읽어드립니다.">
-<meta name="author" content="SUN MI JANG">
+<meta name="author" content="장선미 (SUN MI JANG)">
 <style>
 /* ── 디자인 토큰: 밤하늘 먹색 + 한지 + 주사(진사) + 금박 ── */
 :root{
@@ -39,8 +39,8 @@ h1{font-size:2.2rem;font-weight:700;letter-spacing:.35em;text-indent:.35em}
 .sub{color:var(--hanji-dim);margin-top:12px;font-size:.95rem;letter-spacing:.08em}
 .seal{display:inline-block;margin-top:20px;border:1.5px solid var(--jusa);color:var(--jusa);
   padding:6px 10px;font-size:.8rem;letter-spacing:.3em;text-indent:.3em}
-.maker{margin-top:13px;color:var(--hanji-dim);font-size:.72rem;letter-spacing:.16em}
-.maker b{color:var(--gold);font-weight:600}
+.maker{display:inline-flex;align-items:center;gap:8px;margin-top:16px;padding:7px 12px;border-top:1px solid rgba(201,162,39,.45);border-bottom:1px solid rgba(201,162,39,.45);color:var(--hanji-dim);font-size:.76rem;letter-spacing:.12em}
+.maker b{color:var(--gold);font-size:.92rem;font-weight:700}.maker small{color:var(--hanji-dim);font-size:.68rem;letter-spacing:.09em}
 
 /* ── 입력 ── */
 .card{background:var(--ink-2);border:1px solid var(--line);border-radius:14px;padding:28px 24px;margin:20px 0;position:relative;z-index:1}
@@ -226,7 +226,7 @@ details.block[open] summary::before{content:"▾ "}
 .dw .g{font-size:1.25rem;margin:4px 0}
 .dw .lbl{font-size:.64rem;color:var(--gold)}
 footer{text-align:center;padding:44px 0 60px;color:var(--hanji-dim);font-size:.78rem;position:relative;z-index:1}
-.maker-credit{margin-top:18px;color:var(--gold);letter-spacing:.14em}
+.maker-credit{display:inline-block;margin-top:18px;padding:8px 14px;border:1px solid rgba(201,162,39,.45);color:var(--gold);font-size:.86rem;font-weight:700;letter-spacing:.1em}
 .disc{text-align:left;background:var(--ink-2);border:1px solid var(--line);border-radius:12px;padding:22px;font-size:.84rem;line-height:1.85}
 .disc h4{color:var(--gold);font-size:.92rem;margin-bottom:12px;letter-spacing:.06em}
 .disc p{margin-bottom:10px;color:#c4baa6}
@@ -236,12 +236,19 @@ footer{text-align:center;padding:44px 0 60px;color:var(--hanji-dim);font-size:.7
 .report-toolbar{position:sticky;top:10px;z-index:20;margin:18px 0 24px;padding:16px;border:1px solid rgba(201,162,39,.55);border-radius:12px;background:rgba(16,22,38,.96);box-shadow:0 8px 28px rgba(0,0,0,.28)}
 .report-toolbar button{width:100%;min-height:52px;border:0;border-radius:9px;background:var(--gold);color:#111827;font-family:inherit;font-size:1rem;font-weight:800;cursor:pointer}
 .report-toolbar p{margin-top:8px;color:var(--hanji-dim);font-size:.76rem;text-align:center;line-height:1.55}
+.fortune-entrance{margin:18px 0 28px;padding:18px;border:1px solid rgba(201,162,39,.42);border-radius:14px;background:linear-gradient(145deg,#171d31,#101626)}
+.fortune-entrance>p{color:var(--hanji-dim);font-size:.82rem;margin-bottom:12px}.fortune-doors{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.fortune-door{display:grid;grid-template-columns:34px 1fr;gap:8px;align-items:center;min-height:64px;padding:10px;border:1px solid var(--line);border-radius:9px;background:rgba(8,12,22,.58);color:var(--hanji);text-decoration:none}
+.fortune-door:hover,.fortune-door:focus-visible{border-color:var(--gold);outline:none}.fortune-door i{display:grid;place-items:center;width:32px;height:32px;border:1px solid var(--jusa);color:var(--jusa);font-family:'Noto Serif KR','Nanum Myeongjo',serif;font-style:normal}
+.fortune-door b{display:block;color:var(--gold);font-size:.82rem}.fortune-door small{display:block;color:var(--hanji-dim);font-size:.68rem;line-height:1.4;margin-top:2px}
+.report-anchor{scroll-margin-top:120px}.current-month-deep{border-color:var(--jusa);background:linear-gradient(145deg,#17182a,#101626)}
 .print-only{display:none}
 .print-cover{min-height:255mm;padding:28mm 18mm;box-sizing:border-box;color:#f6f1e6;background:#101626;text-align:center}
 .print-cover .cover-mark{color:#c9a227;font-size:.85rem;letter-spacing:.28em;margin-top:26mm}
 .print-cover h1{font-size:2.25rem;letter-spacing:.05em;text-indent:0;margin:15mm 0 5mm}
 .print-cover .cover-name{color:#c9a227;font-size:1.35rem;margin:17mm 0 5mm}
 .print-cover p{color:#d8cfbc;line-height:1.9}
+.print-cover .cover-maker{display:inline-block;align-self:center;margin-top:22mm;padding:3mm 7mm;border:1px solid #c9a227;color:#c9a227!important;font-size:10.5pt;font-weight:700;letter-spacing:.08em}
 .print-toc{padding:12mm 4mm}.print-toc h2{font-size:1.5rem;color:#202634;margin-bottom:9mm}
 .print-toc-item{display:grid;grid-template-columns:18mm 1fr;gap:4mm;padding:4mm 0;border-bottom:1px solid #ddd3bd;color:#24252a}
 .print-toc-item b{color:#a77d13}.print-toc-item span{line-height:1.6}
@@ -260,8 +267,17 @@ footer{text-align:center;padding:44px 0 60px;color:var(--hanji-dim);font-size:.7
 .print-chapter-card h3{margin-top:0}.print-chapter-card .evidence{display:block;margin-top:3mm;color:#666a73;font-size:8.7pt}
 .print-outlook-row{display:grid;grid-template-columns:18mm 1fr;gap:4mm;padding:4mm 0;border-bottom:1px solid #ddd3bd;break-inside:avoid}
 .print-outlook-row b{color:#8f6911}.print-outlook-row p{margin:0}
+.print-prose-lead{padding:5mm 6mm;margin:0 0 5mm;border-left:3px solid #a77d13;background:#f3ecda;color:#24252a;font-size:11.2pt;line-height:1.85}
+.print-prose{margin:4.5mm 0;break-inside:auto}.print-prose h3{margin:0 0 2mm;color:#8f6911;font-size:11pt;break-after:avoid;page-break-after:avoid}.print-prose p{margin:0 0 2.5mm;text-align:justify;line-height:1.82;orphans:3;widows:3}
+.print-evidence-box{margin:4mm 0;padding:4mm 5mm;border:1px solid #d7c9aa;background:#faf7ef;break-inside:avoid;break-before:avoid;page-break-before:avoid}.print-evidence-box b{color:#8f6911}.print-evidence-box p{margin:1.5mm 0 0;line-height:1.68}
+.print-fact-grid{display:grid;grid-template-columns:1fr 1fr;gap:3mm;margin:4mm 0}.print-fact{padding:3.5mm;border:1px solid #ddd3bd;background:#fbfaf6;break-inside:avoid}.print-fact b{display:block;color:#8f6911;margin-bottom:1mm}.print-fact span{display:block;line-height:1.65;color:#2d3037}
+.print-pillar-row{margin:4mm 0;padding:4mm 5mm;border-top:1px solid #d7c9aa;border-bottom:1px solid #d7c9aa;break-inside:avoid}.print-pillar-row h3{margin:0 0 2mm;color:#8f6911}.print-pillar-row p{margin:1.5mm 0;line-height:1.78}
+.print-year-thread{display:grid;grid-template-columns:25mm 1fr;gap:4mm;padding:3.5mm 0;border-bottom:1px solid #e3dbc9;break-inside:avoid}.print-year-thread>b{color:#8f6911}.print-year-thread p{margin:0;line-height:1.7}.print-year-thread small{display:block;margin-top:1mm;color:#676b73;line-height:1.55}
+.print-noble-location{margin:3mm 0;padding:4mm;border-left:2px solid #a77d13;background:#faf7ef;break-inside:avoid}.print-noble-location b{color:#8f6911}.print-noble-location p{margin:1.5mm 0 0;line-height:1.75}
+.print-colophon{min-height:245mm;display:flex;flex-direction:column;justify-content:center;text-align:center;color:#24252a}.print-colophon .maker-stamp{display:inline-block;align-self:center;margin:12mm 0;padding:5mm 8mm;border:2px solid #a94638;color:#a94638;font-size:15pt;font-weight:700;letter-spacing:.09em}.print-colophon p{max-width:135mm;align-self:center;line-height:1.9}
 .print-credit{margin-top:6mm;padding-top:2mm;border-top:1px solid #ddd3bd;color:#8f6911!important;font-size:8pt;letter-spacing:.12em;text-align:right}
-@media(max-width:420px){.master-reading{padding-left:16px;padding-right:16px}.reading-line{grid-template-columns:46px 1fr;gap:10px}.method-book-grid,.dossier-grid,.audit-cols,.plain-summary-grid,.year-grid,.month-grid,.decade-detail-grid,.noble-activation{grid-template-columns:1fr}.reading-confidence{margin:7px 0 0}.dossier-item{min-height:0}.root-row{grid-template-columns:70px 1fr}.root-row .root-grade{grid-column:2}.calibration-form{grid-template-columns:1fr}.calibration-form button{min-height:44px}.answer-row{grid-template-columns:52px 1fr}.year-deep{padding:16px}.plain-summary{padding:14px}}
+.print-credit.chapter-credit{margin:0 0 4mm;padding:0 0 2mm;border-top:0;border-bottom:1px solid #ddd3bd}
+@media(max-width:420px){.master-reading{padding-left:16px;padding-right:16px}.reading-line{grid-template-columns:46px 1fr;gap:10px}.method-book-grid,.dossier-grid,.audit-cols,.plain-summary-grid,.year-grid,.month-grid,.decade-detail-grid,.noble-activation{grid-template-columns:1fr}.fortune-doors{grid-template-columns:1fr 1fr}.reading-confidence{margin:7px 0 0}.dossier-item{min-height:0}.root-row{grid-template-columns:70px 1fr}.root-row .root-grade{grid-column:2}.calibration-form{grid-template-columns:1fr}.calibration-form button{min-height:44px}.answer-row{grid-template-columns:52px 1fr}.year-deep{padding:16px}.plain-summary{padding:14px}}
 @media(min-width:560px){.sinsal-grid{grid-template-columns:1fr 1fr}}
 @media print{
   @page{size:A4;margin:14mm 16mm 16mm}
@@ -301,13 +317,13 @@ footer{text-align:center;padding:44px 0 60px;color:var(--hanji-dim);font-size:.7
   <h1 class="serif">여덟글자</h1>
   <p class="sub">태어난 순간의 하늘이 남긴 여덟 글자를 읽습니다</p>
   <span class="seal serif">정확한 팔자</span>
-  <p class="maker">만든이 <b>SUN MI JANG</b></p>
+  <p class="maker"><span>만든이</span><b>장선미</b><small>SUN MI JANG</small></p>
 </header>
 
 <main class="wrap">
   <section class="card" id="form">
     <label for="personname">감명서에 표시할 이름</label>
-    <input type="text" id="personname" maxlength="30" placeholder="예: 장선미" autocomplete="name">
+    <input type="text" id="personname" maxlength="30" placeholder="예: 김사주" autocomplete="name">
 
     <label>생년월일 (양력)</label>
     <div class="ymd">
@@ -371,7 +387,7 @@ footer{text-align:center;padding:44px 0 60px;color:var(--hanji-dim);font-size:.7
     <p class="tiny">본 서비스는 오락 및 자기이해 목적으로 제공됩니다. 입력한 생년월일시는 저장되지 않으며 브라우저 안에서만 계산됩니다.</p>
   </div>
   <p style="margin-top:20px">인생의 주인은 팔자가 아니라 당신입니다.</p>
-  <p class="maker-credit">만든이 SUN MI JANG</p>
+  <p class="maker-credit">만든이 장선미 · SUN MI JANG</p>
 </footer>
 
 <script src="terms_data.js"></script>
@@ -382,7 +398,8 @@ footer{text-align:center;padding:44px 0 60px;color:var(--hanji-dim);font-size:.7
 'use strict';
 const $ = s => document.querySelector(s);
 const E = window.SajuEngine, C = window.SajuCards, TERMS = window.SOLAR_TERMS;
-const MAKER = 'SUN MI JANG';
+const MAKER_KO = '장선미', MAKER_EN = 'SUN MI JANG';
+const MAKER = `${MAKER_KO} · ${MAKER_EN}`;
 window.SAJU_MAKER = MAKER;
 
 // 별 배경
@@ -519,11 +536,31 @@ function tenGodGroup(g) {
     : ['편재','정재'].includes(g) ? '재성' : ['편관','정관'].includes(g) ? '관성' : '인성';
 }
 function groupPower(A,g){ return A.groupWeights && Number.isFinite(A.groupWeights[g]) ? A.groupWeights[g] : A.groups[g]; }
-function daewoonAt(DW,year,month=7) {
-  const key=year*12+(month-1);
-  const exact=DW.list.find(d=>Number.isFinite(d.startYear)&&key>=d.startYear*12+(d.startMonth-1)&&key<d.endYear*12+(d.endMonth-1));
-  if(exact) return exact;
-  return null;
+function solarMomentKey(year,month=7,day=15,hour=12,minute=0) {
+  return `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}T${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}`;
+}
+function daewoonAt(DW,year,month=7,day=15,hour=12,minute=0) {
+  return E.daewoonAt(DW,solarMomentKey(year,month,day,hour,minute));
+}
+function currentDaewoon(DW) {
+  const now=new Date();
+  return daewoonAt(DW,now.getFullYear(),now.getMonth()+1,now.getDate(),now.getHours(),now.getMinutes());
+}
+function fullSolarAge(y,m,d,now=new Date()) {
+  let age=now.getFullYear()-y;
+  if(now.getMonth()+1<m||(now.getMonth()+1===m&&now.getDate()<d))age--;
+  return Math.max(0,age);
+}
+
+function fortuneEntranceHTML(nowYear){
+  const doors=[
+    ['命','평생운세','성격·직업·돈복·관계·건강복','#fortune-lifetime'],
+    ['年',`${nowYear}년 운세`,'올해부터 2030년까지 해마다','#fortune-year'],
+    ['月','이번 달 운세','돈·일·관계·생활 리듬과 행동','#fortune-month'],
+    ['運','평생 대운','교운일시부터 100년의 변화','#fortune-daewoon'],
+    ['貴','귀인 위치','어느 기둥·십성·시기에 있는지','#fortune-noble']
+  ];
+  return `<nav class="fortune-entrance" aria-label="운세 바로가기"><p>궁금한 운세부터 먼저 읽고, 아래의 계산 근거로 내려가 확인하세요.</p><div class="fortune-doors">${doors.map(([mark,title,desc,href])=>`<a class="fortune-door" href="${href}"><i>${mark}</i><span><b>${title}</b><small>${desc}</small></span></a>`).join('')}</div></nav>`;
 }
 
 // 여덟 글자를 카드별로 잘라 읽기 전에, 월령→격→병약→운의 순서로 한 사람의 구조를 묶는다.
@@ -572,19 +609,19 @@ function masterReadingHTML(A, P, DW, age, knowTime) {
     layerMedicine += ` 다만 <b>${A.jonggyeok.type}</b>으로 읽는 유파에서는 처방이 <b>${A.jonggyeok.yongshin}</b>으로 뒤집힙니다. 이 명식은 정격과 종격의 갈림을 숨기지 않고 두 관법을 함께 봐야 합니다.`;
   }
 
-  const today=new Date();
-  const nowDw = daewoonAt(DW,today.getFullYear(),today.getMonth()+1) || DW.list.find(d => age >= d.age && age < d.age + 10);
+  const today=new Date(), todayKey=solarMomentKey(today.getFullYear(),today.getMonth()+1,today.getDate(),today.getHours(),today.getMinutes());
+  const nowDw = currentDaewoon(DW);
   let layerLuck = '아직 앱의 대운 범위 밖이라 원국의 구조를 중심으로 읽습니다.';
   let luckEvidence = '대운 구간 미확정';
   if (nowDw) {
     const stemGroup = tenGodGroup(E.tenGod(P.day.stem, nowDw.stem));
     const branchGroup = tenGodGroup(E.tenGodBranch(P.day.stem, nowDw.branch));
     const nowHit = !!(A.yongshin && [E.STEM_ELEM[nowDw.stem], E.BRANCH_ELEM[nowDw.branch]].includes(A.yongshin));
-    const nextHit = A.yongshin && DW.list.find(d => d.age > age && [E.STEM_ELEM[d.stem], E.BRANCH_ELEM[d.branch]].includes(A.yongshin));
-    layerLuck = `${age}세 기준 지금은 <b>${nowDw.age}~${nowDw.age+9}세 ${nowDw.str} 대운</b>입니다. 위 글자는 ${stemGroup}, 더 오래 깔리는 아래 글자는 ${branchGroup}이라 ${stemGroup === branchGroup ? '10년의 안팎이 한 주제로 모입니다' : '겉의 과제와 실제 생활의 무게중심이 다르게 흐릅니다'}.`;
+    const nextHit = A.yongshin && DW.list.find(d => (d.startDateTime||`${d.startDate}T00:00`)>todayKey && [E.STEM_ELEM[d.stem], E.BRANCH_ELEM[d.branch]].includes(A.yongshin));
+    layerLuck = `현재 만 ${age}세이며, 양력 <b>${nowDw.startDateTime.replace('T',' ')}</b>부터 <b>${nowDw.str} 대운</b>입니다. 교운수는 출생 후 약 ${nowDw.startAgeExact}년이고 당시 세는나이는 ${nowDw.countingAge}세이며, 실제 적용 구간은 나이 칸이 아니라 양력 시작일시로 판정합니다. 위 글자는 ${stemGroup}, 더 오래 깔리는 아래 글자는 ${branchGroup}이라 ${stemGroup === branchGroup ? '10년의 안팎이 한 주제로 모입니다' : '겉의 과제와 실제 생활의 무게중심이 다르게 흐릅니다'}.`;
     if (nowHit) layerLuck += ' 현재 대운에 최종 취용 기운이 들어와 있어, 원국의 막힌 통로를 실제 행동으로 연결해 볼 구간입니다.';
-    else if (nextHit) layerLuck += ` 다음으로 최종 취용이 분명히 들어오는 큰 구간은 <b>${nextHit.age}세 ${nextHit.str} 대운</b>입니다.`;
-    luckEvidence = `${nowDw.str} · 천간 ${stemGroup} · 지지 ${branchGroup}${nowHit ? ' · 용신 도착' : ''}`;
+    else if (nextHit) layerLuck += ` 다음으로 최종 취용이 분명히 들어오는 큰 구간은 <b>양력 ${nextHit.startDateTime.replace('T',' ')} 시작 ${nextHit.str} 대운</b>입니다. 출생 후 약 ${nextHit.startAgeExact}년, 당시 세는나이 ${nextHit.countingAge}세입니다.`;
+    luckEvidence = `${nowDw.str} · 양력 ${nowDw.startDate}~${nowDw.endDate} · 천간 ${stemGroup} · 지지 ${branchGroup}${nowHit ? ' · 용신 도착' : ''}`;
   }
 
   const rows = [
@@ -642,15 +679,14 @@ window.__runPastCheck = function(){
   const kind = $('#pastkind').value;
   const kindName = {move:'큰 변화',success:'성취·확장',pressure:'압박·손실',quiet:'특별한 일 없음'}[kind];
   const s = E.calcSewoon(A,year,1)[0];
-  const age = year - P.meta.sajuYear + 1;
-  const dw = daewoonAt(DW,year,7) || DW.list.find(d => age >= d.age && age < d.age+10);
+  const dw = daewoonAt(DW,year,7);
   const original = [P.year.branch,P.month.branch,P.day.branch].concat(knowTime?[P.hour.branch]:[]);
   const pos = ['년주','월주','일주'].concat(knowTime?['시주']:[]);
   const clashes = original.map((b,i)=>(b+6)%12===s.branch?pos[i]:null).filter(Boolean);
   const stemGrp = tenGodGroup(E.tenGod(P.day.stem,s.stem));
   const branchGrp = tenGodGroup(E.tenGodBranch(P.day.stem,s.branch));
   const signals = [`${s.str}년 · 천간 ${stemGrp} · 지지 ${branchGrp}`];
-  if (dw) signals.push(`${dw.str} 대운(${dw.age}~${dw.age+9}세) 안`);
+  if (dw) signals.push(`${dw.str} 대운(양력 ${dw.startDateTime.replace('T',' ')}~${dw.endDateTime.replace('T',' ')} 직전 · 당시 세는나이 ${dw.countingAge}세 시작) 안`);
   if (s.yongshinHit) signals.push(`최종 처방 ${A.yongshin} 도착`);
   if (clashes.length) signals.push(`${clashes.join('·')}와 충`);
   else signals.push('원국 지지와 직접 충 없음');
@@ -696,8 +732,9 @@ function lifeDossierHTML(A, P, DW, age, knowTime) {
   const dayStemJoined = A.relations.천간합.some(r => r.pos.includes('일간'));
   const wealthPower = groupPower(A,'재성'), outputPower = groupPower(A,'식상');
   const topPattern = A.patterns && A.patterns[0];
-  const now = daewoonAt(DW,new Date().getFullYear(),new Date().getMonth()+1) || DW.list.find(d => age >= d.age && age < d.age + 10);
-  const nextYong = A.yongshin && DW.list.find(d => d.age > age && [E.STEM_ELEM[d.stem],E.BRANCH_ELEM[d.branch]].includes(A.yongshin));
+  const clock=new Date(), now = currentDaewoon(DW);
+  const nowKey=solarMomentKey(clock.getFullYear(),clock.getMonth()+1,clock.getDate(),clock.getHours(),clock.getMinutes());
+  const nextYong = A.yongshin && DW.list.find(d => (d.startDateTime||`${d.startDate}T00:00`)>nowKey && [E.STEM_ELEM[d.stem],E.BRANCH_ELEM[d.branch]].includes(A.yongshin));
 
   const identity = `<b>${A.strength} ${E.STEMS[P.day.stem]} 일간</b> 위에 지장간 깊이·월령·통근까지 합친 유효세력은 ${top}과 ${next}이 가장 두껍습니다. ${strong ? '자기 힘이 넉넉해 밖으로 내보내고 현실화할 때 균형이 잡히는 사람' : A.strength === '중화' ? '환경에 따라 강약을 조절할 수 있어 한쪽 역할에 갇히지 않는 사람' : '혼자 버티기보다 배움과 믿을 만한 편을 확보할수록 본래 역량이 살아나는 사람'}으로 읽힙니다.`;
   const talent = topPattern
@@ -712,8 +749,8 @@ function lifeDossierHTML(A, P, DW, age, knowTime) {
   const remedy = A.yongshin
     ? `최종 처방은 <b>${A.yongshin}(${ELMAP[A.yongshin]})</b>입니다. ${A.yongshinInChart ? '원국 안에 있으므로 이미 가진 능력을 반복해서 쓰는 것이 개운의 핵심입니다.' : '원국에는 없으므로 지금 가진 성격으로 가장하지 말고, 그 기운의 사람·환경·운이 올 때 연결하는 방식이 맞습니다.'}`
     : '중화에 가까워 한 가지 오행을 평생 처방으로 고정하지 않습니다. 격의 상신과 매 대운에서 실제로 과해지거나 부족해지는 축을 그때그때 조절해야 합니다.';
-  let timing = now ? `지금은 <b>${now.age}~${now.age+9}세 ${now.str} 대운</b>이며, 천간은 ${tenGodGroup(E.tenGod(P.day.stem,now.stem))}, 지지는 ${tenGodGroup(E.tenGodBranch(P.day.stem,now.branch))}입니다.` : '현재 나이는 계산된 대운표의 범위 밖입니다.';
-  if (nextYong) timing += ` 다음 큰 처방 전환점은 <b>${nextYong.age}세 ${nextYong.str} 대운</b>입니다.`;
+  let timing = now ? `지금은 양력 <b>${now.startDate}</b>부터 시작한 <b>${now.str} 대운</b>이며, 천간은 ${tenGodGroup(E.tenGod(P.day.stem,now.stem))}, 지지는 ${tenGodGroup(E.tenGodBranch(P.day.stem,now.branch))}입니다. 교운수는 출생 후 약 ${now.startAgeExact}년, 당시 세는나이 표기로는 ${now.countingAge}세입니다.` : '현재 날짜는 계산된 대운표의 범위 밖입니다.';
+  if (nextYong) timing += ` 다음 큰 처방 전환점은 <b>양력 ${nextYong.startDateTime.replace('T',' ')} 시작 ${nextYong.str} 대운</b>입니다. 출생 후 약 ${nextYong.startAgeExact}년, 당시 세는나이 ${nextYong.countingAge}세입니다.`;
   else if (A.yongshin && now && [E.STEM_ELEM[now.stem],E.BRANCH_ELEM[now.branch]].includes(A.yongshin)) timing += ' 지금 대운에 이미 처방 기운이 와 있으므로 준비보다 실행과 정리가 더 중요한 구간입니다.';
 
   const items = [
@@ -722,7 +759,7 @@ function lifeDossierHTML(A, P, DW, age, knowTime) {
     ['일과 돈의 방식',money,`식상 유효세력 ${outputPower} · 재성 유효세력 ${wealthPower} · 일간 ${A.strength}`],
     ['가까운 관계',relation,`일지 ${E.BRANCHES[P.day.branch]} · ${dayGod}${dayShaken?' · 충형':''}${dayBranchJoined?' · 일지육합':''}${dayStemJoined?' · 일간천간합':''}`],
     ['평생의 병과 약',remedy,`${A.yongshinBasis || '중화'} · ${A.yongshinMode}`],
-    ['지금과 전환점',timing,now ? `${now.str} · 현재 ${age}세` : `현재 ${age}세`],
+    ['지금과 전환점',timing,now ? `${now.str} · 양력 ${now.startDate} 시작 · 현재 만 ${age}세` : `현재 만 ${age}세`],
   ];
   return `<div class="sec"><h2 class="serif">전 생애 핵심 지도</h2><div class="dossier-grid">${items.map((x,i)=>`<div class="dossier-item" data-num="0${i+1}"><h3>${x[0]}</h3><p>${x[1]}</p><span class="evidence">교차 근거 · ${x[2]}</span></div>`).join('')}</div></div>`;
 }
@@ -771,7 +808,7 @@ function buildLifeProfiles(A,P,DW,age,gender,knowTime,nowYear) {
   const dayStemJoined = A.relations.천간합.some(r=>r.pos.includes('일간'));
   const wealthPower = groupPower(A,'재성'), outputPower = groupPower(A,'식상');
   const relCount = A.relations.지지충.length + A.relations.형.length;
-  const nowDw = daewoonAt(DW,nowYear,new Date().getMonth()+1) || DW.list.find(d=>age>=d.age&&age<d.age+10);
+  const nowDw = currentDaewoon(DW);
   const nowDwGroups = nowDw ? groupOfPillar(P,nowDw.stem,nowDw.branch) : null;
   const years = E.calcSewoon(A,nowYear,15).map(s=>{
     const dw=daewoonAt(DW,s.year,7), g=groupOfPillar(P,s.stem,s.branch);
@@ -853,11 +890,15 @@ function practicalSummaryHTML(A,P,DW,age,gender,knowTime,nowYear) {
   const sig = natalBranchSignals(P,now.branch,knowTime);
   const thisYear = `${nowYear}년은 겉으로 ${yg.stem}, 생활 바탕에는 ${yg.branch}이 들어옵니다. ${GROUP_PLAIN[yg.stem].gift}을 앞세우되 ${GROUP_PLAIN[yg.branch].action}가 실제 결과를 가릅니다.${sig.clash.length?` ${sig.clash.join('·')}주와 충이 있어 그 영역은 유지보다 재조정이 먼저입니다.`:''}`;
   const card = (title,rows) => `<div class="plain-card"><h3>${title}</h3><div class="answer-list">${rows.map(([k,v])=>`<div class="answer-row"><b>${k}</b><span>${v}</span></div>`).join('')}</div></div>`;
-  return `<div class="sec"><h2 class="serif">먼저 읽는 내 사주 결론</h2><div class="plain-summary">
+  const elemOrder=Object.entries(A.elem).sort((a,b)=>b[1]-a[1]);
+  const strongElem=elemOrder[0][0], weakElem=elemOrder[elemOrder.length-1][0];
+  return `<div class="sec report-anchor" id="fortune-lifetime"><h2 class="serif">먼저 읽는 내 사주 결론</h2><div class="plain-summary">
     <p>어려운 명리 용어보다 실제 답을 먼저 놓았습니다. 아래 결론 뒤에 원국·대운·세운 근거를 순서대로 확인할 수 있습니다.</p><div class="plain-summary-grid">
     ${card('나는 어떤 사람인가',[['겉과 속',x.identity],['핵심',`${x.top}의 힘이 가장 두껍습니다.`]])}
     ${card('평생 조심해야 할 것',[['반복 실수',x.caution],['고치는 법',GROUP_PLAIN[x.top].action]])}
     ${card('돈복',[['버는 방식',x.earning],['돈이 새는 곳',x.keeping],['움직일 때',x.moneyTiming]])}
+    ${card('직업운',[['강점',`${GROUP_PLAIN[x.top].gift}을 실제 결과로 만드는 일`],['맞는 환경',`${GROUP_PLAIN[x.top].action}를 지킬 수 있고 ${GROUP_PLAIN[x.second].gift}도 함께 쓰는 환경`],['평가 기준','직함보다 반복해서 잘 끝낸 일·돈이 된 결과·남이 다시 찾는 역할을 봅니다.']])}
+    ${card('건강복·회복운',[['타고난 자원',`${strongElem} 기운의 ${ELEMENT_BOOK[strongElem].gift}`],['보완할 리듬',ELEMENT_BOOK[weakElem].rhythm],['주의','질병을 예언하지 않고 수면·식사·활동·긴장 회복의 반복 패턴만 봅니다.']])}
     ${card('인복',[['도움의 출처',x.helper],['사람 주의',x.peopleRisk],['사람운',x.peopleTiming]])}
     ${card('결혼·인연운',[['끌림',x.partner],['인연 시기',x.relationTiming],['전제',x.spouseNote]])}
     ${card(`${nowYear}년 올해 운세`,[['큰 흐름',thisYear],['올해 행동',GROUP_PLAIN[yg.stem].action],['근거',`${now.str} · 천간 ${yg.stemGod} · 지지 ${yg.branchGod}`]])}
@@ -866,11 +907,14 @@ function practicalSummaryHTML(A,P,DW,age,gender,knowTime,nowYear) {
 
 function deepLifeFortunesHTML(A,P,DW,age,gender,knowTime,nowYear) {
   const x = buildLifeProfiles(A,P,DW,age,gender,knowTime,nowYear);
+  const elemOrder=Object.entries(A.elem).sort((a,b)=>b[1]-a[1]), strongElem=elemOrder[0][0], weakElem=elemOrder[elemOrder.length-1][0];
   const topic = (title,conclusion,rows,evidence) => `<div class="fortune-topic"><h3>${title}</h3><p class="topic-conclusion">${conclusion}</p><div class="answer-list">${rows.map(([k,v])=>`<div class="answer-row"><b>${k}</b><span>${v}</span></div>`).join('')}</div><span class="evidence">판독 근거 · ${evidence}</span></div>`;
   return `<div class="sec"><h2 class="serif">성격·돈·사람·인연을 깊게 풀면</h2>
     ${topic('성격 — 남이 보는 나와 실제 속마음',x.identity,[['잘하는 것',GROUP_PLAIN[x.top].gift],['힘들 때',GROUP_PLAIN[x.top].shadow],['살리는 법',GROUP_PLAIN[x.top].action]],`월간 ${x.outer} · 일지 ${x.inner} · 최다 ${x.top}/${x.second}`)}
     ${topic('평생 주의점 — 같은 실수를 어디서 반복하는가',x.caution,[['경고 신호',`급하게 결정하거나 같은 불편이 세 번 반복될 때 ${x.top}의 그림자가 나온 것입니다.`],['멈출 기준',GROUP_PLAIN[x.top].action],['검증',`말보다 돈·시간·역할이 실제로 정리됐는지 확인합니다.`]],`${A.strength} · 충 ${A.relations.지지충.length} · 형 ${A.relations.형.length}`)}
     ${topic('돈복 — 얼마나가 아니라 어떻게 벌고 남기는가',x.earning,[['들어오는 길',x.earning],['돈이 새는 길',x.keeping],['좋은 시기',x.moneyTiming],['행동',`그 시기 전까지 ${GROUP_PLAIN[A.groups.식상? '식상':x.top].action}`]],`식상 ${A.groups.식상} · 재성 ${A.groups.재성} · ${A.strength}`)}
+    ${topic('직업운 — 무슨 직업명이 아니라 어떤 역할에서 오래 강한가',`${GROUP_PLAIN[x.top].gift}이 핵심 경쟁력이고 ${GROUP_PLAIN[x.second].gift}이 보조 능력입니다.`,[['잘 맞는 역할',`${GROUP_PLAIN[x.top].gift}을 결과로 확인할 수 있는 역할`],['조직 선택',`${GROUP_PLAIN[x.top].action}를 지킬 수 있고 책임·보상·마감이 분명한 곳`],['이직 판단','답답함 하나로 움직이지 말고 수입·배울 것·권한·회복시간 네 칸을 전후 비교합니다.'],['성장법',`${GROUP_PLAIN[x.second].action}를 익혀 강점의 그림자를 보완합니다.`]],`최다 ${x.top}/${x.second} · 관성 ${A.groups.관성} · 식상 ${A.groups.식상} · 재성 ${A.groups.재성}`)}
+    ${topic('건강복·회복운 — 병명이 아니라 무너지기 전 알아차리는 법',`${strongElem}의 회복 자원은 살리고, 상대적으로 적은 ${weakElem}의 생활 리듬은 의식적으로 보완해야 합니다.`,[['회복 자원',`${ELEMENT_BOOK[strongElem].gift}을 무리하지 않는 범위에서 쓰는 것`],['생활 보완',ELEMENT_BOOK[weakElem].rhythm],['과부하 신호',`${ELEMENT_BOOK[strongElem].shadow}이 반복되면서 수면·식사·활동 중 두 가지가 동시에 흐트러질 때`],['안전 원칙','증상이 지속되거나 악화되면 명리 해석이 아니라 의료진의 진료와 검사를 우선합니다.']],`오행 최다 ${strongElem} ${A.elem[strongElem]} · 최소 ${weakElem} ${A.elem[weakElem]} · 조후 ${A.johu&&A.johu.need?A.johu.need:'별도 처방 없음'}`)}
     ${topic('인복 — 누가 돕고, 어떤 사람을 걸러야 하는가',x.helper,[['귀인의 모습',x.helper],['관계의 함정',x.peopleRisk],['도움이 커질 때',x.peopleTiming],['행동','부탁할 내용·기한·내가 돌려줄 것을 한 문장으로 먼저 말합니다.']],`최다 ${x.top} · 인성 ${A.groups.인성} · 비겁 ${A.groups.비겁}`)}
     ${topic('결혼·인연운 — 끌림, 갈등 방식, 시기',x.partner,[['잘 맞는 방식',`${GROUP_PLAIN[x.inner].gift}을 존중하면서 생활비·시간·혼자 있는 시간을 구체적으로 합의하는 관계`],['깨지는 패턴',A.relations.지지충.some(r=>r.pos.includes('일'))?'불편을 참다가 거리를 한 번에 바꾸는 것':'상대가 알아서 알 것이라 여기고 확인을 생략하는 것'],['인연이 움직일 때',x.relationTiming],['판단 기준','강한 끌림보다 갈등 뒤에 대화와 약속이 실제로 바뀌는 사람을 봅니다.']],`배우자궁 ${E.BRANCHES[P.day.branch]} · ${E.tenGodBranch(P.day.stem,P.day.branch)}${x.spouseNote?' · 성별 배우자 별은 보조':' '}`)}
     <p class="method-note">결혼·재산·질병·수명을 확정하거나 특정 사건을 보장하지 않습니다. 고전의 배우자·재물 상징은 현대 생활의 관계 방식과 자원 관리로 번역했고, 원국 하나가 아니라 현재 대운과 해·달의 신호가 겹치는지를 함께 봅니다.</p></div>`;
@@ -892,7 +936,7 @@ function yearlyForecastHTML(A,P,DW,age,gender,knowTime,nowYear) {
   const endYear = Math.max(2030, nowYear + 1);
   const years = Array.from({length:endYear-nowYear+1},(_,i)=>nowYear+i);
   const blocks = years.map((year,yi)=>{
-    const currentDw = daewoonAt(DW,year,7) || DW.list.find(d=>year-P.meta.sajuYear+1>=d.age&&year-P.meta.sajuYear+1<d.age+10);
+    const currentDw = daewoonAt(DW,year,7);
     const s = E.calcSewoon(A,year,1)[0];
     const g = groupOfPillar(P,s.stem,s.branch);
     const sig = natalBranchSignals(P,s.branch,knowTime);
@@ -948,7 +992,7 @@ function yearlyForecastHTML(A,P,DW,age,gender,knowTime,nowYear) {
       </div><h4 class="month-title">${year}년 12달 흐름</h4><div class="month-grid">${months}</div>
       <p class="method-note">월운은 양력 1일이 아니라 절기(대개 매달 4~8일 무렵)에 바뀝니다. 월 중순의 월주로 그달 중심 기운을 표시했으며, 절기 경계 출생·일정은 하루 단위로 다시 확인해야 합니다.</p></section>`;
   }).join('');
-  return `<div class="sec"><h2 class="serif">${nowYear}~${endYear} 운세 — 5개년의 변화와 60개월</h2>
+  return `<div class="sec report-anchor" id="fortune-year"><h2 class="serif">${nowYear}~${endYear} 운세 — 5개년의 변화와 60개월</h2>
     <div class="block"><p>토정비결 괘를 흉내 내지 않고 <b>내 원국 + 해당 시기의 10년 대운 + 각 해의 세운 + 12달 월운</b>을 해마다 다시 연결합니다. 돈·일·사람·인연·생활 리듬을 따로 보고 행동으로 묶었으며, 해마다 대운이 바뀌는 정확한 날짜도 따로 반영합니다.</p></div>${blocks}</div>`;
 }
 
@@ -1008,11 +1052,11 @@ function nobleGuideHTML(A,P,DW,knowTime,nowYear){
   const pillars={년:P.year,월:P.month,일:P.day,시:P.hour};
   const activePillars=['년','월','일'].concat(knowTime?['시']:[]);
   const endYear=Math.max(2030,nowYear+1), yearRuns=E.calcSewoon(A,nowYear,endYear-nowYear+1);
-  const currentDw=daewoonAt(DW,nowYear,new Date().getMonth()+1);
+  const currentDw=currentDaewoon(DW);
   const targetLabel=t=>t.kind==='stem'?`${E.STEMS[t.value]} 천간`:`${E.BRANCHES[t.value]} 지지`;
   const targetMatch=(target,p)=>target.kind==='stem'?p.stem===target.value:p.branch===target.value;
   const names=order.filter(name=>A.sinsal.some(s=>s.name===name));
-  if(!names.length)return `<div class="sec noble-section"><h2 class="serif">귀인의 정확한 위치와 작동 통로</h2><div class="block"><p>이 명식의 원국 네 기둥에는 현재 채택한 조견표와 일치하는 귀인이 없습니다. 귀인이 없다는 것이 도움이나 성취가 없다는 뜻은 아니며, 실제 인성·관성·격국과 사람의 행동을 먼저 봅니다.</p></div></div>`;
+  if(!names.length)return `<div class="sec noble-section report-anchor" id="fortune-noble"><h2 class="serif">귀인의 정확한 위치와 작동 통로</h2><div class="block"><p>이 명식의 원국 네 기둥에는 현재 채택한 조견표와 일치하는 귀인이 없습니다. 귀인이 없다는 것이 도움이나 성취가 없다는 뜻은 아니며, 실제 인성·관성·격국과 사람의 행동을 먼저 봅니다.</p></div></div>`;
   const cards=names.map(name=>{
     const detail=C.NOBLE_DETAIL[name], rule=rules[name];
     const spots=A.sinsal.filter(s=>s.name===name);
@@ -1034,7 +1078,7 @@ function nobleGuideHTML(A,P,DW,knowTime,nowYear){
       return `<div class="noble-position"><b>${spot.where} · ${char} · ${god}/${group}</b><p>${wd?`${wd.who} · ${wd.when}. `:''}${layer}으로 읽습니다. 이 자리의 십성은 ${group}이라 ${GROUP_PLAIN[group].gift}과 함께 나타나는지 확인합니다. ${contacts.length?`원국 접점은 ${contacts.join('·')}입니다.`:'다른 원국 기둥과 직접 합·충·형으로 겹치는 표지는 없습니다.'}</p></div>`;
     }).join('');
     const yearHits=yearRuns.filter(s=>rule.targets.some(t=>targetMatch(t,s))).map(s=>`${s.year}년 ${s.str}`).join(' · ');
-    const decadeHits=DW.list.filter(d=>rule.targets.some(t=>targetMatch(t,d))).map(d=>`${d.age}~${d.age+9}세 ${d.str} (${d.startDate} 시작)${d===currentDw?' · 현재':''}`).join('<br>');
+    const decadeHits=DW.list.filter(d=>rule.targets.some(t=>targetMatch(t,d))).map(d=>`${d.str} (${d.startDate} 시작 · 당시 세는나이 ${d.countingAge}세 · 출생 후 약 ${d.startAgeExact}년)${d===currentDw?' · 현재':''}`).join('<br>');
     const targetText=rule.targets.map(targetLabel).join('·');
     return `<article class="noble-card" data-noble="${name}"><h3>${name}<span class="noble-grade">근거 ${rule.confidence}</span></h3>
       <p class="noble-theme"><b>${detail.theme}</b><br>${detail.real}</p>
@@ -1042,7 +1086,7 @@ function nobleGuideHTML(A,P,DW,knowTime,nowYear){
       <div class="noble-activation"><div><b>${nowYear}~${endYear} 같은 글자</b>${yearHits||'이 구간에는 같은 목표 글자가 직접 오지 않습니다.'}</div><div><b>평생 대운에서 같은 글자</b>${decadeHits||'계산된 10개 대운에는 같은 목표 글자가 직접 오지 않습니다.'}</div></div>
       <p class="noble-rule">산출 · ${rule.basis} → ${targetText} / 계보 · ${rule.lineage}<br>해석 제한 · ${detail.gate} 같은 글자가 운에서 와도 귀인이나 사건의 출현을 보장하지 않으며, 그 통로를 실제로 써 볼 점검 시기로만 읽습니다.</p></article>`;
   }).join('');
-  return `<div class="sec noble-section"><h2 class="serif">귀인의 정확한 위치와 작동 통로</h2><div class="block"><p>귀인은 이름만 나열하지 않습니다. <b>산출 기준 → 원국의 정확한 위치 → 그 자리의 십성·생활 영역 → 2026~2030 세운과 평생 대운의 동일 글자</b> 순서로 확인합니다. 천을·천덕·월덕은 고전 조견표를, 나머지는 후대 통용표를 썼고 서로 같은 무게로 취급하지 않습니다.</p></div><div class="noble-ledger">${cards}</div></div>`;
+  return `<div class="sec noble-section report-anchor" id="fortune-noble"><h2 class="serif">귀인의 정확한 위치와 작동 통로</h2><div class="block"><p>귀인은 이름만 나열하지 않습니다. <b>산출 기준 → 원국의 정확한 위치 → 그 자리의 십성·생활 영역 → 2026~2030 세운과 평생 대운의 동일 글자</b> 순서로 확인합니다. 천을·천덕·월덕은 고전 조견표를, 나머지는 후대 통용표를 썼고 서로 같은 무게로 취급하지 않습니다.</p></div><div class="noble-ledger">${cards}</div></div>`;
 }
 
 const MONTH_TERM_NAMES=[['소한','입춘'],['입춘','경칩'],['경칩','청명'],['청명','입하'],['입하','망종'],['망종','소서'],['소서','입추'],['입추','백로'],['백로','한로'],['한로','입동'],['입동','대설'],['대설','소한']];
@@ -1085,7 +1129,7 @@ function natalPeriodTouches(P,periodP,knowTime){
 function professionalMonthReportHTML(A,P,DW,age,gender,knowTime,nowYear) {
   const pages = Array.from({length:12},(_,i)=>{
     const seg=calendarMonthSegments(nowYear,i+1), mp=seg.mainP;
-    const currentDw = daewoonAt(DW,nowYear,i+1) || DW.list.find(d=>age>=d.age&&age<d.age+10);
+    const currentDw = daewoonAt(DW,nowYear,i+1);
     const mg=groupOfPillar(P,mp.month.stem,mp.month.branch);
     const ms=natalBranchSignals(P,mp.month.branch,knowTime);
     const outward=MONTH_REAL[mg.stem], lived=MONTH_REAL[mg.branch];
@@ -1138,6 +1182,37 @@ function professionalMonthReportHTML(A,P,DW,age,gender,knowTime,nowYear) {
   return `<section class="print-only print-month-report"><div class="print-toc"><h2>${nowYear}년 월별 감명서</h2><p>월운은 양력 1일이 아니라 절기, 대개 매달 4~8일 무렵에 바뀝니다. 각 달을 돈·일·사람·관계·합충·행동으로 다시 풀었습니다.</p></div>${pages}</section>`;
 }
 
+function currentMonthScreenHTML(A,P,DW,knowTime){
+  const now=new Date(), year=now.getFullYear(), month=now.getMonth()+1;
+  const mp=E.calcPillars(year,month,now.getDate(),Math.max(0,now.getHours()),now.getMinutes(),{terms:TERMS});
+  const seg=calendarMonthSegments(year,month), dw=currentDaewoon(DW);
+  const mg=groupOfPillar(P,mp.month.stem,mp.month.branch), outward=MONTH_REAL[mg.stem], lived=MONTH_REAL[mg.branch];
+  const sig=natalBranchSignals(P,mp.month.branch,knowTime), touches=natalPeriodTouches(P,mp,knowTime);
+  const stack=analyzeTransitStack(A,P,dw,mp.year,mp,knowTime), dwg=dw?groupOfPillar(P,dw.stem,dw.branch):null;
+  const touchText=touches.length?touches.map(t=>`${t.pos}주 ${t.br||t.sr} — ${t.area}`).join(' · '):'원국 네 자리와 직접 겹치는 큰 합·충보다 일상의 선택이 더 중요합니다.';
+  let total=`이번 달 바깥 과제는 ${mg.stemGod}/${mg.stem}, 실제 생활에서 오래 체감할 바탕은 ${mg.branchGod}/${mg.branch}입니다. ${outward.scene}`;
+  if(mg.stem!==mg.branch)total+=` 겉으로 요구받는 일과 속에서 감당하는 일이 다를 수 있어 ${GROUP_PLAIN[mg.stem].action}와 ${GROUP_PLAIN[mg.branch].action}를 함께 해야 합니다.`;
+  else total+=` 두 층이 모두 ${mg.stem}으로 모여 무엇을 해야 하는지가 비교적 선명한 달입니다.`;
+  if(dwg)total+=` 이 흐름은 ${dw.str} 대운의 ${dwg.stem}/${dwg.branch}라는 10년 바탕 안에서 나타납니다.`;
+  if(stack.length)total+=` 개인 명식과 겹치는 핵심 표지는 ${stack.slice(0,3).join(' · ')}입니다.`;
+  let money=lived.money;
+  if(!chartIsStrong(A)&&(mg.stem==='재성'||mg.branch==='재성'))money+=' 일간이 약한 편에서는 수입 기회와 책임이 함께 늘 수 있으므로 매출보다 감당할 금액·시간·부채 한도를 먼저 정해야 합니다.';
+  if(mg.stem==='비겁'||mg.branch==='비겁')money+=' 친분과 돈을 섞지 말고 공동비용·빌려준 돈·수익 배분일을 문자나 문서로 남기세요.';
+  let work=outward.work;
+  if(sig.clash.includes('월'))work+=' 직업 자리의 충은 무조건 퇴사한다는 뜻이 아니라 업무 범위·소속·상사·근무방식 중 무엇을 바꿔야 하는지 협상하라는 표시입니다.';
+  if(sig.hap.includes('월'))work+=' 직업 자리의 합은 협업과 소속 약속이 구체화될 재료이므로 평가 기준과 책임 범위를 먼저 확인해야 합니다.';
+  let relation=`${lived.people} ${lived.love}`;
+  if(sig.clash.includes('일'))relation+=' 가까운 관계 자리의 충은 이별 예언이 아니라 돈·시간·거리·집안일의 불일치를 말로 꺼내라는 신호입니다.';
+  if(sig.hap.includes('일'))relation+=' 가까운 관계 자리의 합은 만남이나 합의가 구체화될 재료지만, 상대 몫까지 내 책임으로 묶지 않는 조건이 필요합니다.';
+  const energy=`${periodPoint(mg.branch,'energy')} 건강복은 병이 없다는 약속이 아니라 무리한 뒤 다시 돌아오는 습관에 가깝습니다. 이번 달에는 ${lived.risk}이 반복되며 수면·식사·활동 중 두 가지가 동시에 흐트러지는지 먼저 보세요. 지속되거나 심한 증상은 운세가 아니라 의료진에게 확인해야 합니다.`;
+  const actions=[outward.action,lived.action,sig.clash.length?'바꿀 것·지킬 것·확인 날짜를 세 칸으로 나눠 적기':'이번 달 안에 끝낼 일 하나를 달력에 고정하기',sig.hap.length?'좋은 제안도 금액·시간·책임을 확인한 뒤 수락하기':'월말에 받을 돈·낼 돈·무료로 한 일을 함께 확인하기'];
+  return `<section class="sec report-anchor" id="fortune-month"><h2 class="serif">${year}년 ${month}월, 이번 달 운세</h2>
+    <div class="block"><h3>총론 · ${mp.month.str}월</h3><p>${total}</p><p class="method-note">절기 기준 · ${seg.range.label}<br>${seg.priorText}</p></div>
+    <div class="year-grid"><div class="year-point"><b>돈복·재물</b><span>${money}</span></div><div class="year-point"><b>직업·성과</b><span>${work}</span></div><div class="year-point"><b>사람·관계</b><span>${relation}</span></div><div class="year-point"><b>건강복·생활 리듬</b><span>${energy}</span></div></div>
+    <div class="block"><h3>내 원국과 맞물리는 자리</h3><p>${touchText}</p>${stack.length?`<p class="method-note">대운·세운·월운 교차 · ${stack.join(' · ')}</p>`:''}</div>
+    <div class="block"><h3>이번 달 행동표</h3><ul class="print-checks">${[...new Set(actions)].map(x=>`<li>${x}</li>`).join('')}</ul><p class="method-note">월말 확인 · 실제로 끝낸 일, 받을 돈과 낼 돈, 다시 합의한 관계, 회복을 위해 지킨 시간을 기록하세요.</p></div></section>`;
+}
+
 function yearConsultationSnapshot(A,P,DW,gender,knowTime,year){
   const s=E.calcSewoon(A,year,1)[0], dw=daewoonAt(DW,year,7);
   const g=groupOfPillar(P,s.stem,s.branch), dwg=dw?groupOfPillar(P,dw.stem,dw.branch):null;
@@ -1157,10 +1232,269 @@ function yearConsultationSnapshot(A,P,DW,gender,knowTime,year){
   return {year,s,dw,g,dwg,sig,stack,conclusion,money,work,relation,action};
 }
 
+// ── 장문 평생 감명서 ─────────────────────────────────────
+// 화면 카드의 짧은 결론을 그대로 늘이지 않고, 같은 계산값을 삶의 영역별로 다시 엮는다.
+// 모든 장은 쉬운 설명 → 개인 명식의 근거 → 잘 쓰는 법 → 해석 한계 순서로 쓴다.
+const ELEMENT_BOOK={
+  목:{image:'씨앗이 방향을 잡고 자라나는 힘',gift:'시작·기획·성장·관계의 연결',shadow:'방향을 너무 많이 벌리거나 끝을 보기 전에 새 가지를 내는 경향',life:'새 일을 시작하고 사람과 가능성을 이어 붙이는 장면',rhythm:'아침 활동, 가벼운 움직임, 해야 할 일의 첫 단계를 작게 정하는 습관'},
+  화:{image:'빛과 열이 안의 것을 밖으로 드러내는 힘',gift:'표현·발표·속도·인지도·성과의 가시화',shadow:'흥분한 채 약속을 늘리거나 쉬기 전에 다음 일을 벌이는 경향',life:'말·글·홍보·발표·평판처럼 남이 확인할 수 있는 장면',rhythm:'낮 시간의 활동, 몸을 따뜻하게 하는 일상, 시작보다 종료 시각을 정하는 습관'},
+  토:{image:'흩어진 것을 받아 길러 결과와 자산으로 남기는 힘',gift:'유지·관리·책임·현실화·축적',shadow:'내 몫이 아닌 짐까지 떠안거나 변화가 필요한데도 버티는 경향',life:'생활비·부동산·재고·관리·돌봄·반복 운영의 장면',rhythm:'식사와 수면 시간을 일정하게 두고, 책임과 비용의 경계를 문서로 정하는 습관'},
+  금:{image:'기준을 세우고 자를 것을 잘라 형태를 완성하는 힘',gift:'판단·규칙·정리·품질·계약·마감',shadow:'완벽하지 않으면 시작하지 않거나 사람에게도 같은 기준을 적용하는 경향',life:'평가·심사·계약·기술·정리·결정처럼 기준이 필요한 장면',rhythm:'정리 시간을 따로 두고, 결정 기준을 세 개 이하로 줄이며, 긴장을 풀 시간을 예약하는 습관'},
+  수:{image:'낮은 곳으로 흐르며 정보를 모으고 길을 바꾸는 힘',gift:'관찰·학습·기억·적응·정보의 축적',shadow:'생각과 가능성을 너무 오래 품어 결정을 늦추거나 걱정을 키우는 경향',life:'공부·문서·조사·상담·이동·네트워크처럼 정보를 다루는 장면',rhythm:'생각을 적은 뒤 결정일을 정하고, 밤의 판단을 다음 날 낮에 한 번 더 확인하는 습관'}
+};
+const GROUP_BOOK={
+  비겁:{plain:'나와 비슷한 힘, 즉 자기주장·동료·경쟁·분배를 다루는 별',decision:'혼자 정할 힘은 크지만 공동비용과 역할을 먼저 나눌 때 장점이 남습니다.'},
+  식상:{plain:'내 안의 생각과 기술을 말·글·상품·서비스로 꺼내는 별',decision:'잘 아는 것보다 완성해 보여 준 것이 성과가 되므로 마감과 제출을 먼저 잡아야 합니다.'},
+  재성:{plain:'돈·고객·계약·생활 책임처럼 현실 조건을 붙잡는 별',decision:'수입의 크기만 보지 말고 대가로 맡게 되는 책임·비용·기간까지 같이 계산해야 합니다.'},
+  관성:{plain:'규칙·평가·직책·책임·공식 관계를 다루는 별',decision:'남의 기대를 모두 의무로 받지 말고 평가 기준과 권한을 먼저 확인해야 합니다.'},
+  인성:{plain:'배움·문서·기억·보호·회복처럼 안에서 채우는 별',decision:'더 알아보는 일에 끝을 정하고 배운 것을 실제 결정과 결과물로 넘겨야 합니다.'}
+};
+const PILLAR_BOOK={
+  년:{title:'년주 — 뿌리와 첫 환경',stage:'가문·조상·초년·오래된 인맥과 바깥에서 먼저 보이는 배경',question:'나는 어디에서 출발했고, 오래된 관계가 지금 선택에 무엇을 남겼는가'},
+  월:{title:'월주 — 사회생활의 중심 무대',stage:'부모·형제·학교·직장·조직·청년기와 계절의 힘',question:'사회에서 어떤 역할을 먼저 맡고, 어떤 환경에서 기운이 살아나는가'},
+  일:{title:'일주 — 나와 가장 가까운 생활',stage:'일간인 나 자신, 일지인 배우자궁·집·중년의 생활 반응',question:'혼자 있을 때의 나와 가까운 관계에서 반복되는 방식은 무엇인가'},
+  시:{title:'시주 — 결과물과 뒤로 갈수록 남는 것',stage:'자녀·후배·창작물·장래 계획·말년과 내가 세상에 남기는 결과',question:'시간이 갈수록 무엇을 만들고 누구에게 건네는가'}
+};
+const GROUP_SUB={비겁:['비견','겁재'],식상:['식신','상관'],재성:['편재','정재'],관성:['편관','정관'],인성:['편인','정인']};
+
+function printChapter(title,lead,body,extra=''){
+  return `<section class="print-chapter narrative-chapter ${extra}"><h2>${title}</h2>${lead?`<div class="print-prose-lead">${lead}</div>`:''}${body}</section>`;
+}
+function printProse(title,...paragraphs){
+  return `<div class="print-prose"><h3>${title}</h3>${paragraphs.filter(Boolean).map(p=>`<p>${p}</p>`).join('')}</div>`;
+}
+function printEvidence(label,text){
+  return `<div class="print-evidence-box"><b>판독 근거 · ${label}</b><p>${text}</p></div>`;
+}
+function groupRank(A){return ['비겁','식상','재성','관성','인성'].sort((a,b)=>groupPower(A,b)-groupPower(A,a));}
+function pillarGodText(P,p,pos){
+  const stemGod=pos==='일'?'일간(나)':E.tenGod(P.day.stem,p.stem), branchGod=E.tenGodBranch(P.day.stem,p.branch);
+  return `천간 ${E.STEMS[p.stem]}(${E.STEM_ELEM[p.stem]})는 ${stemGod}, 지지 ${E.BRANCHES[p.branch]}(${E.BRANCH_ELEM[p.branch]})는 본기 기준 ${branchGod}`;
+}
+function hiddenText(P,p){
+  return (E.HIDDEN[p.branch]||[]).map(s=>`${s}(${E.tenGod(P.day.stem,E.STEMS.indexOf(s))})`).join('·')||'표시할 지장간 없음';
+}
+function relationContactText(A,pos){
+  const rows=[];
+  for(const key of ['천간합','지지육합','지지충','형','해','파'])for(const r of (A.relations[key]||[]))if(r.pos.some(x=>x.startsWith(pos)))rows.push(`${r.pair}(${r.pos.join('·')})`);
+  return rows.length?rows.join(' · '):'다른 원국 자리와 직접 맞물리는 합·충·형·해·파가 없습니다.';
+}
+function elementStateText(A,el){
+  const n=A.elem[el]||0, hidden=A.hiddenElements.includes(el), complete=A.completeMissing.includes(el);
+  if(complete)return `겉의 여덟 글자와 지장간을 함께 보아도 ${el} 기운이 비어 있습니다. 이것은 능력의 부재가 아니라 그 기능을 자동으로 쓰기보다 사람·환경·운에서 의식적으로 빌려 써야 한다는 뜻입니다.`;
+  if(n===0&&hidden)return `겉글자에는 없지만 지장간 안에는 ${el}이 숨어 있습니다. 처음부터 쉽게 보이는 장점은 아니어도 특정 역할이나 운에서 조건이 맞으면 꺼내 쓸 씨앗은 있습니다.`;
+  if(n===1)return `${el}이 한 자리만 보여 통로가 가늘고 선명합니다. 그 한 글자가 어느 궁위와 십성에 앉았는지가 중요하며, 한 번에 많은 역할을 맡기기보다 그 통로를 보호해야 합니다.`;
+  if(n===2)return `${el}이 두 자리에 있어 기본 기능을 쓸 재료가 있습니다. 많고 적음만으로 길흉을 정하지 않고 월령의 계절 힘과 다른 오행으로 잘 흘러가는지를 함께 봅니다.`;
+  if(n===3)return `${el}이 세 자리에 있어 생활에서 자주 쓰는 기운입니다. 장점이 반복될 만큼 두껍지만, 같은 방식으로 모든 문제를 풀려 할 때는 그림자도 함께 커집니다.`;
+  return `${el}이 ${n}자리로 매우 두껍습니다. 이 기운은 성격의 취향을 넘어 환경과 선택의 반복 패턴이 되기 쉬우므로, 억누르기보다 다음 오행으로 흘려보낼 출구를 만들어야 합니다.`;
+}
+
+function beginnerChapterHTML(A,P,DW){
+  const first=DW.list[0];
+  const facts=[
+    ['원국','태어난 때의 네 기둥과 여덟 글자. 이 감명서의 출발점입니다.'],
+    ['일간',`나를 대표하는 중심 글자. 이 명식은 ${E.STEMS[P.day.stem]}(${A.dayElem}) 일간입니다.`],
+    ['십성','일간과 다른 글자의 관계를 사람·행동·자원 역할로 붙인 열 개의 이름입니다.'],
+    ['용신','사주 전체의 막힌 흐름을 조정할 때 우선 살피는 기운입니다. 행운 보증서가 아닙니다.'],
+    ['대운',`약 10년씩 바뀌는 장기 환경. 첫 교운은 양력 ${first.startDateTime.replace('T',' ')}입니다.`],
+    ['세운·월운','한 해와 한 달의 기운. 원국과 대운 위에 겹쳐질 때만 구체적인 시기 신호로 읽습니다.']
+  ];
+  return printChapter('처음 읽는 분을 위한 여섯 단어','어려운 한자를 외울 필요는 없습니다. 아래 여섯 단어만 알면 뒤의 긴 설명을 따라갈 수 있습니다.',`<div class="print-fact-grid">${facts.map(([k,v])=>`<div class="print-fact"><b>${k}</b><span>${v}</span></div>`).join('')}</div>${printEvidence('판독 순서','원국의 월령과 구조 → 격국·강약·조후 → 용신과 병약 → 대운 → 세운 → 월운 순서로 읽습니다. 귀인과 신살은 이 결론을 뒤집지 않는 보조 표지입니다.')}`);
+}
+
+function natalPillarsChapterHTML(A,P,knowTime){
+  const map={년:P.year,월:P.month,일:P.day,시:P.hour};
+  const keys=['년','월','일'].concat(knowTime?['시']:[]);
+  const rows=keys.map(pos=>{
+    const p=map[pos], info=PILLAR_BOOK[pos], nayin=A.nayin&&A.nayin[pos];
+    const center=pos==='일'?`이 기둥의 위 글자 ${E.STEMS[p.stem]}은 바로 나 자신이고, 아래 글자 ${E.BRANCHES[p.branch]}은 집과 가장 가까운 관계의 반응을 뜻합니다.`:`이 자리는 ${info.stage}을 먼저 비춥니다.`;
+    return `<div class="print-pillar-row"><h3>${info.title} · ${p.han}(${p.str})</h3><p>${center} ${pillarGodText(P,p,pos)}입니다.</p><p>지지 속에는 ${hiddenText(P,p)}가 들어 있어 겉으로 보이는 한 글자보다 속 역할이 더 복합적입니다. 12운성은 ${A.unsung[pos]}, 12신살 보조표는 ${A.sinsal12[pos]}${nayin?`, 납음은 ${nayin.name}(${nayin.han})`:''}로 표시됩니다. 이 세 항목은 오행·격국보다 뒤에 놓고 성정의 색만 더합니다.</p><p><b>이 자리에서 확인할 질문:</b> ${info.question}. 원국 접점은 ${relationContactText(A,pos)}</p></div>`;
+  }).join('');
+  const missing=knowTime?'':'<div class="print-evidence-box"><b>시간 미상 제한</b><p>시주는 계산과 해석에서 제외했습니다. 자녀·후배·말년·결과물과 세부 교운 시점은 단정하지 않습니다.</p></div>';
+  return printChapter('내 팔자의 네 기둥 — 각 글자는 어디에서 작동하는가',`${P.year.han} · ${P.month.han} · ${P.day.han}${knowTime?` · ${P.hour.han}`:' · 시주 미상'}. 같은 글자도 년·월·일·시 어디에 놓였는지에 따라 먼저 드러나는 삶의 무대가 달라집니다.`,rows+missing);
+}
+
+function elementsChapterHTML(A){
+  const top=Object.keys(A.elem).sort((a,b)=>A.elem[b]-A.elem[a])[0];
+  const rows=['목','화','토','금','수'].map(el=>{
+    const e=ELEMENT_BOOK[el];
+    return printProse(`${el}(${ELMAP[el]}) ${A.elem[el]}자리 — ${e.image}`,elementStateText(A,el),`잘 쓰이면 ${e.gift}으로 드러납니다. 과하거나 한 방향으로 굳으면 ${e.shadow}이 반복될 수 있습니다. 이 기운은 현실에서 ${e.life}으로 확인하며, 개운이라는 말 대신 ${e.rhythm}처럼 실제로 반복 가능한 생활 조건을 둡니다.`);
+  }).join('');
+  return printChapter('오행 다섯 기운 — 있는 것, 없는 것, 흘러가는 길',`가장 많은 기운은 ${top} ${A.elem[top]}자리입니다. 겉글자의 개수만 세지 않고 지장간·월령·계절·합국을 함께 보며, 없는 오행을 곧바로 결핍이나 불행으로 번역하지 않습니다.`,rows+printEvidence('오행 원자료',`목 ${A.elem.목} · 화 ${A.elem.화} · 토 ${A.elem.토} · 금 ${A.elem.금} · 수 ${A.elem.수}. 지장간에서 확인되는 오행은 ${A.hiddenElements.join('·')||'없음'}, 겉과 속에 모두 없는 오행은 ${A.completeMissing.join('·')||'없음'}입니다.`));
+}
+
+function tenGodsChapterHTML(A){
+  const ranked=groupRank(A), top=ranked[0], second=ranked[1];
+  const rows=ranked.map(group=>{
+    const n=A.groups[group]||0,w=groupPower(A,group), sub=GROUP_SUB[group].map(x=>`${x} ${A.tenGods[x]||0}`).join('·');
+    const state=n===0?`겉글자와 본기 기준으로 ${group}이 보이지 않습니다. 없다는 말은 평생 그 일이 없다는 뜻이 아니라, 자동으로 쓰는 통로가 약해 다른 별이나 운을 거쳐 배워 쓰는 편이라는 뜻입니다.`:n>=3?`${group}이 ${n}자리로 반복되어 이 기능이 삶의 여러 장면에서 겹칩니다. 장점이 강한 만큼 그림자를 관리하는 규칙도 필요합니다.`:`${group}이 ${n}자리로 있어 필요한 장면에서 이 기능을 쓸 재료가 있습니다.`;
+    return printProse(`${group} — ${GROUP_BOOK[group].plain}`,state,`${GROUP_PLAIN[group].gift}이 장점입니다. 반대로 힘이 막히면 ${GROUP_PLAIN[group].shadow}이 나타날 수 있습니다. ${GROUP_BOOK[group].decision} 실제 사용법은 “${GROUP_PLAIN[group].action}”입니다.`)+printEvidence(`${group} 수치`,`${sub} · 본기 개수 ${n} · 지장간·월령·자리 가중을 합친 유효세력 ${w.toFixed(2)}`);
+  }).join('');
+  return printChapter('십성 완전 해설 — 내 안의 다섯 역할',`이 명식에서 가장 두꺼운 역할은 ${top}, 다음은 ${second}입니다. 사람을 한 별로 단정하지 않고 다섯 역할이 어떤 순서로 이어져야 결과가 나는지를 봅니다.`,rows);
+}
+
+function structureChapterHTML(A,P){
+  const sd=A.strengthDetail, root=A.evidence&&A.evidence.stems&&A.evidence.stems.find(x=>x.where==='일간');
+  const gyeok=A.gyeok?`${A.gyeok.name} — ${A.gyeok.basis}. ${A.gyeok.jpjj?(A.gyeok.jpjj.ok?A.gyeok.jpjj.seong:A.gyeok.jpjj.pa):''}`:'월령에서 한 격을 고정하지 않음';
+  const medicine=A.yongshin?`최종 처방은 ${A.yongshin}(${ELMAP[A.yongshin]})입니다. ${A.yongshinBasis}을 우선한 판단이며 ${A.yongshinInChart?'원국 안에 통로가 있습니다.':'원국 겉글자에는 없어 운과 환경에서 빌려 써야 합니다.'}`:'중화에 가까워 단일 오행을 평생 처방으로 고정하지 않습니다.';
+  let conflict='';
+  if(A.jonggyeok&&A.jonggyeok.conflictsWithFinal)conflict=`종격 후보 ${A.jonggyeok.type}으로 읽는 유파에서는 용신이 ${A.jonggyeok.yongshin}으로 뒤집힙니다. 이 갈림은 숨기지 않고 실제 과거 반응으로 교정해야 합니다.`;
+  const body=printProse('월령 — 태어난 계절이 주는 첫 무게',`${E.BRANCHES[P.month.branch]}월에 태어났고 왕상휴수사는 ${A.wangsang.state}, 한난조습은 ${A.temp.label}으로 계산됩니다. 월령은 단순히 계절 분위기가 아니라 어떤 글자가 실제 힘을 얻는지를 정하는 첫 저울입니다.`,A.johu?`조후표에서는 ${E.STEMS[A.johu.main]}(${A.johu.mainElem})을 먼저 살핍니다.${A.johu.disputed?' 이 조합은 판본과 유파에 따라 처방이 갈리는 구간이라 확정하지 않습니다.':''}`:'조후 단일 처방을 고정하지 않습니다.')+
+    printProse(`강약 — ${A.strength}`,`일간을 돕는 유효세력 ${sd.help.toFixed(2)}, 빼거나 누르는 세력 ${sd.enemy.toFixed(2)}, 비율 약 ${Math.round(sd.ratio*100)}%입니다. ${sd.deukryeong?'월령의 직접 도움을 받고':'월령의 직접 도움은 약하지만'} ${sd.deukji?'일지에 뿌리를 두었습니다.':'일지의 직접 뿌리는 약합니다.'} ${root?`일간의 통근은 ${root.grade}으로 판정됐습니다.`:''}`,`${A.strength}은 좋고 나쁨의 점수가 아니라 같은 운을 감당하는 방식의 차이입니다. 강한 명식은 밖으로 흘려 성과와 책임으로 바꾸는 출구가 필요하고, 약한 명식은 사람·자료·절차를 먼저 확보해야 같은 기회가 부담으로 변하지 않습니다.`)+
+    printProse('격국 — 월령의 힘을 어떤 구조로 쓰는가',gyeok,A.gyeok&&A.gyeok.gojeo?`${A.gyeok.gojeo.label}: ${A.gyeok.gojeo.desc} 근거는 ${A.gyeok.gojeo.basis}입니다.`:'격의 고저를 한 문장으로 확정하지 않습니다.',A.gyeok&&A.gyeok.sangshin?A.gyeok.sangshin.note:'')+
+    printProse('용신과 병약 — 무엇이 들어올 때 막힘이 풀리는가',medicine,conflict,`용신이 오는 운을 성공 보증으로 읽지 않습니다. 그 기운이 맡는 사람·환경·행동을 준비했을 때 마찰이 줄어드는지로 확인합니다.`)+
+    printEvidence(`내부 신뢰도 ${A.readingAudit.grade}`,[...A.readingAudit.agreements,...A.readingAudit.limits,...A.readingAudit.conflicts].join(' · ')+` · ${A.readingAudit.note}`);
+  return printChapter('월령·강약·격국·용신 — 이 팔자의 중심 골격',`글자 하나의 좋은 뜻을 모으는 것이 아니라, 태어난 계절에서 힘의 방향을 정하고 격이 서는지, 무엇이 막고 무엇이 풀어 주는지를 차례로 봅니다.`,body);
+}
+
+function personalityChapterHTML(A,P,DW,age,gender,knowTime,nowYear){
+  const x=buildLifeProfiles(A,P,DW,age,gender,knowTime,nowYear), dm=C.DAY_MASTER[E.STEMS[P.day.stem]], ranked=groupRank(A), top=ranked[0],second=ranked[1];
+  const body=printProse('타고난 그릇 — 이 사람을 한 장면으로 보면',`${dm.name}, ${dm.img}의 이미지가 일간의 출발점입니다. ${dm.core} 그러나 실제 성격은 일간 하나가 아니라 ${A.strength}의 힘과 ${top}/${second} 유효세력이 겹쳐 만들어집니다.`,x.identity)+
+    printProse('남이 먼저 보는 얼굴과 가까운 곳의 나',`월주의 사회적 얼굴은 ${x.outer}, 일지의 가까운 생활 반응은 ${x.inner}입니다. ${x.outer===x.inner?'밖과 안에서 같은 역할을 반복하므로 장점이 선명하지만 쉬는 순간에도 그 역할을 놓지 못할 수 있습니다.':`밖에서는 ${GROUP_PLAIN[x.outer].gift}을 먼저 보이고, 가까운 곳에서는 ${GROUP_PLAIN[x.inner].gift}이 더 강해집니다. 이 차이를 위선이 아니라 환경에 따른 역할 전환으로 이해해야 합니다.`}`,`상대가 보는 모습과 내가 체감하는 모습이 다를 때는 어느 쪽이 진짜인지 따지기보다, 직장과 집에서 각각 무엇을 책임지고 있는지 분리해 말하는 편이 정확합니다.`)+
+    printProse('결정하는 방식과 반복되는 실수',`${GROUP_PLAIN[top].gift}을 가장 자주 쓰고 ${GROUP_PLAIN[second].gift}이 그다음을 받칩니다. 잘 풀릴 때는 ${GROUP_PLAIN[top].action} 뒤에 ${GROUP_PLAIN[second].action}가 이어집니다.`,x.caution,`같은 불편이 세 번 반복되거나 돈·시간·역할 가운데 두 가지가 동시에 흐려질 때는 운의 좋고 나쁨을 묻기 전에 결정을 멈추고 조건을 다시 적어야 합니다.`)+
+    printProse('감정이 쌓일 때와 회복하는 법',`${GROUP_PLAIN[top].shadow}이 나타나면 이 명식의 힘이 막히고 있다는 신호입니다. 회복은 성격을 고치는 일이 아니라 ${GROUP_PLAIN[top].action}처럼 힘의 통로를 다시 여는 일입니다.`,A.yongshin?`${A.yongshin} 기운을 색이나 물건 하나로 대신하지 말고, ${ELEMENT_BOOK[A.yongshin].life}을 실제 일정에 넣을 때 처방의 뜻이 살아납니다.`:'한 오행을 고집하기보다 현재 과한 역할을 줄이고 부족한 역할을 사람과 절차로 보완합니다.')+
+    printEvidence('성격 교차근거',`${E.STEMS[P.day.stem]} 일간 · ${A.strength} · 월주 ${x.outer} · 일지 ${x.inner} · 유효세력 ${top} ${groupPower(A,top).toFixed(2)} / ${second} ${groupPower(A,second).toFixed(2)}`);
+  return printChapter('평생 성격운 — 겉과 속, 판단, 감정, 회복',`성격을 “착하다·고집 세다”로 끝내지 않습니다. 어디에서 어떤 역할을 할 때 그 성향이 나오고, 힘들 때 어떤 그림자로 바뀌며, 무엇을 하면 다시 제자리로 돌아오는지까지 풉니다.`,body);
+}
+
+function careerChapterHTML(A,P,DW,age,gender,knowTime,nowYear){
+  const x=buildLifeProfiles(A,P,DW,age,gender,knowTime,nowYear), ranked=groupRank(A),top=ranked[0],second=ranked[1],pattern=A.patterns&&A.patterns[0],current=currentDaewoon(DW),cg=current?groupOfPillar(P,current.stem,current.branch):null;
+  const body=printProse('직업의 핵심은 직업명이 아니라 일하는 조건',pattern?`${pattern.title} 연결이 먼저 보입니다. ${pattern.reading}`:`유효세력 ${top}과 ${second}의 연결이 직업성을 만듭니다.`,`이 사람은 ${GROUP_PLAIN[top].gift}을 ${GROUP_PLAIN[second].gift}과 이어 다른 사람이 확인할 결과물·책임·서비스로 바꿀 때 실력이 직업이 됩니다. 같은 직업명이라도 자율성·평가방식·고객과의 거리·마감 구조가 다르면 만족도가 크게 달라집니다.`)+
+    printProse('조직 안에서 강해지는 자리',`월주가 보여 주는 사회 역할은 ${x.outer}입니다. ${GROUP_PLAIN[x.outer].gift}을 쓰되 ${GROUP_PLAIN[x.outer].shadow}이 반복되지 않도록 평가 기준과 최종 결정권자를 먼저 확인해야 합니다.`,C.JOB_BY_SIPSUNG[top]||'',`직함보다 실제로 맡는 문제와 결과물의 종류를 보십시오. 말로만 책임이 크고 권한·보상·마감 기준이 없는 자리는 이 명식의 장점을 소진시키기 쉽습니다.`)+
+    printProse('독립·사업·프리랜스를 검토할 때',`${['태강','신강'].includes(A.strength)?'자기 힘이 있어 독립 결정을 밀어붙일 수 있지만, 시작을 늘리는 것보다 고객·가격·반복 주문·현금 여유를 먼저 확인해야 합니다.':'혼자 모든 역할을 맡으면 기회보다 감당력이 먼저 무너질 수 있습니다. 믿을 만한 팀·자료·반복 가능한 절차를 확보한 뒤 규모를 늘리는 편이 맞습니다.'}`,`사업운이 있다는 말만으로 창업을 권하지 않습니다. 실제 고객 세 명, 가격표, 취소·수정 범위, 최소 여섯 달의 생활비를 확인하지 못하면 준비 단계로 둡니다.`)+
+    printProse('지금 대운에서 직업이 바뀌는 방식',current?`현재는 양력 ${current.startDate}부터 ${current.str} 대운입니다. 바깥 과제는 ${cg.stem}, 생활 바탕은 ${cg.branch}이므로 ${periodPoint(cg.stem,'work')} ${periodPoint(cg.branch,'work')}`:'현재 날짜가 계산한 100년 대운 범위 밖이라 원국의 직업 조건만 봅니다.',current?`다음 대운은 ${DW.list[DW.list.indexOf(current)+1]?`${DW.list[DW.list.indexOf(current)+1].startDate} 시작 ${DW.list[DW.list.indexOf(current)+1].str}`:'계산 범위 뒤'}입니다. 전환 전후에는 직업명보다 업무 방식·책임·수입 구조가 어떻게 바뀌는지 기록해야 합니다.`:'')+
+    printEvidence('직업운 근거',`${A.gyeok?A.gyeok.name:'격 미확정'} · 최다 ${top}/${second} · 월주 ${x.outer} · 용신 ${A.yongshin||'단일 고정 안 함'} · 현재 대운 ${current?current.str:'범위 밖'}`);
+  return printChapter('평생 직업운 — 재능을 일과 자리로 바꾸는 법',`“무슨 직업이 맞는가”보다 어떤 문제를 어떤 방식으로 풀 때 오래 가고, 조직·독립·사업 가운데 어디서 장점과 위험이 커지는지를 봅니다.`,body);
+}
+
+function wealthChapterHTML(A,P,DW,age,gender,knowTime,nowYear){
+  const x=buildLifeProfiles(A,P,DW,age,gender,knowTime,nowYear), out=groupPower(A,'식상'),wealth=groupPower(A,'재성'),peer=groupPower(A,'비겁'),current=currentDaewoon(DW),cg=current?groupOfPillar(P,current.stem,current.branch):null;
+  const channel=out===0?'실력과 생각을 밖으로 꺼내 가격을 붙이는 식상 통로가 약하므로, 잘하는 일을 설명 가능한 상품·문서·서비스로 만드는 과정이 돈복의 첫 관문입니다.':wealth===0?'원국에 재성 통로가 뚜렷하지 않아도 가난을 뜻하지 않습니다. 결과물과 신뢰를 계약·가격·정산으로 바꾸는 후천적 통로를 만들 때 돈이 남습니다.':`식상 유효세력 ${out.toFixed(2)}가 결과물을 만들고 재성 ${wealth.toFixed(2)}가 그것을 금액과 계약으로 붙잡는 구조를 봅니다.`;
+  const body=printProse('타고난 돈의 입구',x.earning,channel,`돈복은 횡재 단어보다 반복 수입이 생기는 과정으로 확인합니다. 누가 무엇에 돈을 내는지, 내가 어떤 결과를 반복해서 줄 수 있는지, 대가와 책임을 어디까지 문서로 정했는지가 실제 재성의 작동입니다.`)+
+    printProse('돈이 새는 자리와 지켜야 할 선',x.keeping,peer>wealth?`비겁 유효세력 ${peer.toFixed(2)}가 재성 ${wealth.toFixed(2)}보다 두꺼워 사람·공동비용·분배가 누수 변수가 되기 쉽습니다. 친분과 정산을 분리하고 보증·대납·구두 동업을 피해야 합니다.`:`사람 때문이라고 단정하기보다 고정비·미수금·무료 노동·수정 범위를 먼저 표로 확인해야 합니다.`,`운이 좋다는 이유로 빚·투자·큰 구매를 권하지 않습니다. 계약서, 상환 가능 현금, 손실 한도를 충족하지 못하면 사주와 관계없이 멈추는 것이 맞습니다.`)+
+    printProse('돈을 모으는 방식',`${['신약','태약'].includes(A.strength)?'재물 기회가 커질수록 내가 감당할 책임도 커지는지 먼저 봐야 합니다. 한 번에 규모를 키우기보다 통장을 목적별로 나누고, 받을 돈·낼 돈·세금·비상금을 분리할수록 재성이 남습니다.':'자기 힘이 있는 편이라 기회를 잡는 속도는 낼 수 있습니다. 다만 벌이는 일의 수를 제한하고, 완성·정산·재투자 순서를 지켜야 힘이 자산으로 남습니다.'}`,`부동산·주식·사업 같은 특정 자산을 사주만으로 추천하지 않습니다. 이 명식에서 읽는 것은 자산 종류의 확정이 아니라 관리·계약·분배 방식입니다.`)+
+    printProse('재물운이 움직이는 시기',x.moneyTiming,current&&cg?`현재 ${current.str} 대운은 ${cg.stem}/${cg.branch}의 10년입니다. ${periodPoint(cg.stem,'money')} ${periodPoint(cg.branch,'money')}`:'현재 대운은 계산 범위 밖입니다.',`표시된 연도는 돈이 들어온다는 약속이 아니라 재성·식상·대운·원국 합충 가운데 두 층 이상이 겹쳐 계약과 현금흐름을 우선 점검할 때입니다.`)+
+    printEvidence('재물운 근거',`식상 유효세력 ${out.toFixed(2)} · 재성 ${wealth.toFixed(2)} · 비겁 ${peer.toFixed(2)} · 일간 ${A.strength} · 현재 대운 ${current?current.str:'범위 밖'}`);
+  return printChapter('평생 재물운 — 버는 길, 새는 길, 모으는 법, 시기',`사주는 통장 잔액이나 정확한 금액을 계산하지 못합니다. 대신 돈이 들어오는 구조, 책임이 커지는 방식, 사람과 계약에서 새는 지점, 어느 시기에 현금흐름을 더 엄격히 볼지를 풀 수 있습니다.`,body);
+}
+
+function relationshipChapterHTML(A,P,DW,age,gender,knowTime,nowYear){
+  const x=buildLifeProfiles(A,P,DW,age,gender,knowTime,nowYear), dayGod=E.tenGodBranch(P.day.stem,P.day.branch), spouseGroup=gender==='M'?'재성':'관성';
+  const body=printProse('가까운 관계에서 원하는 것',x.partner,`일지 ${E.BRANCHES[P.day.branch]}의 본기 십성은 ${dayGod}/${x.inner}입니다. 가까운 사람에게 ${GROUP_PLAIN[x.inner].gift}을 기대하고, 불안할 때는 ${GROUP_PLAIN[x.inner].shadow}이 관계 안에서 반복될 수 있습니다.`,A.relations.지지충.some(r=>r.pos.includes('일'))?'배우자궁에 원국 충이 있어 거리·시간·생활 방식의 차이를 피하기보다 일찍 합의해야 합니다. 충은 이별 확정이 아니라 변화와 협상이 잦을 수 있다는 뜻입니다.':A.relations.지지육합.some(r=>r.pos.includes('일'))?'배우자궁에 육합이 있어 관계를 붙들고 약속을 구체화하는 힘을 참고할 수 있습니다. 다만 상대의 문제까지 내 책임으로 묶지 않는 경계가 필요합니다.':'배우자궁에 큰 충·합이 없으므로 사건 예언보다 평소 소통과 생활 규칙이 관계의 질을 더 크게 가릅니다.')+
+    printProse('사랑과 결혼을 판단하는 기준',`고전에서는 ${gender==='M'?'남성의 배우자 별을 재성':'여성의 배우자 별을 관성'}으로 보지만 현대 관계에서는 보조 신호로만 씁니다. 이 명식의 ${spouseGroup} 본기 개수는 ${A.groups[spouseGroup]}입니다. 많고 적음이 결혼 횟수나 배우자 유무를 정하지 않습니다.`,`강한 끌림보다 갈등 뒤에 돈·시간·거리·가사·가족 경계를 실제로 바꾸는 사람인지 보십시오. 말로 미안하다는 것보다 다음 약속의 행동이 달라지는지가 이 명식에 맞는 현실 검증입니다.`,x.spouseNote)+
+    printProse('인연과 관계가 움직이는 때',x.relationTiming,`표시된 해는 결혼·이별을 확정한 해가 아닙니다. 배우자 별, 일지 합충, 현재 대운의 관계 주제가 겹쳐 만남·공식화·재협상을 먼저 살필 시기입니다. 이미 관계가 있다면 같은 신호가 이사·생활비·역할 조정으로 나타날 수 있습니다.`)+
+    printProse('부모·형제·가족과의 거리',`년주는 오래된 가족 배경, 월주는 부모·형제와 사회화 환경을 먼저 봅니다. 이 명식의 년주는 ${P.year.str}, 월주는 ${P.month.str}이고 원국 접점은 ${relationContactText(A,'년')} / ${relationContactText(A,'월')}입니다.`,`가족운을 효도나 불효로 단정하지 않습니다. 부탁의 내용·기간·돈·돌려줄 몫을 구체화했을 때 관계가 나아지는지, 경계를 말하면 죄책감이 커지는지 같은 실제 패턴으로 확인합니다.`)+
+    printProse('자녀·후배·말년의 관계',knowTime?`시주는 ${P.hour.str}이고 천간·지지 역할은 ${pillarGodText(P,P.hour,'시')}입니다. 자녀의 성별·수·성공을 정하는 자리가 아니라, 내가 장래에 무엇을 만들고 누구를 돌보며 어떤 결과를 남기는지를 읽는 자리입니다.`:'출생시간을 모르면 시주를 세우지 않으므로 자녀·후배·말년의 세부 해석은 하지 않습니다.',knowTime?`이 자리의 지장간 ${hiddenText(P,P.hour)}와 원국 접점 ${relationContactText(A,'시')}를 함께 보되, 실제 자녀의 운명은 그 사람의 사주와 삶으로 따로 봐야 합니다.`:'')+
+    printEvidence('관계운 근거',`일지 ${P.day.str} · 배우자궁 본기 ${dayGod}/${x.inner} · 배우자 별 ${spouseGroup} ${A.groups[spouseGroup]} · 원국 일지 충 ${A.relations.지지충.some(r=>r.pos.includes('일'))?'있음':'없음'} · 일지 합 ${A.relations.지지육합.some(r=>r.pos.includes('일'))?'있음':'없음'}`);
+  return printChapter('평생 인연·결혼·가족운 — 끌림보다 생활을 읽는 법',`관계운은 “몇 살에 누구와 결혼한다”는 식으로 쓰지 않습니다. 가까운 자리에서 무엇을 원하고, 갈등 때 어떤 행동을 반복하며, 어떤 시기에 약속과 역할을 재협상할 가능성이 커지는지를 봅니다.`,body);
+}
+
+function healthChapterHTML(A,P,DW,nowYear){
+  const ranked=groupRank(A),top=ranked[0],current=currentDaewoon(DW),cg=current?groupOfPillar(P,current.stem,current.branch):null,dominant=Object.keys(A.elem).sort((a,b)=>A.elem[b]-A.elem[a])[0];
+  const body=printProse('명리에서 말하는 건강복의 범위',`이 장은 병명·수명·발병 시기를 예측하지 않습니다. 오행의 과다와 부족을 몸의 질병으로 곧장 바꾸지 않고, 어떤 생활 리듬에서 과로와 회복 실패가 반복되는지를 점검하는 참고표로 씁니다. 증상이 있으면 운세가 아니라 의료기관의 진단이 우선입니다.`,`이 명식은 ${A.temp.label}의 계절감과 ${dominant} 과다 경향, ${A.completeMissing.length?`${A.completeMissing.join('·')}의 빈자리`:'겉과 속에 완전히 빈 오행 없음'}를 함께 봅니다. 이것은 진단명이 아니라 온도·활동·수면·식사·긴장 관리의 우선순위를 정하는 상징입니다.`)+
+    printProse('지치기 전에 나타나는 생활 신호',`${GROUP_PLAIN[top].shadow}이 반복되고, 해야 할 일의 시작과 끝이 흐려지며, 수면·식사·움직임 가운데 두 가지가 동시에 무너지면 이 명식의 회복 통로가 막힌 것으로 봅니다.`,`좋은 운이라고 무리해도 되는 것은 아닙니다. 오히려 일정과 책임이 늘 때 평소 검진·복약·치료 계획을 지키고, 통증·호흡곤란·지속되는 불면 같은 증상을 운세로 설명하지 않는 것이 가장 중요한 원칙입니다.`)+
+    printProse('이 명식에 맞는 회복 방식',`${ELEMENT_BOOK[dominant].shadow}이 과해지지 않도록 ${ELEMENT_BOOK[dominant].rhythm}을 적용합니다. ${A.yongshin?`처방 기운 ${A.yongshin}은 ${ELEMENT_BOOK[A.yongshin].life}을 현실에 넣는 방식으로 씁니다. 색·방향·물건 하나가 건강을 고친다고 말하지 않습니다.`:'단일 처방보다 현재 과한 역할을 덜고 부족한 역할을 사람과 일정으로 빌립니다.'}`,`회복 계획은 거창할수록 실패하기 쉽습니다. 취침·기상 범위, 식사 공백, 주간 움직임, 혼자 있는 시간을 달력에 먼저 적고 한 달 뒤 실제 지속 여부를 확인하십시오.`)+
+    printProse('현재 대운의 생활 리듬',current&&cg?`양력 ${current.startDate}부터 ${current.str} 대운이며 장기 바탕은 ${cg.branch}, 바깥 과제는 ${cg.stem}입니다. ${periodPoint(cg.branch,'energy')} ${periodPoint(cg.stem,'energy')}`:'현재 대운은 계산 범위 밖입니다.',`해마다 몸의 사건을 예언하지 않고, 대운·세운·월운에서 활동량·책임·생각이 동시에 두꺼워지는 구간에 회복 시간을 먼저 확보하는 용도로만 씁니다.`)+
+    printEvidence('건강·생활 판독 근거',`계절 ${A.temp.label} · 가장 많은 오행 ${dominant} ${A.elem[dominant]} · 완전 결손 ${A.completeMissing.join('·')||'없음'} · 최다 십성 ${top} · 현재 대운 ${current?current.str:'범위 밖'}`);
+  return printChapter('평생 건강복과 생활 리듬 — 진단이 아니라 회복 조건',`건강운을 병명이나 수명으로 단정하지 않습니다. 이 명식이 어떤 방식으로 과로하고, 무엇이 무너질 때 생활 전체가 흔들리며, 어떤 습관이 회복을 돕는지를 쉬운 말로 풉니다.`,body);
+}
+
+function relationsChapterHTML(A){
+  const sections=[];
+  const add=(title,arr,desc)=>{if(arr&&arr.length)sections.push(printProse(title,...arr.map(x=>`${x.pair} — ${x.pos?x.pos.join('·')+' 자리에서 ':''}${desc}${x.status?` 판정은 ${x.status}이며 ${x.reason}.`:''}`)));};
+  add('천간합 — 밖으로 드러난 역할이 서로 묶이는 곳',A.relations.천간합,'두 역할이 서로 의식하고 움직임을 묶습니다. 합화는 월령과 뿌리가 받칠 때만 후보로 봅니다.');
+  add('지지육합 — 생활 자리의 가까운 결속',A.relations.지지육합,'두 생활 영역이 붙고 약속이 구체화되는 힘입니다. 좋은 인연을 보장하지 않고 무엇이 함께 묶이는지 봅니다.');
+  add('지지충 — 부딪힘과 이동',A.relations.지지충,'그 자리를 없애는 흉이 아니라 그대로 유지하기 어려워 조정·이동·협상이 생기기 쉬운 관계입니다.');
+  add('형 — 가까울수록 생기는 조정 압력',A.relations.형,'반복되는 불편과 자기검열을 읽는 보조 관계입니다. 거리·절차·말의 선을 정할수록 힘을 다루기 쉽습니다.');
+  add('해 — 겉으로 드러나지 않는 어긋남',A.relations.해,'오해·기대 차이처럼 뒤늦게 드러나는 불편을 점검하는 보조 관계입니다. 합충형보다 뒤에 놓습니다.');
+  add('파 — 약속이나 형식의 틈',A.relations.파,'이미 정한 방식이 작은 균열로 바뀌는지 살피는 보조 관계입니다. 이것만으로 파탄을 단정하지 않습니다.');
+  const hg=[...(A.relations.삼합||[]).map(x=>`${x.name} 삼합 — ${x.elem} 방향, ${x.status}. ${x.reason}`),...(A.relations.방합||[]).map(x=>`${x.name} 방합 — ${x.desc}`),...(A.relations.반합||[]).map(x=>`${x.name} 반합 — ${x.desc}`)];
+  if(hg.length)sections.push(printProse('삼합·방합·반합 — 여러 글자가 한 방향으로 모일 때',...hg));
+  if(!sections.length)sections.push(printProse('직접 관계가 적은 원국','합·충·형·해·파가 적다는 것은 사건이 없다는 뜻이 아니라, 글자끼리의 직접 마찰보다 각 십성의 세력과 생활 습관이 더 크게 작동한다는 뜻입니다.'));
+  return printChapter('합·충·형·해·파 — 글자들이 서로 만나는 방식',`관계 이름 하나에 길흉을 붙이지 않습니다. 어떤 궁위가 묶이고 부딪히는지, 합과 충이 동시에 있는지, 필요한 기운을 돕는지 해치는지를 월령·격국 뒤에서 판단합니다.`,sections.join('')+printEvidence('우선순위','월령·격국·용신과 강약을 먼저 보고, 삼합·방합·육합·충·형을 그다음에 봅니다. 해와 파는 더 낮은 보조 신호입니다.'));
+}
+
+function noblePrintChaptersHTML(A,P,DW,knowTime,nowYear){
+  if(!C.NOBLE_DETAIL||!E.getNobleTargets)return '';
+  const rules=E.getNobleTargets(P),order=['천을귀인','천덕귀인','월덕귀인','문창귀인','문곡귀인','학당귀인','천주귀인','태극귀인'];
+  const names=order.filter(name=>A.sinsal.some(s=>s.name===name)),pillars={년:P.year,월:P.month,일:P.day,시:P.hour};
+  if(!names.length)return printChapter('귀인운 — 원국 조견표에 직접 잡히는 귀인이 없을 때','귀인표에 이름이 없다고 도움이나 인복이 없는 것이 아닙니다. 실제 인성·관성·격국과 사람을 대하는 행동이 더 중요합니다.',printProse('귀인 없는 명식의 읽는 법','소개·보호·중재가 실제로 있었는지, 부탁을 구체적으로 했을 때 누가 반응하는지, 내가 다른 사람에게 어떤 도움을 돌려주는지를 기록합니다. 신살 하나로 인생의 도움을 판정하지 않습니다.'));
+  return names.map(name=>{
+    const rule=rules[name],detail=C.NOBLE_DETAIL[name],spots=A.sinsal.filter(s=>s.name===name),targets=rule.targets;
+    const locations=spots.map(spot=>{
+      const pos=spot.where.charAt(0),p=pillars[pos]; if(!p||(pos==='시'&&!knowTime))return '';
+      const kind=spot.targetKind||(spot.where.endsWith('간')?'stem':'branch'),value=kind==='stem'?p.stem:p.branch,char=kind==='stem'?E.STEMS[value]:E.BRANCHES[value];
+      const god=kind==='stem'?E.tenGod(P.day.stem,value):E.tenGodBranch(P.day.stem,value),group=tenGodGroup(god),wd=C.WHERE_DETAIL&&C.WHERE_DETAIL[spot.where];
+      const layer=kind==='stem'?'말·직함·평판처럼 밖으로 드러나는 통로':'생활 자리·관계·습관처럼 안에서 체감되는 통로';
+      return `<div class="print-noble-location"><b>${spot.where} ${char} · ${god}/${group}</b><p>${wd?`${wd.who}, ${wd.when}의 자리입니다. `:''}${layer}에서 ${detail.theme}라는 주제가 나타나는지 봅니다. ${GROUP_PLAIN[group].gift}을 쓸 때 도움의 연결이 생기는지 확인하고, 실제 소개·보호·중재·문서·자원이 없었다면 귀인이라는 이름만으로 복을 만들지 않습니다.</p></div>`;
+    }).join('');
+    const targetMatch=(t,p)=>t.kind==='stem'?p.stem===t.value:p.branch===t.value;
+    const endYear=Math.max(2030,nowYear+1),yearHits=E.calcSewoon(A,nowYear,endYear-nowYear+1).filter(s=>targets.some(t=>targetMatch(t,s))).map(s=>`${s.year}년 ${s.str}`).join(' · ')||'2026~2030 구간에 목표 글자가 직접 오지 않음';
+    const dwHits=DW.list.filter(d=>targets.some(t=>targetMatch(t,d))).map(d=>`${d.startDate} 시작 ${d.str} 대운`).join(' · ')||'계산한 10개 대운에 목표 글자가 직접 오지 않음';
+    const targetText=targets.map(t=>t.kind==='stem'?`${E.STEMS[t.value]} 천간`:`${E.BRANCHES[t.value]} 지지`).join('·');
+    const body=printProse('이 귀인이 뜻하는 것',detail.real,detail.gate)+locations+printProse('언제 이 통로를 다시 확인하는가',`2026~2030 같은 목표 글자: ${yearHits}.`,`평생 대운의 같은 목표 글자: ${dwHits}. 같은 글자가 온다고 귀인이 나타난다는 보장은 없습니다. 이 자리에서 도움을 요청하고 주고받기 쉬운 조건이 실제로 생겼는지를 확인하는 시기입니다.`)+printEvidence(`${name} 산출`,`${rule.basis} → ${targetText} · 계보 ${rule.lineage} · 근거 신뢰도 ${rule.confidence}`);
+    return printChapter(`귀인운 — ${name}의 정확한 위치와 작동 시기`,`${detail.theme}. 귀인은 이름만 나열하지 않고 어느 기둥의 천간·지지에 앉았는지, 그 자리의 십성이 무엇인지, 어느 대운과 세운에서 같은 글자가 오는지까지 풉니다.`,body);
+  }).join('');
+}
+
+function daewoonYearThreadsHTML(A,P,d,knowTime){
+  const count=d.endYear-d.startYear+1;
+  return E.calcSewoon(A,d.startYear,count).map(s=>{
+    const g=groupOfPillar(P,s.stem,s.branch),sig=natalBranchSignals(P,s.branch,knowTime),stack=analyzeTransitStack(A,P,d,s,null,knowTime);
+    const boundary=s.year===d.startYear?`${d.startDate} 이후 이 대운 적용`:s.year===d.endYear?`${d.endDate} 전까지만 이 대운 적용`:'이 대운의 온전한 해';
+    const focus=sig.clash.length?`${sig.clash.join('·')}주 충이 있어 해당 생활 영역을 유지하기보다 재조정할 가능성을 먼저 봅니다.`:sig.hap.length?`${sig.hap.join('·')}주 합이 있어 제안·협의·약속이 구체화되는지 봅니다.`:`원국 지지와 큰 직접 합충보다 ${GROUP_PLAIN[g.branch].action}가 결과를 가릅니다.`;
+    return `<div class="print-year-thread"><b>${s.year}<br>${s.str}</b><p>바깥 과제는 ${g.stemGod}/${g.stem}, 생활 체감은 ${g.branchGod}/${g.branch}입니다. ${focus}<small>${boundary} · ${stack.length?stack.slice(0,4).join(' · '):'큰 직접 운층 합충 없음'} · 행동: ${GROUP_PLAIN[g.stem].action}</small></p></div>`;
+  }).join('');
+}
+
+function daewoonNarrativeChaptersHTML(A,P,DW,knowTime){
+  const current=currentDaewoon(DW);
+  return DW.list.map((d,index)=>{
+    const p=buildDaewoonProfile(A,P,DW,d,index,knowTime),now=d===current,groups=groupOfPillar(P,d.stem,d.branch),markers=p.markers.length?p.markers.map(x=>`${x.s.year}년 ${x.s.str}: ${x.reasons.join(' + ')}`).join('<br>'):'두 층 이상 겹치는 특정 세운을 별도로 고르지 않았습니다.';
+    const lead=`양력 ${d.startDateTime.replace('T',' ')}부터 ${d.endDateTime.replace('T',' ')} 직전까지. 출생 후 약 ${d.startAgeExact}년, 당시 세는나이 ${d.countingAge}세에 시작하는 ${index+1}번째 대운입니다.${now?' 현재 걷고 있는 대운입니다.':''}`;
+    const body=printProse('이 10년에 바뀌는 중심',p.thesis,p.transition,`대운의 천간 ${E.STEMS[d.stem]}은 밖에서 요구되는 ${groups.stem} 과제, 지지 ${E.BRANCHES[d.branch]}는 오래 깔리는 ${groups.branch} 생활 바탕으로 읽습니다. 두 글자를 전반·후반 5년으로 기계적으로 자르지 않고 간지의 상생·상극과 원국 접점을 함께 봅니다.`)+
+      `<div class="print-fact-grid"><div class="print-fact"><b>돈·계약</b><span>${p.money}</span></div><div class="print-fact"><b>일·직업</b><span>${p.work}</span></div><div class="print-fact"><b>사람·협업</b><span>${p.people}</span></div><div class="print-fact"><b>가까운 관계</b><span>${p.love}</span></div><div class="print-fact"><b>생활 리듬</b><span>${p.energy}</span></div><div class="print-fact"><b>이 10년의 사용법</b><span>${p.action}</span></div></div>`+
+      printProse('원국과 맞물리는 자리',p.signals.length?p.signals.join(' · '):'원국과 직접 맞물리는 큰 합·충·형이 적습니다. 이 경우 사건 단어보다 십성의 반복 습관과 실제 성과 기록으로 이 대운을 판단합니다.')+
+      printProse('변화를 먼저 확인할 세운',markers)+
+      `<div class="print-prose"><h3>이 대운 안의 해를 하나씩 풀면</h3>${daewoonYearThreadsHTML(A,P,d,knowTime)}</div>`+
+      printEvidence('대운 판정',`${d.str} · 천간 ${groups.stemGod}/${groups.stem} · 지지 ${groups.branchGod}/${groups.branch} · 간지 결합 ${p.bond&&p.bond.type?p.bond.type:'별도 분류 없음'} · 용신 도착 ${p.yong?'예':'아니오'}`);
+    return printChapter(`제${index+1}대운 · ${d.str} — ${d.startYear}년부터 달라지는 것`,lead,body,'daewoon-long-chapter');
+  }).join('');
+}
+
+function methodAndColophonHTML(A,P,DW,knowTime){
+  const sourceBody=printProse('계산과 해석을 분리했습니다','사주 네 기둥·절기 경계·대운 방향과 교운일은 결정론적 계산층에서 만들고, 문장층은 그 결과를 바꾸지 않습니다. 출생시간을 모르면 시주를 통째로 제외하고, 경계 관법이 갈리면 갈림 자체를 표시합니다.')+
+    printProse('대운 교운법',`순행은 출생 뒤 다음 절입, 역행은 출생 전 이전 절입까지의 양력 시간 차를 구합니다. 《삼명통회》 권2의 3일=1년·1시진=10일 절산법을 분 단위로 적용했습니다. 첫 교운은 ${DW.startYears}년 ${DW.startMonths}개월 ${DW.startDays}일 ${DW.startHours||0}시간 뒤, 양력 ${DW.startDateTime.replace('T',' ')}입니다.`,`외부 앱이 세는나이로 표시할 수 있어 각 대운에 출생 후 경과기간과 당시 세는나이를 함께 적었지만, 현재 대운 선택은 오직 양력 교운일시로 합니다.`)+
+    printProse('주요 고전과 역할','《자평진전》은 월령·격국·상신·성패의 순서를, 《삼명통회》는 대운·세운·합충과 기운법을, 《궁통보감》은 한난조습의 조후를 확인하는 데 사용했습니다. 신살은 격국과 용신을 대신하지 않으며 천을·천덕·월덕처럼 근거가 비교적 분명한 표와 후대 통용표를 구분했습니다.')+
+    printProse('이 감명서를 검증하는 법','맞는 문장만 기억하지 말고 월말마다 실제 사건·돈·시간·역할이 어떻게 달라졌는지 적으십시오. 과거 사건과 반복해서 어긋나는 문장은 버리고, 절기 경계·출생시각·유파 갈림을 다시 확인해야 합니다. 명리 체계 내부의 일관성과 미래 사건의 과학적 보장은 다른 문제입니다.')+
+    printEvidence(`판독 감사 ${A.readingAudit.grade}`,[...A.readingAudit.agreements,...A.readingAudit.limits,...A.readingAudit.conflicts].join(' · '));
+  const sources=printChapter('근거·유파 갈림·신뢰성 — 무엇을 믿고 무엇을 유보했나','다른 사이트의 문장을 복사하지 않았습니다. 고전 원문을 판독 규칙의 기준으로 두고 공개 구현체는 계산 교차검사에만 사용했습니다.',sourceBody);
+  const colophon=`<section class="print-chapter print-colophon"><p class="cover-mark">八字鑑命 · 完</p><h2>이 한 권을 마치며</h2><p>이 감명서는 한 사람을 한 문장으로 가두지 않기 위해 원국에서 시작해 오행·십성·격국·용신·귀인·관계·직업·재물·생활 리듬·100년 대운·세운·월운을 같은 계산 위에서 끝까지 연결했습니다.</p><span class="maker-stamp">만든이 ${MAKER_KO}</span><p><b>${MAKER_EN}</b><br>계산 규칙과 해석의 근거를 공개하고, 유파가 갈리는 곳과 단정할 수 없는 곳을 숨기지 않았습니다.</p></section>`;
+  return sources+colophon;
+}
+
+function exhaustiveNarrativeBookHTML(A,P,DW,age,gender,knowTime,nowYear){
+  return `<section class="print-only exhaustive-book">
+    ${beginnerChapterHTML(A,P,DW)}
+    ${natalPillarsChapterHTML(A,P,knowTime)}
+    ${elementsChapterHTML(A)}
+    ${tenGodsChapterHTML(A)}
+    ${structureChapterHTML(A,P)}
+    ${personalityChapterHTML(A,P,DW,age,gender,knowTime,nowYear)}
+    ${careerChapterHTML(A,P,DW,age,gender,knowTime,nowYear)}
+    ${wealthChapterHTML(A,P,DW,age,gender,knowTime,nowYear)}
+    ${relationshipChapterHTML(A,P,DW,age,gender,knowTime,nowYear)}
+    ${healthChapterHTML(A,P,DW,nowYear)}
+    ${relationsChapterHTML(A)}
+    ${noblePrintChaptersHTML(A,P,DW,knowTime,nowYear)}
+    ${daewoonNarrativeChaptersHTML(A,P,DW,knowTime)}
+  </section>`;
+}
+
 function professionalLifeReportHTML(A,P,DW,age,gender,knowTime,nowYear){
   const x=buildLifeProfiles(A,P,DW,age,gender,knowTime,nowYear);
   const groups=['비겁','식상','재성','관성','인성'].sort((a,b)=>groupPower(A,b)-groupPower(A,a));
-  const top=groups[0], second=groups[1], current=daewoonAt(DW,nowYear,new Date().getMonth()+1);
+  const top=groups[0], second=groups[1], current=currentDaewoon(DW);
   const next=current?DW.list[DW.list.indexOf(current)+1]:null;
   const topPattern=A.patterns&&A.patterns[0];
   const career=`${topPattern?`${topPattern.title} 연결이 먼저 보입니다. ${topPattern.reading}`:`유효세력 ${top}과 ${second}을 함께 쓰는 일이 우선입니다.`} 현실에서는 ${GROUP_PLAIN[top].gift}을 ${GROUP_PLAIN[second].gift}과 연결해 다른 사람이 확인할 결과물·책임·서비스로 바꿀 때 직업성이 생깁니다. ${['신약','태약'].includes(A.strength)?'일간이 약한 편이므로 큰 직함보다 믿을 만한 팀·자료·반복 가능한 절차가 먼저 있어야 오래 갑니다.':'자기 힘이 있는 편이므로 시작만 늘리지 말고 완성 기준과 넘길 사람을 정해야 힘이 성과로 바뀝니다.'}`;
@@ -1168,7 +1502,7 @@ function professionalLifeReportHTML(A,P,DW,age,gender,knowTime,nowYear){
   const decades=DW.list.map((d,index)=>{
     const p=buildDaewoonProfile(A,P,DW,d,index,knowTime), now=d===current;
     const markers=p.markers.length?p.markers.map(x=>`${x.s.year} ${x.s.str}(${x.reasons.join(' + ')})`).join(' · '):'특정 연도 단정 없음';
-    return `<div class="print-outlook-row"><b>${d.age}~${d.age+9}세${now?'<br>현재':''}</b><p><strong>${d.str} 대운</strong> · ${d.startDate} 시작, ${d.endDate} 다음 대운 전<br><em>바뀌는 중심:</em> ${p.thesis}<br><em>앞 대운과의 차이:</em> ${p.transition}<br><em>돈:</em> ${p.money}<br><em>일:</em> ${p.work}<br><em>사람·관계:</em> ${p.people} ${p.love}<br><em>생활·행동:</em> ${p.energy} ${p.action}<br><em>우선 확인 세운:</em> ${markers}</p></div>`;
+    return `<div class="print-outlook-row"><b>${d.startYear}~${d.endYear-1}${now?'<br>현재':''}</b><p><strong>${d.str} 대운</strong> · 양력 ${d.startDate} 시작, ${d.endDate} 다음 대운 전<br><em>나이 병기:</em> 출생 후 약 ${d.startAgeExact}년 · 당시 세는나이 ${d.countingAge}세 시작<br><em>바뀌는 중심:</em> ${p.thesis}<br><em>앞 대운과의 차이:</em> ${p.transition}<br><em>돈:</em> ${p.money}<br><em>일:</em> ${p.work}<br><em>사람·관계:</em> ${p.people} ${p.love}<br><em>생활·행동:</em> ${p.energy} ${p.action}<br><em>우선 확인 세운:</em> ${markers}</p></div>`;
   }).join('');
   const reportEnd=Math.max(2030,nowYear+1);
   const yearSnapshots=Array.from({length:reportEnd-nowYear+1},(_,i)=>yearConsultationSnapshot(A,P,DW,gender,knowTime,nowYear+i));
@@ -1183,7 +1517,7 @@ function professionalLifeReportHTML(A,P,DW,age,gender,knowTime,nowYear){
     <section class="print-chapter"><h2>성격·판단·회복 패턴</h2><h3>사람들이 먼저 보는 모습과 혼자 있을 때</h3><p>${x.identity}</p><h3>결정을 내리는 방식</h3><p>${GROUP_PLAIN[top].gift}이 중심이라 ${GROUP_PLAIN[top].action}가 판단 오류를 줄입니다. ${top!==second?`${second}도 비슷한 세력으로 작동하므로 ${GROUP_PLAIN[second].action}를 함께 해야 한쪽 장점이 과해지는 것을 막습니다.`:''}</p><h3>스트레스가 쌓이는 자리</h3><p>${environment}</p><h3>확인 기준</h3><p>이 설명이 맞다면 중요한 결정을 앞두고 ${GROUP_PLAIN[top].shadow}이 반복되는지, 반대로 ${GROUP_PLAIN[top].action}를 했을 때 실제 마찰이 줄었는지를 기록해 확인할 수 있습니다.</p></section>
     <section class="print-chapter"><h2>직업·일하는 방식·환경</h2><div class="print-month-lead">${career}</div><div class="print-chapter-grid"><div class="print-chapter-card"><h3>성과가 보이는 조건</h3><p>${GROUP_PLAIN[top].action}. 그 뒤 ${GROUP_PLAIN[second].action}. 직업명 하나를 운명처럼 고정하지 않고 이 두 조건을 충족하는 역할을 찾습니다.</p></div><div class="print-chapter-card"><h3>조직 안에서</h3><p>${environment} 상사·고객·동료 중 누구에게 최종 결정권이 있는지, 평가 기준이 무엇인지 먼저 확인해야 합니다.</p></div><div class="print-chapter-card"><h3>독립·사업을 검토할 때</h3><p>사주만으로 창업이나 투자를 권하지 않습니다. ${x.earning} 실제 고객·가격·반복 주문·현금 여유라는 네 조건이 없으면 준비 단계로 둡니다.</p></div><div class="print-chapter-card"><h3>멈춰야 할 조건</h3><p>${x.caution} 수면·현금·관계 중 두 가지가 동시에 무너지면 운의 좋고 나쁨과 무관하게 규모를 줄이고 계약을 다시 봅니다.</p></div></div></section>
     <section class="print-chapter"><h2>돈복·인복·결혼운</h2><h3>돈을 버는 방식</h3><p>${x.earning}</p><h3>돈을 지키는 방식</h3><p>${x.keeping}</p><h3>도움이 오는 통로와 사람 위험</h3><p>${x.helper} ${x.peopleRisk}</p><h3>가까운 관계와 결혼을 읽는 법</h3><p>${x.partner} ${x.spouseNote}</p><div class="print-chapter-grid"><div class="print-chapter-card"><h3>돈·계약 우선 점검 연도</h3><p>${x.moneyTiming}</p></div><div class="print-chapter-card"><h3>관계·책임 우선 점검 연도</h3><p>${x.relationTiming}</p></div></div><p class="method-note">연도는 사건 약속이 아니라 세운·대운·원국 신호가 두 층 이상 겹친 때만 표시합니다. 금액·결혼·이별을 확정하지 않습니다.</p></section>
-    <section class="print-chapter"><h2>평생 대운 — 인생의 계절</h2><p>대운 시작은 정수 나이가 아니라 절입까지의 일수로 계산한 ${DW.startDate}부터입니다. 각 10년의 시작 월까지 반영하며, 전환 연도는 앞뒤 대운을 나누어 읽습니다.</p>${decades}</section>
+    <section class="print-chapter"><h2>평생 대운 — 인생의 계절</h2><p>대운은 만 나이나 세는나이로 먼저 고르는 것이 아닙니다. 출생 일시에서 순행은 다음 절입, 역행은 이전 절입까지의 양력 시간 차를 《삼명통회》의 3일=1년 방식으로 환산합니다. 이 명식의 첫 교운은 출생 후 ${DW.startYears}년 ${DW.startMonths}개월 ${DW.startDays}일 ${DW.startHours||0}시간 뒤인 양력 ${DW.startDateTime.replace('T',' ')}입니다. 아래 표는 양력 날짜를 기준으로 하고, 비교를 위해 출생 후 경과기간과 당시 세는나이를 함께 적었습니다.</p>${decades}</section>
     ${yearChapters}
     <section class="print-chapter"><h2>${nowYear}~${reportEnd} 5개년 현실 흐름</h2><p>“좋은 해”를 한 글자로 고르지 않고 원국·그해 대운·세운의 합충과 과제를 함께 봅니다. 아래는 무엇을 보장하는 예언이 아니라 어느 문제를 먼저 점검할지 정한 순서입니다.</p>${outlook}</section>
     <section class="print-chapter"><h2>이 감명서의 한계와 사용법</h2><ul class="print-checks"><li>사주는 과학적으로 미래 사건을 보장하는 도구가 아닙니다. 성격·돈·결혼·건강·직업을 확정하지 않습니다.</li><li>출생시각이 미상이면 시주·자녀·말년·세부 사건 시점은 읽지 않습니다. 절기 경계, 지역 경도, 균시차 관법이 갈리면 후보 명식을 함께 비교해야 합니다.</li><li>음력·윤달을 양력으로 바꾸지 않고 입력하면 명식이 달라집니다. 현재 입력 화면은 양력 기준입니다.</li><li>투자·의료·법률·결혼·이혼·퇴직은 이 보고서만으로 결정하지 말고 실제 계약·현금·전문가 의견을 확인합니다.</li><li>가장 좋은 사용법은 월말 확인 질문에 실제 결과를 적고, 맞지 않은 문장은 버리는 것입니다.</li></ul></section>
@@ -1194,9 +1528,9 @@ function printCoverHTML(personName,y,m,dd,hh,mm,gender,knowTime,birthOpt,P,nowYe
   const name=escapeHTML(personName), time=knowTime?`${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`:'시간 미상';
   const pillars=[P.year.str,P.month.str,P.day.str,knowTime?P.hour.str:'시주 미상'].join(' · ');
   const endYear=Math.max(2030,nowYear+1);
-  const toc=[['01','만세력 원국 확정','절기·출생지 보정·여덟 글자·오행·강약'],['02','평생운세','성격·반복 실수·재능·직업과 100년 대운'],['03','돈복·인복·결혼운','버는 방식·누수·귀인 위치·갈등·인연 시기'],['04',`${nowYear}~${endYear} 5개년 운세`,'각 해의 돈·일·사람·관계·생활 리듬·행동'],['05',`${nowYear} 월별운세`,'1월부터 12월까지 각 달의 현실 장면과 실행표'],['06','귀인·대운 상세','귀인의 정확한 자리와 모든 10년의 변화'],['07','근거와 한계','고전 판독 근거·유파 갈림·확정하지 않는 것']];
-  return `<section class="print-only print-cover"><p class="cover-mark">四柱鑑命書</p><h1 class="serif">평생 사주감명서</h1><p>${nowYear}~${endYear} 5개년 운세 · 평생 100년 대운 · ${nowYear} 월별운세</p><p class="cover-name">${name} 님</p><p>${y}년 ${m}월 ${dd}일 ${time} · ${escapeHTML(birthOpt.placeLabel)} · ${gender==='F'?'여성':'남성'}</p><p>${pillars}</p><p class="cover-maker">만든이 ${MAKER}</p></section>
-    <section class="print-only print-toc"><h2>이 감명서가 답하는 것</h2>${toc.map(x=>`<div class="print-toc-item"><b>${x[0]}</b><span><strong>${x[1]}</strong><br>${x[2]}</span></div>`).join('')}<p class="method-note" style="margin-top:8mm">이 감명서는 사건을 보장하지 않습니다. 좋은 운은 해당 행동의 마찰이 줄고 재료가 늘어나는 때, 충은 기존 구조를 재협상해야 하는 때로 현실 번역합니다.</p></section>`;
+  const toc=[['01','처음 읽는 법과 원국','초보를 위한 용어·네 기둥·여덟 글자·지장간'],['02','오행과 십성 완전 해설','다섯 기운과 다섯 역할의 과다·부족·연결'],['03','월령·강약·격국·용신','계절의 힘·격의 성패·처방·유파 갈림'],['04','평생 성격운','겉과 속·판단 방식·반복 실수·회복법'],['05','평생 직업운','재능·조직·독립·사업·직업 전환 조건'],['06','평생 재물운','버는 길·새는 길·모으는 법·계약과 시기'],['07','인연·결혼·가족운','배우자궁·갈등 방식·부모·형제·자녀 자리'],['08','건강복과 생활 리듬','진단이 아닌 과로·회복·생활 조건'],['09','귀인과 합충형해파','귀인의 정확한 위치·십성·활성 대운과 세운'],['10','평생 100년 대운','10개 대운마다 달라지는 돈·일·사람·관계와 연도별 세운'],['11',`${nowYear}~${endYear} 올해·5개년 운세`,'해마다 총론·재물·직업·관계·생활·행동'],['12',`${nowYear} 이번 달·12개월 운세`,'절기 기준 매달 돈·일·사람·관계·생활과 확인표']];
+  return `<section class="print-only print-cover"><p class="cover-mark">四柱鑑命書</p><h1 class="serif">평생 사주감명서</h1><p>평생운세 · 올해운세 · 이번 달 운세<br>${nowYear}~${endYear} 5개년 · 100년 대운 · ${nowYear} 12개월</p><p class="cover-name">${name} 님</p><p>${y}년 ${m}월 ${dd}일 ${time} · ${escapeHTML(birthOpt.placeLabel)} · ${gender==='F'?'여성':'남성'}</p><p>${pillars}</p><p class="cover-maker">만든이 ${MAKER}</p></section>
+    <section class="print-only print-toc"><h2>이 한 권에 담긴 것</h2>${toc.map(x=>`<div class="print-toc-item"><b>${x[0]}</b><span><strong>${x[1]}</strong><br>${x[2]}</span></div>`).join('')}<p class="method-note" style="margin-top:6mm">각 결론은 쉬운 설명 뒤에 원국·십성·월령·합충·대운·세운 근거를 붙였습니다. 사건을 보장하지 않으며, 다른 유파와 갈리는 곳은 숨기지 않습니다.</p></section>`;
 }
 
 function daewoonMarkerYears(A,P,d,knowTime){
@@ -1238,19 +1572,19 @@ function buildDaewoonProfile(A,P,DW,d,index,knowTime){
 }
 
 function allDaewoonHTML(A,P,DW,age,knowTime,nowYear) {
-  const currentExact=daewoonAt(DW,nowYear,new Date().getMonth()+1);
+  const currentExact=currentDaewoon(DW);
   const rows=DW.list.map((d,index)=>{
     const p=buildDaewoonProfile(A,P,DW,d,index,knowTime);
-    const now=currentExact?currentExact===d:age>=d.age&&age<d.age+10;
+    const now=currentExact===d;
     const markerText=p.markers.length?p.markers.map(x=>`${x.s.year} ${x.s.str} — ${x.reasons.join(' + ')}`).join('<br>'):'두 층 이상 겹치는 특정 연도를 고르지 않음';
     const signalText=p.signals.length?p.signals.join(' · '):'원국과 직접 맞물리는 큰 합·충·형 없음';
-    return `<details class="life-decade${now?' now':''}${p.yong?' yong':''}" data-decade="${d.str}"${now?' open':''}><summary>${d.age}~${d.age+9}세 · <b>${d.str} 대운</b>${now?' · 지금':''}${p.yong?' · 처방 기운':''}</summary><div class="decade-body">
+    return `<details class="life-decade${now?' now':''}${p.yong?' yong':''}" data-decade="${d.str}"${now?' open':''}><summary>양력 ${d.startYear}~${d.endYear-1} · <b>${d.str} 대운</b>${now?' · 지금':''}${p.yong?' · 처방 기운':''}</summary><div class="decade-body">
       <p class="decade-thesis"><b>이 10년에 바뀌는 중심</b><br>${p.thesis}</p><p class="decade-transition"><b>앞 대운과의 차이</b> · ${p.transition}</p>
       <div class="decade-detail-grid"><div class="decade-point"><b>돈·계약</b><span>${p.money}</span></div><div class="decade-point"><b>일·직업</b><span>${p.work}</span></div><div class="decade-point"><b>사람·협업</b><span>${p.people}</span></div><div class="decade-point"><b>가까운 관계</b><span>${p.love}</span></div><div class="decade-point"><b>생활 리듬</b><span>${p.energy}</span></div><div class="decade-point"><b>이 10년의 사용법</b><span>${p.action}</span></div></div>
       <p class="decade-signals"><b>원국과 맞물리는 자리</b><br>${signalText}<br><br><b>변화를 우선 확인할 세운</b><br>${markerText}</p>
-      <p class="decade-rule">정확한 기간 · ${d.startDate} 시작 ~ ${d.endDate} 다음 대운 시작 전 · 교운 약 ${d.startAgeExact}세<br>판독 순서 · 원국 월령·격국 → 대운 지지(생활 바탕)와 천간(외부 과제) → 세운. 전반 5년은 천간, 후반 5년은 지지라고 기계적으로 반으로 자르지 않습니다.</p></div></details>`;
+      <p class="decade-rule">양력 적용 기간 · ${d.startDateTime.replace('T',' ')} 시작 ~ ${d.endDateTime.replace('T',' ')} 다음 대운 시작 전<br>나이 병기 · 출생 후 약 ${d.startAgeExact}년 · 당시 세는나이 ${d.countingAge}세 시작<br>판독 순서 · 원국 월령·격국 → 대운 지지(생활 바탕)와 천간(외부 과제) → 세운. 전반 5년은 천간, 후반 5년은 지지라고 기계적으로 반으로 자르지 않습니다.</p></div></details>`;
   }).join('');
-  return `<div class="block"><h3>평생 대운 상세 — 100년, 모든 10년의 변화</h3><p style="font-size:.84rem;color:var(--hanji-dim)">대운수는 절입까지의 실제 시간으로 계산했고 시작일을 월 단위가 아니라 날짜로 표시합니다. 각 구간에는 “좋다·나쁘다” 대신 이전 10년과 달라지는 생활 주제, 돈·일·사람·관계·리듬, 원국 접점, 우선 확인할 세운을 따로 적었습니다.</p><div class="decade-list">${rows}</div></div>`;
+  return `<div class="block report-anchor" id="fortune-daewoon"><h3>평생 대운 상세 — 100년, 모든 10년의 변화</h3><p style="font-size:.84rem;color:var(--hanji-dim)">대운수는 양력 절입까지의 실제 시간으로 계산했고, 현재 대운도 나이 추정이 아니라 교운 연월일시로 선택합니다. 나이 표시는 관법 차이를 숨기지 않도록 출생 후 경과기간과 당시 세는나이를 함께 적었습니다. 각 구간에는 이전 10년과 달라지는 생활 주제, 돈·일·사람·관계·리듬, 원국 접점, 우선 확인할 세운을 따로 적었습니다.</p><div class="decade-list">${rows}</div></div>`;
 }
 
 function render(y, m, dd, hh, mm, gender, knowTime, birthOpt = { placeLabel:'서울', longitude:126.978, lonMinutes:-32.088 }, personName = '이름 미입력') {
@@ -1262,10 +1596,11 @@ function render(y, m, dd, hh, mm, gender, knowTime, birthOpt = { placeLabel:'서
   const A = E.analyze(P, { knowTime, timeVariantConflict, locationLabel:birthOpt.placeLabel });
   const DW = E.calcDaewoon(P, gender, TERMS);
   const nowY = new Date().getFullYear();
-  const age = nowY - P.meta.sajuYear + 1; // 세는나이 기준 근사
+  const age = fullSolarAge(y,m,dd); // 화면의 현재 나이는 입력한 양력 생일 기준 만 나이
 
   let h = printCoverHTML(personName,y,m,dd,hh,mm,gender,knowTime,birthOpt,P,nowY);
   h += `<div class="report-toolbar"><button type="button" onclick="window.createSajuPDF()">정식 사주감명서 PDF 만들기</button><p>표지·평생운세·귀인 위치·100년 대운·${nowY}~${Math.max(2030,nowY+1)}년·${nowY}년 월별 12장까지 한 파일로 만듭니다.<br>인쇄창에서 대상을 <b>PDF로 저장</b>으로 고르세요. 만든이 ${MAKER}</p></div>`;
+  h += fortuneEntranceHTML(nowY);
 
   // ① 원국 병풍
   h += `<div class="sec"><h2 class="serif">내 사주 여덟 글자</h2><div class="byeongpung">`;
@@ -1655,17 +1990,17 @@ function render(y, m, dd, hh, mm, gender, knowTime, birthOpt = { placeLabel:'서
   DW.list.forEach(d => {
     const de = E.STEM_ELEM[d.stem], be = E.BRANCH_ELEM[d.branch];
     const hit = A.yongshin && (de === A.yongshin || be === A.yongshin);
-    const exactNow=daewoonAt(DW,nowY,new Date().getMonth()+1);
-    const isNow = exactNow ? exactNow===d : age >= d.age && age < d.age + 10;
+    const exactNow=currentDaewoon(DW);
+    const isNow = exactNow===d;
     const grp = GRP_OF(E.tenGod(P.day.stem, d.stem));
-    h += `<div class="d ${hit?'hit':''} ${isNow?'now':''}"><div class="age">${d.age}세${isNow?' · 지금':''}</div>
+    h += `<div class="d ${hit?'hit':''} ${isNow?'now':''}"><div class="age">${d.startYear}년${isNow?' · 지금':''}<br>세는 ${d.countingAge}세</div>
       <div class="g serif"><span class="e-${de}">${E.STEMS[d.stem]}</span><span class="e-${be}">${E.BRANCHES[d.branch]}</span></div>
       <div class="lbl">${hit ? '처방의 계절' : grp}</div></div>`;
   });
   h += `</div>`;
 
   // ★현재 대운 상세 해석 (십성 기준, 신강/신약에 따라 정반대로 읽음)
-  const nowDw = daewoonAt(DW,nowY,new Date().getMonth()+1) || DW.list.find(d => age >= d.age && age < d.age + 10);
+  const nowDw = currentDaewoon(DW);
   if (nowDw && C.LUCK_SIPSUNG) {
     const gStem = GRP_OF(E.tenGod(P.day.stem, nowDw.stem));
     const gBranch = GRP_OF(E.tenGodBranch(P.day.stem, nowDw.branch));
@@ -1673,7 +2008,7 @@ function render(y, m, dd, hh, mm, gender, knowTime, birthOpt = { placeLabel:'서
     // [8/6] 중화는 어느 쪽으로도 크게 기울지 않으므로, 강/약 처방문을 그대로 주기 전에 완충한다
     if (isMidChart) h += `<div class="block"><p class="adv">이 사주는 중화에 가까워, 아래 운 해석이 한쪽으로 크게 기울지 않습니다.
       강한 쪽·약한 쪽 어느 처방도 절대적이지 않다는 전제로 읽어주세요.</p></div>`;
-    h += `<div class="block"><h3>지금 걷고 있는 10년 <span class="tag">${nowDw.age}~${nowDw.age+9}세 · ${nowDw.str}</span></h3>
+    h += `<div class="block"><h3>지금 걷고 있는 10년 <span class="tag">${nowDw.startDate} 시작 · ${nowDw.str}</span></h3>
       <p style="color:var(--gold);margin-bottom:8px">${gStem}의 시기 — ${c1.what}</p>
       <p>${isStrongChart ? c1.strong : c1.weak}</p>`;
     if (gBranch !== gStem) {
@@ -1700,15 +2035,19 @@ function render(y, m, dd, hh, mm, gender, knowTime, birthOpt = { placeLabel:'서
   }
   h += allDaewoonHTML(A,P,DW,age,knowTime,nowY);
   if (A.yongshin) {
-    const hitDw = DW.list.find(d => { const de=E.STEM_ELEM[d.stem], be=E.BRANCH_ELEM[d.branch]; return (de===A.yongshin||be===A.yongshin) && d.age + 10 > age; });
-    if (hitDw) h += `<div class="block"><p>${C.DAEWOON.yongshin.replace('{age}', hitDw.age).replace('{gz}', hitDw.str).replace('{elem}', A.yongshin)}</p></div>`;
+    const rightNow=new Date(), rightNowKey=solarMomentKey(rightNow.getFullYear(),rightNow.getMonth()+1,rightNow.getDate(),rightNow.getHours(),rightNow.getMinutes());
+    const hitDw = DW.list.find(d => { const de=E.STEM_ELEM[d.stem], be=E.BRANCH_ELEM[d.branch]; return (de===A.yongshin||be===A.yongshin) && (d.endDateTime||`${d.endDate}T00:00`)>rightNowKey; });
+    if (hitDw) h += `<div class="block"><p>${C.DAEWOON.yongshin.replace('{date}', hitDw.startDateTime.replace('T',' ')).replace('{elapsed}', hitDw.startAgeExact).replace('{counting}', hitDw.countingAge).replace('{gz}', hitDw.str).replace('{elem}', A.yongshin)}</p></div>`;
   }
   h += `</div>`;
 
   // ⑧ 올해·내년: 원국→대운→세운→월운을 돈·일·사람·인연·행동으로 연결한다.
   h += yearlyForecastHTML(A, P, DW, age, gender, knowTime, nowY);
+  h += currentMonthScreenHTML(A, P, DW, knowTime);
+  h += exhaustiveNarrativeBookHTML(A, P, DW, age, gender, knowTime, nowY);
   h += professionalLifeReportHTML(A, P, DW, age, gender, knowTime, nowY);
   h += professionalMonthReportHTML(A, P, DW, age, gender, knowTime, nowY);
+  h += `<section class="print-only closing-book">${methodAndColophonHTML(A,P,DW,knowTime)}</section>`;
 
   // ⑨ 오늘의 일진
   const today = new Date();
@@ -1726,12 +2065,12 @@ function render(y, m, dd, hh, mm, gender, knowTime, birthOpt = { placeLabel:'서
   <div style="text-align:center"><button class="again" onclick="location.reload()">다른 사주 보기</button></div></div>`;
 
   $('#report').innerHTML = h;
-  // 표지뿐 아니라 각 전문 챕터와 월별 페이지에도 제작자 표기를 남긴다.
-  document.querySelectorAll('#report .print-chapter,#report .print-month-page,#report .print-toc').forEach(el=>{
+  // 만든이 꼬리표가 다음 쪽에 혼자 남지 않도록 각 장의 제목 바로 아래에 둔다.
+  document.querySelectorAll('#report .print-chapter:not(.print-colophon),#report .print-month-page').forEach(el=>{
     if(el.querySelector(':scope > .print-credit'))return;
-    const evidence=el.matches('.print-month-page')?el.querySelector(':scope > .method-note:last-child'):null;
-    if(evidence)evidence.insertAdjacentHTML('beforebegin',`<p class="print-credit">만든이 ${MAKER}</p>`);
-    else el.insertAdjacentHTML('beforeend',`<p class="print-credit">만든이 ${MAKER}</p>`);
+    const title=el.querySelector(':scope > h2');
+    if(title)title.insertAdjacentHTML('afterend',`<p class="print-credit chapter-credit">만든이 ${MAKER}</p>`);
+    else el.insertAdjacentHTML('afterbegin',`<p class="print-credit chapter-credit">만든이 ${MAKER}</p>`);
   });
   window.__lastSaju = { A, P, DW, knowTime, personName, y, m, dd, hh, mm, gender, birthOpt, nowY };
   window.__pastChecks = [];

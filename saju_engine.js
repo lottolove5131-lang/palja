@@ -217,7 +217,12 @@ function calcDaewoon(pillars, gender, terms) {
     const prev = [...all].reverse().find(t => t <= civil);
     daysGap = (parse(civil) - parse(prev)) / 86400000;
   }
-  let start = Math.round(daysGap / 3); if (start < 1) start = 1;
+  // 3일=1년을 정수 나이로만 반올림하면 교운 경계에서 최대 약 1년이 흔들린다.
+  // 기존 age는 호환용으로 유지하고, 월 단위 시작시점과 근사 날짜를 함께 보존한다.
+  const startExact = Math.max(1/12, daysGap / 3);
+  let start = Math.round(startExact); if (start < 1) start = 1;
+  const startTotalMonths = Math.max(1,Math.round(startExact*12));
+  const birthDate = new Date(parse(civil));
   const list = [];
   let mIdx = pillars.month.stem * 6 % 60; // 월주 60갑자 idx 계산
   // 월주 idx 정확 계산
@@ -225,9 +230,15 @@ function calcDaewoon(pillars, gender, terms) {
   // 전 생애 표가 80대에서 끊기지 않도록 10대운(약 100년)을 계산한다.
   for (let i = 1; i <= 10; i++) {
     const g = gz(forward ? mIdx + i : mIdx - i);
-    list.push({ age: start + (i-1)*10, ...g });
+    const d0 = new Date(birthDate.getTime()); d0.setUTCMonth(d0.getUTCMonth()+startTotalMonths+(i-1)*120);
+    const d1 = new Date(d0.getTime()); d1.setUTCMonth(d1.getUTCMonth()+120);
+    list.push({ age: start + (i-1)*10, startAgeExact:Math.round((startExact+(i-1)*10)*100)/100,
+      startYear:d0.getUTCFullYear(),startMonth:d0.getUTCMonth()+1,endYear:d1.getUTCFullYear(),endMonth:d1.getUTCMonth()+1,
+      startDate:isoOf(d0).slice(0,10),endDate:isoOf(d1).slice(0,10),...g });
   }
-  return { forward, start, list };
+  return { forward, start, startExact:Math.round(startExact*100)/100,
+    startYears:Math.floor(startTotalMonths/12),startMonths:startTotalMonths%12,
+    startDate:list[0]&&list[0].startDate,list };
 }
 function parse(iso){ const [d, t] = iso.split('T'); const [y,m,dd] = d.split('-').map(Number); const [h,mi] = t.split(':').map(Number); return Date.UTC(y, m-1, dd, h, mi); }
 
@@ -245,6 +256,8 @@ function analyze(pillars, opts = {}) {
   P.forEach(p => { elem[STEM_ELEM[p.stem]]++; elem[BRANCH_ELEM[p.branch]]++; });
   const missing = Object.keys(elem).filter(k => elem[k] === 0);
   const excess = Object.keys(elem).filter(k => elem[k] >= 4);
+  const hiddenElements = [...new Set(P.flatMap(p => (JIJANGGAN_DAYS[p.branch]||[]).map(([sn]) => STEM_ELEM[STEMS.indexOf(sn)])))];
+  const completeMissing = Object.keys(elem).filter(k => elem[k] === 0 && !hiddenElements.includes(k));
 
   // 십성 분포
   const tg = {};
@@ -254,6 +267,23 @@ function analyze(pillars, opts = {}) {
   });
   const grp = { 비겁:(tg['비견']||0)+(tg['겁재']||0), 식상:(tg['식신']||0)+(tg['상관']||0),
     재성:(tg['편재']||0)+(tg['정재']||0), 관성:(tg['편관']||0)+(tg['정관']||0), 인성:(tg['편인']||0)+(tg['정인']||0) };
+
+  // 생활 풀이용 유효 십성군. 단순 8글자 개수는 지지의 정기만 세어 월령·지장간·통근을 잃는다.
+  // 고전에는 이 가중치 숫자가 없으므로 격국 판정에는 쓰지 않고, 성격·돈·관계의 '우선순위'에만 쓴다.
+  const groupWeights = {비겁:0,식상:0,재성:0,관성:0,인성:0};
+  const groupOfGod = g => ['비견','겁재'].includes(g)?'비겁':['식신','상관'].includes(g)?'식상':['편재','정재'].includes(g)?'재성':['편관','정관'].includes(g)?'관성':'인성';
+  const POS_EFFECT = [0.8,1.45,1.1,0.85]; // 년·월·일·시: 월령과 일지를 더 무겁게
+  P.forEach((p,i) => {
+    if (i !== 2) {
+      const rooted = P.some(q => (JIJANGGAN_DAYS[q.branch]||[]).some(([sn]) => STEMS.indexOf(sn) === p.stem));
+      groupWeights[groupOfGod(tenGod(dayStem,p.stem))] += POS_EFFECT[i] * (rooted ? 1.15 : 0.85);
+    }
+    for (const [sn,days] of (JIJANGGAN_DAYS[p.branch]||[])) {
+      const hiddenStem=STEMS.indexOf(sn);
+      groupWeights[groupOfGod(tenGod(dayStem,hiddenStem))] += POS_EFFECT[i] * (days/30) * 1.2;
+    }
+  });
+  for (const k of Object.keys(groupWeights)) groupWeights[k]=Math.round(groupWeights[k]*100)/100;
 
   // 왕상휴수사 (월령 대비 일간 상태)
   const ws = wangsang(dayElem, BRANCH_ELEM[pillars.month.branch]);
@@ -562,11 +592,12 @@ function analyze(pillars, opts = {}) {
   if (grp.인성 >= 4) labels.push({ id:'insung_excess', type:'인성과다' });
   if (dayElem === '목' && elem['수'] >= 4) labels.push({ id:'sudamokbu', type:'수다목부' });
 
-  return { pillars, elem, missing, excess, tenGods: tg, groups: grp, strength, monthSupport, strengthDetail, jonggyeok: jong,
+  return { pillars, elem, missing, hiddenElements, completeMissing, excess, tenGods: tg, groups: grp, strength, monthSupport, strengthDetail, jonggyeok: jong,
     yongshin: finalYongshin, yongshinEokbu: yongshin, yongshinBasis,
     yongshinMode, yongshinRole, yongshinInChart,
     johu, temp, wangsang: ws, gyeok,
     relations: rel, gongmang, sinsal, labels, dayElem, patterns, evidence, readingAudit,
+    groupWeights, groupWeightBasis:'천간 투출·통근 + 지장간 월률분야 + 월령·자리 가중(생활 풀이용, 격국 판정에는 미사용)',
     unsung: unsungTable, sinsal12: sinsal12Table,
     nayin: nayinTable, taewon: taewonGZ, myeonggung: myeongGZ, singung: sinGZ,
     dayMaster: STEMS[dayStem] + dayElem.charAt(0) };
@@ -1082,7 +1113,8 @@ function calcSewoon(analysis, fromYear, n) {
     const g = gz(y - 1984);
     const se = STEM_ELEM[g.stem], be = BRANCH_ELEM[g.branch];
     const newElems = [se, be].filter(e => analysis.elem[e] === 0);
-    out.push({ year: y, ...g, elems: [se, be], newElems: [...new Set(newElems)],
+    const completeNewElems = [se,be].filter(e => (analysis.completeMissing||analysis.missing||[]).includes(e));
+    out.push({ year: y, ...g, elems: [se, be], newElems: [...new Set(newElems)], completeNewElems:[...new Set(completeNewElems)],
       yongshinHit: [se, be].includes(analysis.yongshin) });
   }
   return out;

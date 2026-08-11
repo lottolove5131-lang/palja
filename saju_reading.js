@@ -669,6 +669,7 @@
     const pushes = rows.filter(r => r.sig.kind === 'push');
     const holds = rows.filter(r => r.sig.kind === 'hold');
     const first = pushes[0], firstHold = holds[0];
+    if (C.tell && first) C.tell('first_push', String(first.s.year));
 
     return page({
       kicker: '언제',
@@ -1451,7 +1452,10 @@
           <b>태어난 시각을 다시 확인하세요.</b> 30분만 달라져도 네 번째 기둥이 통째로 바뀌고,
           그러면 이 표도 전부 달라집니다. 병원 기록·부모님 기억·출생신고 시각을 대조해 보시고 다시 뽑으세요.`, 'good'),
         P_(`<span class="rd-dim">※ 여기 적힌 해에 <b>반드시 나쁜 일</b>이 있었다는 뜻이 아닙니다.
-            결혼·출산·합격·이직처럼 좋은 변화도 「흔들림」으로 잡힙니다. 크기만 재고 방향은 재지 않습니다.</span>`)
+            결혼·출산·합격·이직처럼 좋은 변화도 「흔들림」으로 잡힙니다. 크기만 재고 방향은 재지 않습니다.</span>`),
+        (C.recall && C.recall('first_push'))
+          ? P_(`세 개 이상 맞으셨다면 — 이 책이 ${C.you}의 시간을 제대로 읽고 있다는 뜻입니다. 그때는 앞 장의 <b>${C.recall('first_push')}년</b>을 달력에 먼저 옮기세요. 지나간 해를 맞힌 계산과 다가올 해를 읽은 계산은 같은 계산입니다.`)
+          : ''
       ],
       action: UL([
         `<b>지금</b> — 위 칸에 <b>맞다/아니다를 직접 체크</b>하세요. 이게 이 책을 읽는 첫 순서입니다.`,
@@ -1574,12 +1578,25 @@
         '이 10년이 무엇을 요구하는지, 다음 10년에 무엇이 바뀌는지는 뒤에서 하나씩 적었습니다.'
       : '';
 
+    // 실에 걸기 — 뒤 장들이 이 정체성을 이어받는다
+    if (C.tell) {
+      C.tell('core', x.season + '의 ' + img);
+      C.tell('band', F.band);
+      if (yong) C.tell('yong', EL_KO[yong]);
+    }
+    // 밑줄 문장 — 지식이 아니라 태도. 저장되는 건 이 한 줄이다(연구 2팀 R9).
+    const p7 = F.band === 'strong'
+      ? '이 장을 한 줄로 접으면 이렇습니다. <b>' + C.you + '은 힘이 모자란 적이 없습니다. 쓸 곳을 정한 날, 이 사주는 강해집니다.</b>'
+      : F.band === 'mid'
+      ? '이 장을 한 줄로 접으면 이렇습니다. <b>' + C.you + '의 사주는 판을 읽는 눈이 곧 힘입니다. 방향을 정하는 사람에게 균형은 무기가 됩니다.</b>'
+      : '이 장을 한 줄로 접으면 이렇습니다. <b>혼자 다 들지 않기로 결심하는 순간, 이 사주는 커집니다. 같이 갈 사람을 고르는 눈 — 그것이 ' + C.you + '의 타고난 재산입니다.</b>';
+
     return page({
       cls: 'rd-prose',
       kicker: '제1장 — 내 사주 전체',
       title: C.you + '은 어떤 사람인가 — 여덟 글자를 이어서 읽으면',
-      lede: '표로 나누기 전에, <b>한 사람으로 이어서</b> 읽어보겠습니다.',
-      blocks: [p1, p2, p3, p4, p45, p47, p5, p6].filter(Boolean).map(function (t) { return P_(t); }),
+      lede: '표로 나누기 전에, <b>한 사람으로 이어서</b> 읽어보겠습니다. 미리 말씀드리면 이 책은 정해진 답이 아니라 <b>판단을 도울 참고서</b>입니다 — 여기 적힌 판 위에서 무엇을 하느냐는 끝까지 ' + C.you + '의 것입니다.',
+      blocks: [p1, p2, p3, p4, p45, p47, p5, p6, p7].filter(Boolean).map(function (t) { return P_(t); }),
       action: UL([
         '<b>읽으면서</b> — 맞는 문단에 표시하고, <b>틀린 문단에도 표시</b>하세요. 틀린 쪽이 더 중요합니다.',
         '<b>절반 이상 틀리면</b> — 태어난 시각을 다시 확인하세요. 30분 차이로 네 번째 기둥이 바뀝니다.',
@@ -1661,6 +1678,25 @@
       const q5 = '<b>일</b>은 ' + ((LIFE_BY_GOD[gb] || {}).job || '') + ' <b>사람</b>은 ' + ((LIFE_BY_GOD[gb] || {}).love || '') +
         (gs !== gb ? ' 겉으로 요구받는 것은 이와 달라서, ' + ((LIFE_BY_GOD[gs] || {}).job || '') + ' 두 가지를 같이 다뤄야 하는 해입니다.' : '');
 
+      // 시기 창 — "언젠가"를 달로 좁힌다(연구: 창이 좁을수록 값이 생긴다). 올해 면에서만.
+      let q55 = '';
+      if (off === 0) {
+        try {
+          const mrows = monthRows(A, P, DW, C, year);
+          const good = mrows.filter(function (r) { return (r.yongMonth || r.hits.some(function (h) { return h.t === '합'; })) && !r.hits.some(function (h) { return h.t === '충'; }); }).map(function (r) { return r.m; });
+          const rough = mrows.filter(function (r) { return r.hits.filter(function (h) { return h.t === '충'; }).length >= (r.hits.some(function (h) { return h.k === '세'; }) ? 1 : 2); }).map(function (r) { return r.m; });
+          if (good.length || rough.length) {
+            q55 = '달로 좁혀 보겠습니다.' +
+              (good.length ? ' 이야기가 실제로 움직이기 좋은 달은 <b>' + good.slice(0, 3).join('·') + '월</b> 무렵입니다.' : '') +
+              (rough.length ? ' 반대로 <b>' + rough.slice(0, 2).join('·') + '월</b> 무렵에는 조건이 흔들리기 쉬우니, 되돌리기 어려운 약속은 이 달을 피해 잡으세요.' : '') +
+              ' 달의 경계는 1일이 아니라 매달 4~8일 무렵(절기)에 바뀝니다.';
+          }
+          if (C.recall && C.recall('first_push') === String(year)) {
+            q55 += ' 그리고 앞의 12년 표에서 <b>가장 가까운 밀 때가 바로 올해</b>였습니다 — 이 해를 그냥 보내지 않는 것, 그것이 올해의 가장 큰 숙제입니다.';
+          }
+        } catch (e) { /* 달 창은 보조 — 실패해도 본문은 성립 */ }
+      }
+
       // 신뢰도 계층 — 이 해 읽기를 지탱하는 근거가 몇 겹인지 독자에게 그대로 보인다.
       const sig = yearSignal(A, P, sw, C, !!(P.hour && A.knowTime !== false));
       const tier = confTier(sig.ev);
@@ -1674,7 +1710,7 @@
         cls: 'rd-prose',
         kicker: year + '년 운세',
         title: year + '년, ' + C.you + '에게 어떤 해인가',
-        blocks: [q1, q2, q3, q35, q4, q5, q6].filter(Boolean).map(function (t) { return P_(t); }),
+        blocks: [q1, q2, q3, q35, q4, q5, q55, q6].filter(Boolean).map(function (t) { return P_(t); }),
         action: UL([
           '<b>' + year + '년 초에</b> — 위에서 ' + (cl.length ? '흔들린다고 적힌 자리' : '가장 마음에 걸리는 대목') + '의 조건을 종이에 적으세요.',
           '<b>연중</b> — 큰 결정은 뒤의 월별 표에서 <b>잘 풀리는 달</b>에 배치하세요.',
@@ -1695,6 +1731,19 @@
   //  인생 전체를 장(章)별 줄글로 훑는다. 과거 연도 숫자는 쓰지 않는다(no_past 정책).
   //  모든 문단에 그 사람의 실제 간지·십성·합충을 박아 남과 같은 글이 나오지 않게 한다.
   // ══════════════════════════════════════════════════
+  // 십성 = 그 사람 마음속에서 실제로 들리는 한 문장 (연구: 라벨이 아니라 대사가 사람을 알아본다)
+  const TG_VOICE = {
+    비견: '내 일은 내가 정한다',
+    겁재: '내 몫은 내가 지킨다',
+    식신: '좋아하는 것을 오래, 깊게',
+    상관: '분명 더 나은 방법이 있을 텐데',
+    편재: '판을 넓히면 돈은 따라온다',
+    정재: '한 푼도 허투루 새지 않게',
+    편관: '이 무게는 내가 진다',
+    정관: '선을 지켜야 마음이 놓인다',
+    편인: '남들과 같은 답은 싫다',
+    정인: '더 배우면 길이 보인다'
+  };
   const TG_CORE = {
     비견: '나와 같은 기운 — 스스로 결정하고 내 몫을 내 손으로 챙기려는 힘',
     겁재: '겨루는 기운 — 승부가 걸리면 강해지지만 내 것의 경계를 자주 시험받는 힘',
@@ -1863,20 +1912,32 @@
       };
       const head = '<b>' + fr.name + '</b> — ' + fr.q + '. ';
       let body;
+      // 내면의 대사로 연다 — 라벨보다 대사가 사람을 먼저 알아본다 (십성 이름은 그 다음)
+      const voiceOf = function (g) { return TG_VOICE[g] ? '「' + TG_VOICE[g] + '」' : ''; };
       if (pos === '일') {
-        body = '이 계절의 주인공은 다른 누구도 아닌 ' + C.you + ' 자신입니다. 그 곁자리에 놓인 힘은 <b>' + ps.gb + '</b> — ' + (TG_CORE[ps.gb] || '') + '입니다. ' + (GONGWI_APPLY[pos][ps.grp] || '');
+        body = '이 계절의 주인공은 다른 누구도 아닌 ' + C.you + ' 자신입니다. 마음 깊은 곳에서 자주 들리는 말은 ' + voiceOf(ps.gb) + ' — <b>' + ps.gb + '</b>의 목소리입니다. ' + (GONGWI_APPLY[pos][ps.grp] || '');
       } else {
-        body = '이 시기를 끌고 가는 힘은 <b>' + (ps.gs || ps.gb) + '</b> — ' + (TG_CORE[ps.gs || ps.gb] || '') + '입니다. ' + (GONGWI_APPLY[pos][ps.grpS || ps.grp] || '') +
+        const tgName = ps.gs || ps.gb;
+        body = '이 시기의 ' + C.you + ' 마음속에서 가장 크게 울리는 말은 ' + voiceOf(tgName) + '입니다. <b>' + tgName + '</b>의 기운이 이 계절을 끌고 가기 때문입니다. ' + (GONGWI_APPLY[pos][ps.grpS || ps.grp] || '') +
           (ps.grpS && ps.grp !== ps.grpS ? (MISMATCH[pos] || '') : '');
       }
       paras.push(head + body + seasonTouch(ps, pos));
     });
 
+    // 클로징 선언 — 지금 어느 계절인가 (만 나이 기준 대략)
+    const born = (DW.list && DW.list[0]) ? DW.list[0].startYear - DW.list[0].countingAge + 1 : null;
+    const ageNow = born ? F.nowYear - born : null;
+    if (ageNow != null) {
+      const seasonNow = ageNow < 20 ? '뿌리' : ageNow < 40 ? '싹이 줄기가 되는 시절' : ageNow < 60 ? '꽃' : '열매';
+      paras.push('네 계절을 한 줄로 접으면 — ' + C.you + '은 지금 <b>' + seasonNow + '의 계절</b>을 지나는 중입니다. 지나온 계절 문단이 맞았다면, 아직 오지 않은 계절 문단이 이 책에서 가장 값진 페이지가 됩니다.');
+      if (C.tell) C.tell('season_now', seasonNow);
+    }
+
     return page({
       cls: 'rd-prose',
       kicker: '제2장 — 인생의 네 계절',
       title: C.you + '의 일생을 네 기둥으로 훑습니다',
-      lede: '명리는 인생을 네 기둥으로 봅니다. 옛 명리서는 년을 뿌리, 월을 싹, 일을 꽃, 시를 열매에 비유했습니다 — 뿌리는 초년과 집안, 싹은 청년과 사회, 꽃은 한창때의 나, 열매는 말년과 남기는 것입니다. 아래는 ' + C.you + '의 실제 여덟 글자로 그 네 계절을 읽은 것입니다.',
+      lede: (C.recall && C.recall('core') ? '앞 장에서 ' + C.you + '을 <b>' + C.recall('core') + '</b>라 불렀습니다. 이번 장은 그 ' + C.recall('core').split(' ').pop() + '가 걸어온 길과 걸어갈 길입니다. ' : '') + '옛 명리서는 년을 뿌리, 월을 싹, 일을 꽃, 시를 열매에 비유했습니다 — 뿌리는 초년과 집안, 싹은 청년과 사회, 꽃은 한창때의 나, 열매는 말년과 남기는 것입니다.',
       blocks: paras.map(function (t) { return P_(t); }),
       action: UL([
         '<b>읽고 나서</b> — 이미 지난 계절 문단이 실제와 맞았는지 표시해 두세요. 맞았다면 아직 오지 않은 계절 문단이 이 책에서 가장 값진 부분이 됩니다.',
@@ -1916,8 +1977,16 @@
       (PEOPLE_SOCIAL[mo.grpS || mo.grp] || '') + seasonTouch(mo, '월');
 
     const dyTouch = dy.touch.filter(function (t) { return t.kind === '충'; });
-    const p3 = '<b>배우자의 자리(일지 ' + dy.ganji.slice(1) + ')</b> — 명리에서 배우자 자리는 일지 하나만 봅니다. ' + C.you + '의 그 자리에는 <b>' + dy.gb + '</b>(' + (TG_CORE[dy.gb] || '') + ')이 앉아 있습니다. ' +
-      (GONGWI_APPLY['일'][dy.grp] || '') +
+    // 관계 상대 역산 — 내 얘기가 아니라 곁 사람의 결까지 짚어줄 때 신뢰가 생긴다 (소름 장치⑤, 성별 무관 일지만 사용)
+    const MATE_TYPE = {
+      비겁: '곁에 오래 남는 사람은 ' + C.you + '과 닮은 사람입니다. 자기 일이 분명하고, 기대기보다 나란히 걷자는 쪽 — 혹시 지금 곁 사람도 그렇지 않나요?',
+      식상: '곁에 오래 남는 사람은 말보다 손이 먼저인 사람입니다. 챙겨 먹이고, 만들어 주고, 함께 있는 일상으로 마음을 표현하는 쪽 — 짚이는 데가 있죠?',
+      재성: '곁에 오래 남는 사람은 생활을 단단하게 만드는 사람입니다. 계획을 세우고 현실을 챙기는 쪽이라, 낭만은 덜해도 삶이 안정됩니다.',
+      관성: '곁에 오래 남는 사람은 기준이 분명한 사람입니다. 그 기준이 ' + C.you + '을 바로 세워 주는 날도 있고, 잔소리로 들리는 날도 있을 겁니다.',
+      인성: '곁에 오래 남는 사람은 말없이 품어 주는 사람입니다. 화려한 표현 대신 곁을 지키는 쪽 — 그 조용함이 ' + C.you + '에게는 어떤 보약보다 큽니다.'
+    };
+    const p3 = '<b>배우자의 자리(일지)</b> — 명리에서 배우자 자리는 태어난 날의 땅 글자 하나만 봅니다. ' + C.you + '의 그 자리에 앉은 기운은 <b>' + dy.gb + '</b>, 마음속 대사로 옮기면 「' + (TG_VOICE[dy.gb] || '') + '」입니다. ' +
+      (MATE_TYPE[dy.grp] || '') +
       (dyTouch.length
         ? ' 이 자리에는 큰 조정의 표시가 함께 있습니다. 관계가 나쁘다는 뜻이 아니라, 사는 방식·돈·역할 같은 것을 중간에 한 번씩 다시 정하게 된다는 뜻입니다. 그 대화를 미루지 않는 것 — 그것이 이 관계를 오래가게 하는 방법입니다.'
         : '') +
@@ -1956,6 +2025,7 @@
     const nowG = nowDw ? C.E.tenGodBranch(P.day.stem, nowDw.branch) : null;
     const pats = patternsFor(A, 'job');
 
+    if (C.tell) C.tell('workline', gwan >= 2 ? '소속의 격이 곧 몸값인 조직형' : gwan === 1 ? '자리 하나를 깊게 지키는 형' : '직함이 아니라 이름으로 서는 형');
     const p1 = gwan >= 2
       ? '일의 뼈대부터 봅니다. 이 사주에는 <b>자리와 책임의 기운(관성)이 ' + gwan + '개</b> — 조직이 ' + C.you + '을 알아보고 쓰는 구조입니다. 어디에 속해 있는가가 수입보다 먼저 오는 유형이라, 소속의 격을 올리는 것이 곧 연봉을 올리는 길입니다.'
       : gwan === 1
@@ -1999,14 +2069,17 @@
     const nowG = nowDw ? C.E.tenGodBranch(P.day.stem, nowDw.branch) : null;
     const fy = (F.futureYong || [])[0];
 
-    const p1 = jae >= 3
+    const opener = (C.recall && C.recall('workline'))
+      ? '앞 장에서 ' + C.you + '의 일을 <b>' + C.recall('workline') + '</b>이라 읽었습니다. 돈도 같은 길로 옵니다 — 일의 모양이 곧 돈의 모양이기 때문입니다. '
+      : '';
+    const p1 = opener + (jae >= 3
       ? '이 사주의 돈 기운(재성)은 <b>' + jae + '개 — 많은 편</b>입니다. 돈이 없는 사주가 아니라 <b>돈이 사방에서 보이는 사주</b>라는 뜻인데, ' +
         (F.band === 'weak' ? '그것을 들 힘(' + A.strength + ')이 상대적으로 가벼워서, 보이는 것을 다 잡으려 들면 오히려 새어 나갑니다. 판을 하나로 줄이고 나눠 들 사람을 구하는 것 — 그것이 이 구조가 돈을 지키는 유일한 방식입니다.'
           : '힘도 그것을 감당하는 쪽(' + A.strength + ')이라 여러 갈래를 굴릴 수 있습니다. 다만 갈래가 늘수록 장부가 분명해야 합니다 — 이 구조의 돈 사고는 벌이에서가 아니라 정산에서 납니다.')
       : jae >= 1
       ? '이 사주의 돈 기운(재성)은 <b>' + jae + '개</b>입니다. 돈이 삶의 중심 주제는 아니되 필요한 만큼은 만드는 배치입니다. ' +
         (sik ? '만드는 통로(식상 ' + sik + '개)가 재성으로 이어지니, 잘하는 일 하나를 오래 파는 것이 재테크보다 확실한 축적 경로입니다.' : '통로가 되는 식상이 없어, 수입의 원천을 내 손이 아니라 자리와 구조에서 찾는 편이 안전합니다.')
-      : '이 사주에는 <b>돈 기운(재성)이 없습니다.</b> 평생 가난하다는 뜻이 전혀 아닙니다 — 돈을 직접 좇는 방식이 안 먹히고, <b>실력·자리·사람을 먼저 세우면 돈이 그 뒤를 따라오는 순서</b>라는 뜻입니다. 수익률을 비교하는 시간보다 몸값을 올리는 시간이 이 구조에는 항상 더 남는 장사입니다.';
+      : '이 사주에는 <b>돈 기운(재성)이 없습니다.</b> 평생 가난하다는 뜻이 전혀 아닙니다 — 돈을 직접 좇는 방식이 안 먹히고, <b>실력·자리·사람을 먼저 세우면 돈이 그 뒤를 따라오는 순서</b>라는 뜻입니다. 수익률을 비교하는 시간보다 몸값을 올리는 시간이 이 구조에는 항상 더 남는 장사입니다.');
 
     const p2 = bi >= 3
       ? '한 가지는 미리 적어 둡니다. 내 몫을 나누자는 기운(비겁)이 ' + bi + '개로 강한 배치라, <b>동업·보증·대납</b>에서 이 사주의 돈이 가장 많이 샙니다. 사람이 미워서가 아니라 구조가 그렇습니다. 같이 하려면 지분과 정산을 먼저 글로 정하고 시작하세요.'
@@ -2021,13 +2094,18 @@
     const p4 = nowDw
       ? '지금 걷는 10년(' + nowDw.str + ')의 돈 기운은 <b>' + nowG + '</b>입니다. ' + ((LIFE_BY_GOD[nowG] || {}).money || '')
       : '';
+    const p5 = '이 장을 한 줄로 접으면 — ' + (jae >= 3
+      ? (F.band === 'weak' ? '<b>보이는 돈을 다 잡지 않는 손이 ' + C.you + '의 금고입니다.</b>' : '<b>여러 갈래를 굴릴 힘이 있으니, 장부의 선명함이 곧 수익률입니다.</b>')
+      : jae >= 1
+      ? '<b>잘하는 일 하나를 오래 파는 것 — 그것이 이 사주의 가장 확실한 재테크입니다.</b>'
+      : '<b>돈을 좇지 않는 것이 이 사주가 돈을 버는 방법입니다. 이름값이 먼저, 돈은 그 뒤를 따라옵니다.</b>');
 
     return page({
       cls: 'rd-prose',
       kicker: '제5장 — 돈의 흐름',
       title: C.you + '의 돈은 어떤 길로 오는가',
       lede: '돈을 읽는 재료는 셋 — 돈 기운의 양(재성), 그것을 들 힘(강약), 그리고 새는 자리(비겁). 셋을 겹치면 벌 방식과 지킬 방식이 갈립니다.',
-      blocks: [p1, p2, p3, p4].filter(Boolean).map(function (t) { return P_(t); }),
+      blocks: [p1, p2, p3, p4, p5].filter(Boolean).map(function (t) { return P_(t); }),
       action: UL([
         '<b>이번 달</b> — 위에서 짚인 「새는 자리」 하나를 점검하세요. 이 구조의 돈은 버는 쪽이 아니라 새는 쪽에서 결판납니다.',
         '<b>투자·확장 전</b> — 지금이 마찰 적은 구간인지 이 장과 12년 신호등에서 확인한 뒤 크기를 정하세요.'
@@ -2085,6 +2163,16 @@
   // ══════════════════════════════════════════════════
   function build(A, P, DW, C) {
     const ctx = Object.assign({ nowYear: new Date().getFullYear(), name: '' }, C);
+    // ── 15차 목소리 층 ──────────────────────────────
+    // said: 용어 풀이는 책 전체에서 한 번만(두 번째부터는 이름만).
+    // th: 앞 장의 결론 한 줄을 뒤 장이 이어받는 실 — 장들이 서로를 부르면 책이 된다.
+    ctx.book = { said: new Set(), th: {} };
+    ctx.gloss = function (key, name, desc) {
+      if (!ctx.book.said.has(key)) { ctx.book.said.add(key); return '<b>' + name + '</b>' + (desc ? ' — ' + desc : ''); }
+      return '<b>' + name + '</b>';
+    };
+    ctx.tell = function (key, line) { ctx.book.th[key] = line; };
+    ctx.recall = function (key) { return ctx.book.th[key] || ''; };
     ctx.name = (!ctx.name || ctx.name === '이름 미입력') ? '' : String(ctx.name).trim();
     // 호칭: 이름이 있으면 「○○ 님」, 없으면 「당신」. 문장 안에서 이 값만 쓴다.
     ctx.you = ctx.name ? ctx.name + ' 님' : '당신';

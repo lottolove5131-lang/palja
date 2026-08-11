@@ -830,8 +830,8 @@
       else if (r.gungHit === '합') t += '물으신 자리에서 <b>이야기가 실제 약속으로 바뀌기 쉬운 해</b>입니다. 다만 말이 오간 것과 정해진 것은 다르니 문서로 남겨야 합니다. ';
       if (r.grpHit) t += '질문의 기운이 이 해에 실제로 들어옵니다. ';
       if (r.sig.yong) t += '모자란 기운(처방)도 함께 도착해, 움직인다면 평소보다 마찰이 적습니다. ';
-      if (r.sig.fb === '복음') t += '일주와 글자가 겹치는 복음(伏吟)의 해라, 새 판보다 하던 일이 커지는 쪽으로 힘이 실립니다. ';
-      if (r.sig.fb === '반음') t += '일주와 정면으로 마주 충하는 반음(反吟)의 해라 변동폭이 가장 큽니다 — 물러날 자리를 정해 놓고 움직여야 합니다. ';
+      if (r.sig.fb === '복음') t += '일주와 글자가 겹치는 복음의 해라, 새 판보다 하던 일이 커지는 쪽으로 힘이 실립니다. ';
+      if (r.sig.fb === '반음') t += '일주와 정면으로 마주 충하는 반음의 해라 변동폭이 가장 큽니다 — 물러날 자리를 정해 놓고 움직여야 합니다. ';
       return t;
     }).join('');
 
@@ -955,7 +955,7 @@
       const n = F.el[e] || 0;
       const h = Math.round((n / maxEl) * 100);
       return `<div class="el-bar"><div class="el-col"><div class="el-fill" style="height:${Math.max(h, 4)}%;background:${EL_COLOR[e]}"></div></div>
-        <div class="el-num">${n}</div><div class="el-name" style="color:${EL_COLOR[e]}">${EL_KO[e]}<span>${EL_HAN[e]}</span></div></div>`;
+        <div class="el-num">${n}</div><div class="el-name" style="color:${EL_COLOR[e]}">${EL_KO[e]}</div></div>`;
     }).join('');
 
     const pil = [['년', P.year], ['월', P.month], ['일', P.day], ['시', P.hour]].filter(x => x[1]);
@@ -964,9 +964,8 @@
       const sg = k === '일' ? '나 자신' : C.E.tenGod(P.day.stem, p.stem);
       const bg = C.E.tenGodBranch(P.day.stem, p.branch);
       return `<div class="gz"><div class="gz-pos">${k}</div>
-        <div class="gz-h" style="color:${EL_COLOR[se]}">${C.E.STEMS_H[p.stem]}</div>
-        <div class="gz-h" style="color:${EL_COLOR[be]}">${C.E.BRANCHES_H[p.branch]}</div>
-        <div class="gz-kr">${p.str}</div>
+        <div class="gz-h" style="color:${EL_COLOR[se]}">${C.E.STEMS[p.stem]}</div>
+        <div class="gz-h" style="color:${EL_COLOR[be]}">${C.E.BRANCHES[p.branch]}</div>
         <div class="gz-god">${(POS_LIFE[k] || {}).name || ''}</div></div>`;
     }).join('');
 
@@ -1553,9 +1552,8 @@
     // 상신(相神) — 자평진전 「論相神緊要」. 엔진은 8/6부터 계산해 왔는데 새 감명서 본문에 0줄이었다(8/11 주입).
     const ss = (A.gyeok || {}).sangshin;
     const p47 = (ss && ss.found && ss.name)
-      ? '이 짜임이 서는 데 공이 가장 큰 글자가 하나 있습니다. 자평진전은 임금 곁의 재상에 빗대어 이런 글자를 <b>상신(相神)</b>이라 불렀고, ' +
-        '「相神無破，貴格已成」 — 이 글자가 다치지 않으면 격은 이미 이루어진 것이라 했습니다. ' + C.you + '의 명식에서 그 자리는 <b>' + ss.name + '</b>입니다. ' +
-        (ss.why || '') + ' 거꾸로 「相神有傷，立敗其格」 — 이 글자가 상하면 그 격은 곧바로 무너진다고도 했습니다. ' +
+      ? '이 짜임이 서는 데 공이 가장 큰 글자가 하나 있습니다. 옛 책은 임금 곁의 재상에 빗대어 이런 글자를 <b>상신</b>이라 불렀고, 이 글자가 다치지 않으면 격은 이미 이루어진 것이라 했습니다. ' + C.you + '의 사주에서 그 자리는 <b>' + ss.name + '</b>입니다. ' +
+        (ss.why || '') + ' 거꾸로 이 글자가 상하면 그 격은 곧바로 무너진다고도 했습니다. ' +
         ' 그래서 앞으로 운을 읽을 때 <b>' + ss.name + '이 힘을 얻는 해와 부딪히는 해</b>를 따로 보는 것이 이 감명서의 숨은 기준선 중 하나입니다.' +
         (ss.damaged
           ? ' 정직하게 적어 두면, 지금 원국 안에는 이 글자를 건드리는 손상 신호도 함께 보입니다. 격을 못 쓰게 됐다는 뜻이 아니라, ' +
@@ -1588,6 +1586,7 @@
         '<b>맞는다면</b> — 뒤의 시기표를 그대로 달력에 옮기셔도 됩니다.'
       ]),
       evidence: '일간 ' + x.day + '(' + A.dayElem + ') · ' + C.E.BRANCHES[P.month.branch] + '월생 · 강약 ' + A.strength +
+        ((A.gyeok || {}).sangshin && (A.gyeok || {}).sangshin.found ? ' · 상신(相神) — 자평진전 「相神無破，貴格已成」 「相神有傷，立敗其格」' : '') +
         ' · 오행 ' + Object.keys(F.el).map(function (k) { return k + F.el[k]; }).join(' ') +
         ' · 용신 ' + (A.yongshin || '단일 처방 없음') + ' · ' + ((A.gyeok || {}).name || '') +
         (ss && ss.found ? ' · 상신 ' + ss.name + (ss.damaged ? '(손상 신호)' : '') : '')
@@ -1639,14 +1638,14 @@
       // 복음·반음 — 삼명통회 「總論歲運」. 겁주는 단정이 아니라 변동폭 신호로 번역한다.
       const fb = C.E.fuFanYin ? C.E.fuFanYin(P.day, sw) : null;
       const q35 = fb === '복음'
-        ? '따로 적어 둘 것이 하나 있습니다. ' + year + '년의 간지 ' + sw.str + '는 ' + C.you + '의 일주 — 태어난 날의 두 글자 — 와 <b>글자까지 똑같습니다.</b> ' +
-          '옛 책은 같은 소리가 겹쳐 울린다 해서 이런 해를 <b>복음(伏吟)</b>이라 불렀습니다. 삼명통회 「總論歲運」은 「歲運壓日，謂之伏吟」 — 운이 태어난 날을 그대로 누르는 해라 적고, ' +
+        ? '따로 적어 둘 것이 하나 있습니다. ' + year + '년의 두 글자 ' + sw.str + '는 ' + C.you + '이 태어난 날의 두 글자와 <b>글자까지 똑같습니다.</b> ' +
+          '옛 책은 같은 소리가 겹쳐 울린다 해서 이런 해를 <b>복음</b>이라 불렀고, 운이 태어난 날을 그대로 누르는 해라 적으며 ' +
           '가까운 사람과 돈의 일을 가볍게 보지 말라고 했습니다. 무서운 예고가 아닙니다. 이 해는 새것이 들어오는 해가 아니라 <b>이미 있던 것이 더 크게 울리는 해</b>입니다. ' +
           '잘 되던 것은 부피가 커지고, 미뤄 둔 문제는 더 크게 문을 두드립니다. 그래서 이 해에 맞는 일은 판을 새로 벌이는 것이 아니라, ' +
           '지금 손에 있는 것이 커져도 넘치지 않도록 <b>그릇을 먼저 넓혀 두는 일</b>입니다 — 계약을 글로 만들고, 돈의 칸을 나누고, 역할의 경계를 정해 두는 것이 그것입니다.'
         : fb === '반음'
-        ? '따로 적어 둘 것이 하나 있습니다. ' + year + '년의 간지 ' + sw.str + '는 ' + C.you + '의 일주 — 태어난 날의 두 글자 — 와 <b>천간·지지가 모두 정면으로 마주 충합니다.</b> ' +
-          '옛 책은 이런 해를 <b>반음(反吟)</b>이라 불렀습니다. 삼명통회 「總論歲運」은 「若歲運與日相對，謂之返吟」이라 적고, 육친 — 가족·배우자처럼 가까운 관계 — 과 ' +
+        ? '따로 적어 둘 것이 하나 있습니다. ' + year + '년의 두 글자는 ' + C.you + '이 태어난 날의 두 글자와 <b>하늘·땅 글자가 모두 정면으로 마주 충합니다.</b> ' +
+          '옛 책은 이런 해를 <b>반음</b>이라 불렀고, 가족·배우자처럼 가까운 관계와 ' +
           '돈의 출렁임을 함께 조심하라 했습니다. 사건을 약속하는 글자가 아닙니다. 다만 이 해는 <b>흔들리는 폭 자체가 큽니다.</b> 같은 결정이라도 잘 되면 크게 되고, 어긋나면 크게 어긋납니다. ' +
           '그래서 이 해의 큰 결정은 "되면 좋고 안 되면 그만"으로 던지지 말고, <b>안 됐을 때 물러날 자리까지 정해 놓고</b> 움직여야 합니다. ' +
           '반대로 쓰임도 있습니다 — 오래 끌어와서 이제는 끝내야 하는 일, 정리하고 매듭지어야 하는 자리에는 이만큼 힘이 실리는 해가 없습니다.'
@@ -1689,7 +1688,7 @@
         evidence: year + '년 ' + sw.str + ' · 천간 ' + gs + ' · 지지 ' + gb + (dw ? ' · ' + dw.str + ' 대운 안' : '') +
           (touch.length ? ' · 원국 접점 ' + touch.map(function (t) { return t.k + '주' + t.t; }).join('·') : ' · 원국 직접 접점 없음') +
           (sw.yongshinHit ? ' · 처방 ' + A.yongshin + ' 도착' : '') +
-          (fb ? ' · 일주 ' + fb + ' — 삼명통회 「總論歲運」' : '') +
+          (fb === '복음' ? ' · 일주 복음(伏吟) — 삼명통회 「總論歲運」 「歲運壓日，謂之伏吟」' : fb === '반음' ? ' · 일주 반음(反吟) — 삼명통회 「總論歲運」 「若歲運與日相對，謂之返吟」' : '') +
           ' · 신뢰도 ' + sig.ev + '겹(' + tier + ')'
       });
     });
@@ -1812,7 +1811,7 @@
 
     return page({
       cls: 'rd-prose',
-      kicker: '제2장 — 성격과 마음',
+      kicker: '성격과 마음',
       title: C.you + '은 어떤 사람인가',
       lede: '여덟 글자에서 성격을 읽는 규칙은 셋입니다 — 중심 글자(일간)가 바탕, 가장 많은 기운이 습관, 월주와 일지가 겉과 속.',
       blocks: [p1, p2, p3, p4].map(function (t) { return P_(t); }),
@@ -1850,9 +1849,9 @@
 
     return page({
       cls: 'rd-prose',
-      kicker: '제3장 — 인생의 네 계절',
+      kicker: '제2장 — 인생의 네 계절',
       title: C.you + '의 일생을 네 기둥으로 훑습니다',
-      lede: '명리는 인생을 네 기둥으로 봅니다. 연해자평 「論日為主」는 「以年為根，以月為苗，以日為花，以時為果」 — 년은 뿌리, 월은 싹, 일은 꽃, 시는 열매라 적었습니다(후대는 이를 근묘화실이라 요약해 불렀습니다). 아래는 ' + C.you + '의 실제 여덟 글자로 그 네 계절을 읽은 것입니다.',
+      lede: '명리는 인생을 네 기둥으로 봅니다. 옛 명리서는 년을 뿌리, 월을 싹, 일을 꽃, 시를 열매에 비유했습니다 — 뿌리는 초년과 집안, 싹은 청년과 사회, 꽃은 한창때의 나, 열매는 말년과 남기는 것입니다. 아래는 ' + C.you + '의 실제 여덟 글자로 그 네 계절을 읽은 것입니다.',
       blocks: paras.map(function (t) { return P_(t); }),
       action: UL([
         '<b>읽고 나서</b> — 이미 지난 계절 문단이 실제와 맞았는지 표시해 두세요. 맞았다면 아직 오지 않은 계절 문단이 이 책에서 가장 값진 부분이 됩니다.',
@@ -1861,12 +1860,12 @@
       evidence: ['년', '월', '일', '시'].map(function (pos) {
         const pil = { 년: P.year, 월: P.month, 일: P.day, 시: P.hour }[pos];
         return pil ? pos + '주 ' + C.E.STEMS[pil.stem] + C.E.BRANCHES[pil.branch] : pos + '주 미상(시각 미입력)';
-      }).join(' · ') + ' · 근묘화실 궁위론 + 원국 합충 · 공망 ' + ((A.gongmang || []).join('·') || '없음')
+      }).join(' · ') + ' · 근묘화실 궁위론 — 연해자평 「論日為主」 「以年為根，以月為苗，以日為花，以時為果」 · 원국 합충 · 공망 ' + ((A.gongmang || []).join('·') || '없음')
     });
   });
 
   // ── 제4장 곁의 사람들 ──────────────────────────────
-  rule('prose_people', 981, function (A, P, DW, C, F) {
+  rule('prose_people', 991.5, function (A, P, DW, C, F) {
     if (!C.E) return null;
     const yr = pillarStory(A, P, C, '년');
     const mo = pillarStory(A, P, C, '월');
@@ -1908,7 +1907,7 @@
 
     return page({
       cls: 'rd-prose',
-      kicker: '제4장 — 곁의 사람들',
+      kicker: '제3장 — 곁의 사람들',
       title: C.you + ' 곁에 오는 사람들의 결',
       lede: '부모·동료·배우자·자식 — 명리는 사람을 궁위(자리)로 읽습니다. 각 자리에 어떤 기운이 앉았는지가, 그 관계가 오가는 언어를 정합니다.',
       blocks: [p1, p2, p3, p4, p5].map(function (t) { return P_(t); }),
@@ -1951,7 +1950,7 @@
 
     return page({
       cls: 'rd-prose',
-      kicker: '제5장 — 직장과 일',
+      kicker: '제4장 — 직장과 일',
       title: C.you + '의 일은 어떻게 커지는가',
       lede: '일을 읽는 재료는 셋 — 자리의 기운(관성), 실력의 통로(식상), 그리고 글자들이 만드는 연결(격국·조합)입니다.',
       blocks: [p1, p2, p3, p4].filter(Boolean).map(function (t) { return P_(t); }),
@@ -1998,7 +1997,7 @@
 
     return page({
       cls: 'rd-prose',
-      kicker: '제6장 — 돈의 흐름',
+      kicker: '제5장 — 돈의 흐름',
       title: C.you + '의 돈은 어떤 길로 오는가',
       lede: '돈을 읽는 재료는 셋 — 돈 기운의 양(재성), 그것을 들 힘(강약), 그리고 새는 자리(비겁). 셋을 겹치면 벌 방식과 지킬 방식이 갈립니다.',
       blocks: [p1, p2, p3, p4].filter(Boolean).map(function (t) { return P_(t); }),
@@ -2022,7 +2021,13 @@
 
     const p2 = '이 원국은 <b>' + most + ' 기운(' + (F.el[most] || 0) + '개)</b>이 가장 두텁고' +
       (miss.length ? ', <b>' + miss.map(function (e) { return EL_KO[e]; }).join('·') + '</b>이 비어 있습니다' : ', 다섯 기운이 고루 깔려 있습니다') +
-      '. 한난조습으로는 <b>' + (t.label || '치우침 없음') + '</b>의 몸입니다. 기운이 두터운 쪽은 과로해도 버티는 대신 탈이 나면 크게 나고, 빈 쪽의 일은 몸이 저절로 챙기지 않으니 달력에 적어 놓고 챙겨야 합니다.';
+      '. 차고 덥고 마르고 눅눅한 정도로는 <b>' + (function () {
+        const raw = String(t.label || '').replace(/\([^)]*\)/g, '');
+        const M = { 한: '차가운', 난: '따뜻한', 조: '건조한', 습: '눅눅한' };
+        if (raw && raw.split('').every(function (ch) { return M[ch]; }))
+          return raw.split('').map(function (ch) { return M[ch]; }).join('고 ') + ' 쪽';
+        return raw || '치우침 없는 쪽';
+      })() + '</b>의 몸입니다. 기운이 두터운 쪽은 과로해도 버티는 대신 탈이 나면 크게 나고, 빈 쪽의 일은 몸이 저절로 챙기지 않으니 달력에 적어 놓고 챙겨야 합니다.';
 
     const p3 = F.band === 'strong'
       ? '에너지 운용은 단순합니다 — <b>쓰지 않으면 탈이 나는 몸</b>입니다. 규칙적으로 비우는 운동이 이 몸에는 보약이고, 오래 앉아 고이는 생활이 독입니다.'
@@ -2037,7 +2042,7 @@
 
     return page({
       cls: 'rd-prose',
-      kicker: '제7장 — 몸과 리듬',
+      kicker: '몸과 리듬',
       title: C.you + '의 몸이 좋아하는 생활',
       lede: '오행의 쏠림과 한난조습 — 이 두 가지가 몸의 리듬을 정합니다. 병명은 적지 않습니다. 습관만 적습니다.',
       blocks: [p1, p2, p3, p4].filter(Boolean).map(function (t) { return P_(t); }),

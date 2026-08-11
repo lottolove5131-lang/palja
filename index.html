@@ -76,7 +76,7 @@ input:focus,select:focus{outline:2px solid var(--gold);outline-offset:1px;border
 .btn{width:100%;margin-top:26px;padding:16px;background:var(--jusa);color:#fff;border:0;border-radius:10px;
   font-size:1.1rem;font-weight:700;letter-spacing:.2em;text-indent:.2em;cursor:pointer;font-family:inherit;transition:transform .15s}
 .btn:hover{transform:translateY(-1px)}.btn:focus-visible{outline:3px solid var(--gold)}
-.btn-pdf{margin-top:10px;background:#1f2833;color:#f3e6c4;border:1.5px solid var(--gold)}
+.btn-screen{margin-top:10px;background:transparent;color:var(--hanji-dim);border:1px solid var(--line);font-weight:600}
 #printguide{position:fixed;left:50%;transform:translateX(-50%);bottom:-200px;z-index:9999;max-width:min(560px,92vw);
   padding:16px 20px;background:#1f2833;color:#f5ecd8;border:1.5px solid var(--gold);border-radius:12px;
   box-shadow:0 10px 34px rgba(0,0,0,.35);line-height:1.7;transition:bottom .25s;font-size:.92rem}
@@ -245,6 +245,7 @@ footer{text-align:center;padding:44px 0 60px;color:var(--hanji-dim);font-size:.7
 .disc .tiny{font-size:.76rem;color:var(--hanji-dim);margin-top:14px;margin-bottom:0}
 .again{background:none;border:1px solid var(--line);color:var(--hanji-dim);border-radius:8px;padding:10px 22px;cursor:pointer;font-family:inherit;margin-top:14px}
 .report-toolbar{position:sticky;top:10px;z-index:20;margin:18px 0 24px;padding:16px;border:1px solid rgba(201,162,39,.55);border-radius:12px;background:rgba(16,22,38,.96);box-shadow:0 8px 28px rgba(0,0,0,.28)}
+.report-toolbar{position:sticky;top:8px;z-index:60}
 .report-toolbar button{width:100%;min-height:52px;border:0;border-radius:9px;background:var(--gold);color:#111827;font-family:inherit;font-size:1rem;font-weight:800;cursor:pointer}
 .report-toolbar p{margin-top:8px;color:var(--hanji-dim);font-size:.76rem;text-align:center;line-height:1.55}
 .fortune-entrance{margin:18px 0 28px;padding:18px;border:1px solid rgba(201,162,39,.42);border-radius:14px;background:linear-gradient(145deg,#171d31,#101626)}
@@ -254,6 +255,7 @@ footer{text-align:center;padding:44px 0 60px;color:var(--hanji-dim);font-size:.7
 .fortune-door b{display:block;color:var(--gold);font-size:.82rem}.fortune-door small{display:block;color:var(--hanji-dim);font-size:.68rem;line-height:1.4;margin-top:2px}
 .report-anchor{scroll-margin-top:120px}.current-month-deep{border-color:var(--jusa);background:linear-gradient(145deg,#17182a,#101626)}
 .print-only{display:none}
+.rd-archive{display:none!important}
 .print-cover{min-height:255mm;padding:28mm 18mm;box-sizing:border-box;color:#f6f1e6;background:#101626;text-align:center}
 .print-cover .cover-mark{color:#c9a227;font-size:.85rem;letter-spacing:.28em;margin-top:26mm}
 .print-cover h1{font-size:2.25rem;letter-spacing:.05em;text-indent:0;margin:15mm 0 5mm}
@@ -327,6 +329,23 @@ footer{text-align:center;padding:44px 0 60px;color:var(--hanji-dim);font-size:.7
 .rd-src{font-size:.78rem;color:#8b8271;border-top:1px dotted #ccc;padding-top:2.5mm;margin-top:5mm;line-height:1.7}
 .rd-dim{color:#8b8271}
 
+/* ── 인쇄 압축(13차): 10쪽 이내 ── */
+@media print{
+  .exhaustive-book .rd-prose .rd-act{display:none}
+  /* 12년 신호등 — 한 쪽에 들어가게: 표 압축 + 실행박스·닫는 문단은 화면에서만 */
+  .exhaustive-book .rd-page:has(.rd-cal) .rd-act{display:none}
+  .exhaustive-book .rd-page:has(.rd-cal)>p:not(.rd-lede){display:none}
+  .exhaustive-book .rd-cal{font-size:.8rem}
+  .exhaustive-book .rd-cal th,.exhaustive-book .rd-cal td{padding:1.5mm 2mm;line-height:1.5}
+  .exhaustive-book .rd-page:has(.rd-cal) .rd-lede{margin-bottom:3mm;line-height:1.75}
+  .exhaustive-book .rd-page:has(.rd-cal) .rd-cal{font-size:.76rem}
+  .exhaustive-book .rd-page:has(.rd-cal) th,.exhaustive-book .rd-page:has(.rd-cal) td{padding:1.2mm 1.8mm;line-height:1.45}
+  .exhaustive-book .rd-page:has(.rd-cal) .rd-src{font-size:.68rem;line-height:1.4;margin-top:2mm}
+  .exhaustive-book .rd-page:has(.rd-cal) .rd-box{padding:2.5mm 3.5mm;line-height:1.6;font-size:.86rem}
+  .exhaustive-book .rd-prose p{font-size:.98rem;line-height:1.92;margin:0 0 3.6mm}
+  .exhaustive-book .rd-prose .rd-lede{margin-bottom:5mm;line-height:1.85}
+  .exhaustive-book .rd-src{margin-top:3mm}
+}
 /* ── 서술식 — 책 조판(12차): 본문 명조, 장 표지 느낌 ── */
 .rd-prose .rd-title{font-size:1.5rem;font-family:'Noto Serif KR','Nanum Myeongjo',serif;letter-spacing:.01em}
 .rd-prose p{font-size:1.02rem;line-height:2.1;margin:0 0 5mm;text-align:justify;
@@ -561,9 +580,9 @@ footer{text-align:center;padding:44px 0 60px;color:var(--hanji-dim);font-size:.7
     <select id="timeknown" hidden><option value="1">알아요</option><option value="0">몰라요</option></select>
     <input type="date" id="bdate" hidden value="1990-01-01">
     <input type="time" id="btime" hidden value="12:00">
-    <button class="btn" id="go">팔자를 읽는다</button>
-    <button class="btn btn-pdf" id="gopdf">감명서 PDF 한 권 받기</button>
-    <p class="pdf-hint">화면으로 먼저 보려면 위를, 읽을 것 없이 <b>한 권짜리 PDF</b>부터 받으려면 아래를 누르세요. 아래를 누르면 계산이 끝나고 저장창이 바로 열립니다.</p>
+    <button class="btn" id="gopdf">내 사주 감명서 PDF 받기</button>
+    <button class="btn btn-screen" id="go">화면으로 먼저 보기</button>
+    <p class="pdf-hint">위 버튼 하나면 끝 — 계산이 끝나면 <b>저장창이 바로 열리고</b>, 「PDF로 저장」을 고르면 10쪽 감명서 한 권이 내려받아집니다.</p>
     <p class="note">절기 경계·출생지 지역시·옛 표준시·서머타임까지 반영합니다.<br>입력한 정보는 저장되지 않습니다.</p>
   </section>
 
@@ -1494,7 +1513,7 @@ function professionalMonthReportHTML(A,P,DW,age,gender,knowTime,nowYear) {
       <div class="print-signal"><b>월말 현실 확인</b><br>실제로 완성한 것은 무엇인가? 받을 돈과 낼 돈은 확인됐는가? 불편한 관계를 참기만 하지 않고 역할을 말했는가?</div>
       <p class="method-note">근거 · ${mp.year.str} 세운 · ${mp.month.str}월 · 천간 ${mg.stemGod}/${mg.stem} · 지지 ${mg.branchGod}/${mg.branch}${currentDw?` · ${currentDw.str} 대운`:''} · 원국 접점 ${touches.length}개 · 운층 신호 ${stack.length}개</p></article>`;
   }).join('');
-  return `<section class="print-only print-month-report"><div class="print-toc"><h2>${nowYear}년 월별 감명서</h2><p>월운은 양력 1일이 아니라 절기, 대개 매달 4~8일 무렵에 바뀝니다. 각 달을 돈·일·사람·관계·합충·행동으로 다시 풀었습니다.</p></div>${pages}</section>`;
+  return `<section class="rd-archive print-month-report"><div class="print-toc"><h2>${nowYear}년 월별 감명서</h2><p>월운은 양력 1일이 아니라 절기, 대개 매달 4~8일 무렵에 바뀝니다. 각 달을 돈·일·사람·관계·합충·행동으로 다시 풀었습니다.</p></div>${pages}</section>`;
 }
 
 function currentMonthScreenHTML(A,P,DW,knowTime){
@@ -1940,12 +1959,20 @@ function exhaustiveNarrativeBookHTML(A,P,DW,age,gender,knowTime,nowYear,personNa
   let readingPages='';
   try{
     if(window.SajuReading){
-      readingPages=window.SajuReading.build(A,P,DW,{E,tenGodGroup,branchHap,nowYear,name:personName||'',question:window.__sajuQuestion||null})
-        .map(x=>x.html).join('');
+      window.__sajuReadingPages=window.SajuReading.build(A,P,DW,{E,tenGodGroup,branchHap,nowYear,name:personName||'',question:window.__sajuQuestion||null});
+      readingPages=window.__sajuReadingPages.map(x=>x.html).join('');
     }
   }catch(e){ console.error('감명서 본문 생성 실패',e); }
+  // [8/12 13차] 사장님 평 반영: PDF는 10쪽 이내 한 권. 책 세트만 인쇄하고
+  // 나머지 면·부록은 보관층(rd-archive)으로 — DOM에 남아 화면 상세·회귀 게이트가 계속 쓴다.
+  const PRINT_BOOK = ['dashboard','prose_whole','prose_decision','prose_seasons','prose_people','prose_work','prose_money','when_calendar','prose_year_0','past_check'];
+  const bookPages = (window.__sajuReadingPages||[]).filter(x=>PRINT_BOOK.includes(x.id)).map(x=>x.html).join('');
+  const archivePages = (window.__sajuReadingPages||[]).filter(x=>!PRINT_BOOK.includes(x.id)).map(x=>x.html).join('');
   return `<section class="print-only exhaustive-book">
-    ${readingPages}
+    ${bookPages}
+  </section>
+  <section class="rd-archive exhaustive-archive" aria-hidden="true">
+    ${archivePages}
     <section class="print-chapter rd-appendix-lead"><h2>부록 · 왜 이렇게 읽었나</h2>
       <p>여기서부터는 <b>안 읽으셔도 됩니다.</b> 앞의 내용이 어떤 계산과 어떤 고전 규칙에서 나왔는지
       확인하고 싶은 분을 위한 자리입니다. 명리 용어가 그대로 나옵니다.</p></section>
@@ -1979,7 +2006,7 @@ function professionalLifeReportHTML(A,P,DW,age,gender,knowTime,nowYear){
     const state=y.sig.clash.length&&y.sig.hap.length?'제안과 재조정이 함께 오는 조건부 구간':y.sig.clash.length?'기존 구조를 조정할 구간':y.sig.hap.length?'협의와 연결을 구체화할 구간':'습관과 실행이 결과를 가르는 구간';
     return `<div class="print-outlook-row"><b>${y.year}<br>${y.s.str}</b><p><strong>${state}</strong><br>${y.conclusion}<br><em>현실 행동:</em> ${y.action}</p></div>`;
   }).join('');
-  return `<section class="print-only pdf-report">
+  return `<section class="rd-archive pdf-report">
     <section class="print-chapter"><h2>종합 결론 — 이 사람을 한 문장으로 줄이지 않기</h2><div class="print-month-lead"><b>핵심 기질</b><br>${x.identity}</div><div class="print-chapter-grid"><div class="print-chapter-card"><h3>반복되는 강점</h3><p>${J(GROUP_PLAIN[top].gift,'과')} ${J(GROUP_PLAIN[second].gift,'이')} 함께 작동합니다.</p><span class="evidence">유효세력 · ${top} ${groupPower(A,top)} / ${second} ${groupPower(A,second)}</span></div><div class="print-chapter-card"><h3>반복되는 실수</h3><p>${x.caution}</p></div><div class="print-chapter-card"><h3>회복 방법</h3><p>${A.yongshin?`처방 기운 ${A.yongshin}(${ELMAP[A.yongshin]})을 사람·환경·행동으로 연결합니다. ${A.yongshinInChart?'이미 가진 능력을 반복해서 쓰는 방식이 우선입니다.':'원국에 옅으므로 그 기운을 타고났다고 가장하지 않고 운과 환경에서 빌려 씁니다.'}`:'한 오행을 고정 처방하지 않고 현재 대운의 과다·부족과 격의 상신을 함께 봅니다.'}</p></div><div class="print-chapter-card"><h3>현재 큰 흐름</h3><p>${current?`지금은 ${current.str} 대운입니다(양력 ${current.endDate} 교체). 천간은 ${groupOfPillar(P,current.stem,current.branch).stem}, 생활 바탕은 ${groupOfPillar(P,current.stem,current.branch).branch}입니다.${next?` 다음 ${next.str} 대운은 ${next.startDate}에 시작합니다.`:''}`:'현재 대운 구간을 계산표에서 다시 확인해야 합니다.'}</p></div></div></section>
     <section class="print-chapter"><h2>성격·판단·회복 패턴</h2><h3>사회에서 보이는 모습과 가까운 생활에서의 반응</h3><p>${x.identity}</p><h3>결정을 내리는 방식</h3><p>${J(GROUP_PLAIN[top].gift,'이')} 중심이라 ${J(GROUP_PLAIN[top].action,'가')} 판단 오류를 줄입니다. ${top!==second?`${second}도 비슷한 세력으로 작동하므로 ${GROUP_PLAIN[second].action}를 함께 해야 한쪽 장점이 과해지는 것을 막습니다.`:''}</p><h3>스트레스가 쌓이는 자리</h3><p>${environment}</p><h3>확인 기준</h3><p>이 설명이 맞다면 중요한 결정을 앞두고 ${J(GROUP_PLAIN[top].shadow,'이')} 반복되는지, 반대로 ${J(GROUP_PLAIN[top].action,'를')} 했을 때 실제 마찰이 줄었는지를 기록해 확인할 수 있습니다.</p></section>
     <section class="print-chapter"><h2>직업·일하는 방식·환경</h2><div class="print-month-lead">${career}</div><div class="print-chapter-grid"><div class="print-chapter-card"><h3>성과가 보이는 조건</h3><p>${GROUP_PLAIN[top].action}. 그 뒤 ${GROUP_PLAIN[second].action}. 직업명 하나를 운명처럼 고정하지 않고 이 두 조건을 충족하는 역할을 찾습니다.</p></div><div class="print-chapter-card"><h3>조직 안에서</h3><p>${environment} 상사·고객·동료 중 누구에게 최종 결정권이 있는지, 평가 기준이 무엇인지 먼저 확인해야 합니다.</p></div><div class="print-chapter-card"><h3>독립·사업을 검토할 때</h3><p>사주만으로 창업이나 투자를 권하지 않습니다. ${x.earning} 실제 고객·가격·반복 주문·현금 여유라는 네 조건이 없으면 준비 단계로 둡니다.</p></div><div class="print-chapter-card"><h3>멈춰야 할 조건</h3><p>${x.caution} 수면·현금·관계 중 두 가지가 동시에 무너지면 운의 좋고 나쁨과 무관하게 규모를 줄이고 계약을 다시 봅니다.</p></div></div></section>
@@ -2008,8 +2035,8 @@ function printCoverHTML(personName,y,m,dd,hh,mm,gender,knowTime,birthOpt,P,nowYe
     ['10','이 감명서가 맞는지 재는 법','이미 지나간 굴곡 맞히기'],
     ['11','나는 어떤 사람인가','반복되는 강점과 실수, 회복하는 법'],
     ['12','부록 · 왜 이렇게 읽었나','명식·오행·십성·격국·용신 근거 (안 읽으셔도 됩니다)']];
-  return `<section class="print-only print-cover"><p class="cover-mark">四柱鑑命書</p><h1 class="serif">평생 사주감명서</h1><p>평생운세 · 올해운세 · 이번 달 운세<br>${nowYear}~${endYear} 5개년 · 지금부터의 대운 · ${nowYear} 12개월</p><p class="cover-name">${name} 님</p><p>${y}년 ${m}월 ${dd}일 ${time} · ${escapeHTML(birthOpt.placeLabel)} · ${gender==='F'?'여성':'남성'}</p><p>${pillars}</p><p class="cover-maker">만든이 ${MAKER}</p></section>
-    <section class="print-only print-toc"><h2>이 한 권에 담긴 것</h2>${toc.map(x=>`<div class="print-toc-item"><b>${x[0]}</b><span><strong>${x[1]}</strong><br>${x[2]}</span></div>`).join('')}<p class="method-note" style="margin-top:6mm">각 결론은 쉬운 설명 뒤에 원국·십성·월령·합충·대운·세운 근거를 붙였습니다. 사건을 보장하지 않으며, 다른 유파와 갈리는 곳은 숨기지 않습니다.</p></section>`;
+  return `<section class="print-only print-cover"><p class="cover-mark">여덟글자</p><h1 class="serif">평생 사주감명서</h1><p>한 권으로 읽는 내 사주<br>타고난 그릇 · 인생의 네 계절 · 사람 · 일 · 돈 · 앞으로 12년</p><p class="cover-name">${name} 님</p><p>${y}년 ${m}월 ${dd}일 ${time} · ${escapeHTML(birthOpt.placeLabel)} · ${gender==='F'?'여성':'남성'}</p><p>${pillars}</p><p class="cover-maker">만든이 ${MAKER}</p></section>
+    <section class="rd-archive print-toc"><h2>이 한 권에 담긴 것</h2>${toc.map(x=>`<div class="print-toc-item"><b>${x[0]}</b><span><strong>${x[1]}</strong><br>${x[2]}</span></div>`).join('')}<p class="method-note" style="margin-top:6mm">각 결론은 쉬운 설명 뒤에 원국·십성·월령·합충·대운·세운 근거를 붙였습니다. 사건을 보장하지 않으며, 다른 유파와 갈리는 곳은 숨기지 않습니다.</p></section>`;
 }
 
 function daewoonMarkerYears(A,P,d,knowTime,nowYear){
@@ -2086,7 +2113,7 @@ function render(y, m, dd, hh, mm, gender, knowTime, birthOpt = { placeLabel:'서
   const age = fullSolarAge(y,m,dd); // 화면의 현재 나이는 입력한 양력 생일 기준 만 나이
 
   let h = printCoverHTML(personName,y,m,dd,hh,mm,gender,knowTime,birthOpt,P,nowY);
-  h += `<div class="report-toolbar"><button type="button" onclick="window.createSajuPDF()">정식 사주감명서 PDF 만들기</button><p>표지·평생운세·귀인 위치·지금부터의 대운·${nowY}~${Math.max(2030,nowY+1)}년·${nowY}년 월별 12장까지 한 파일로 만듭니다. 지나간 해는 싣지 않습니다.<br>인쇄창에서 대상을 <b>PDF로 저장</b>으로 고르세요. 만든이 ${MAKER}</p></div>`;
+  h += `<div class="report-toolbar"><button type="button" onclick="window.createSajuPDF()">이 감명서를 PDF로 저장</button><p>표지 포함 <b>10쪽 한 권</b>입니다. 저장창이 열리면 대상을 <b>PDF로 저장</b>으로 고르세요. 만든이 ${MAKER}</p></div>`;
   h += fortuneEntranceHTML(nowY);
 
   // ① 원국 병풍
@@ -2537,7 +2564,7 @@ function render(y, m, dd, hh, mm, gender, knowTime, birthOpt = { placeLabel:'서
   // 「올해·내년 운세」와 같은 내용을 명리 용어로 한 번 더 찍어내던 중복이라 인쇄에서 뺐다.
   // (함수는 남겨둔다 — 화면 리포트와 회귀 테스트가 참조한다.)
   h += exhaustiveNarrativeBookHTML(A, P, DW, age, gender, knowTime, nowY, personName);
-  h += `<section class="print-only closing-book">${methodAndColophonHTML(A,P,DW,knowTime)}</section>`;
+  h += `<section class="rd-archive closing-book">${methodAndColophonHTML(A,P,DW,knowTime)}</section>`;
 
   // ⑨ 오늘의 일진
   const today = new Date();

@@ -762,6 +762,83 @@
     });
   });
 
+  // ── 물으신 결정에 직접 답하는 면 — 입력 폼의 「지금 고민 중인 결정」(선택)이 있을 때만 생긴다 ──
+  // 가치조사(RESEARCH/value_1m_0811.md) 1순위 구조 반영: 독자가 말해 준 결정에 정면으로 답하는 장.
+  // 사건 단정 금지 — 마찰 신호(처방·궁위 충합·그해 십성·복음반음)와 명식의 방식만 읽고,
+  // 결정 자체는 실제 조건·상대·계약서로 하라고 면 안에서 명시한다.
+  const Q_KIND = {
+    job:   { label: '직장 — 이직·창업·부서이동', gung: '월', gungName: '월지, 곧 일과 직장의 자리' },
+    money: { label: '돈 — 계약·투자·큰 지출', grp: '재성', grpName: '재성(돈과 결과물의 기운)' },
+    rel:   { label: '관계 — 결혼·동거·헤어짐', gung: '일', gungName: '일지, 곧 가장 가까운 관계의 자리' },
+    move:  { label: '터전 — 이사·유학·이민' },
+    study: { label: '공부 — 시험·자격·진학', grp: '인성', grpName: '인성(배움과 자격의 기운)' }
+  };
+  rule('prose_decision', 993, function (A, P, DW, C, F) {
+    const q = C.question;
+    if (!q || !q.type || !Q_KIND[q.type] || !C.E || !C.E.calcSewoon) return null;
+    const K = Q_KIND[q.type];
+    const knowTime = !!(P.hour && A.knowTime !== false);
+    const n = Math.max(1, Math.min(6, +q.horizon || 2));
+    const rows = C.E.calcSewoon(A, F.nowYear, n).map(function (s) {
+      const sig = yearSignal(A, P, s, C, knowTime);
+      const gungHit = K.gung ? (sig.clash.indexOf(K.gung) >= 0 ? '충' : (sig.hap.indexOf(K.gung) >= 0 ? '합' : null)) : null;
+      const grpHit = !!(K.grp && (sig.g.stem === K.grp || sig.g.branch === K.grp));
+      return { s: s, sig: sig, gungHit: gungHit, grpHit: grpHit };
+    });
+
+    const qt = q.text ? ' 적어 주신 말 그대로 옮기면 — "' + q.text + '".' : '';
+    const p1 = '이 면은 ' + C.you + '이 입력창에 적어 주신 결정, <b>' + K.label + '</b>에 답합니다.' + qt +
+      ' 먼저 정직하게 적습니다. <b>사주는 이 결정을 대신 내려 주지 못합니다.</b> 사주가 읽을 수 있는 것은 두 가지 — ' +
+      '같은 결정이라도 <b>마찰이 적은 때와 큰 때</b>, 그리고 이 명식이 <b>이런 종류의 일을 다루는 방식</b>입니다. 그 두 가지로 답하겠습니다.';
+
+    const p2 = K.gung
+      ? '명식에서 이 질문을 맡는 자리는 <b>' + K.gungName + '</b>입니다. 그 자리가 그해의 글자와 충하면 지금까지의 조건이 바뀌고, 합하면 이야기가 실제로 진행됩니다. 아래는 물으신 시한 안의 해를 그 기준으로 읽은 것입니다.'
+      : K.grp
+      ? '명식에서 이 질문을 맡는 것은 <b>' + K.grpName + '</b>입니다. 그 기운이 실제로 들어오는 해와 아닌 해가 갈립니다. 아래는 물으신 시한 안의 해를 그 기준으로 읽은 것입니다.'
+      : '이사·유학·이민 같은 터전의 문제는 특정 자리 하나로 읽지 않습니다. 그 해 전체가 얼마나 흔들리는지 — 신호로만 정직하게 읽습니다.';
+
+    const YEAR_KIND = { push: '마찰이 적은 해', adjust: '조건을 다시 짜는 해', hold: '지키는 해' };
+    const yearSent = rows.map(function (r) {
+      let t = '<b>' + r.s.year + '년(' + r.s.str + ')</b>은 ' + YEAR_KIND[r.sig.kind] + '입니다. ';
+      if (r.gungHit === '충') t += '물으신 자리가 정면으로 흔들리는 해라, 결정을 내리기보다 <b>조건이 바뀌는 해</b>로 보는 것이 맞습니다. ';
+      else if (r.gungHit === '합') t += '물으신 자리에서 <b>이야기가 실제 약속으로 바뀌기 쉬운 해</b>입니다. 다만 말이 오간 것과 정해진 것은 다르니 문서로 남겨야 합니다. ';
+      if (r.grpHit) t += '질문의 기운이 이 해에 실제로 들어옵니다. ';
+      if (r.sig.yong) t += '모자란 기운(처방)도 함께 도착해, 움직인다면 평소보다 마찰이 적습니다. ';
+      if (r.sig.fb === '복음') t += '일주와 글자가 겹치는 복음(伏吟)의 해라, 새 판보다 하던 일이 커지는 쪽으로 힘이 실립니다. ';
+      if (r.sig.fb === '반음') t += '일주와 정면으로 마주 충하는 반음(反吟)의 해라 변동폭이 가장 큽니다 — 물러날 자리를 정해 놓고 움직여야 합니다. ';
+      return t;
+    }).join('');
+
+    const best = rows.filter(function (r) { return r.sig.kind === 'push' && r.gungHit !== '충' && r.sig.fb !== '반음'; })[0]
+      || rows.filter(function (r) { return r.sig.kind === 'adjust' && r.gungHit !== '충'; })[0];
+    const verdict = best && best.sig.kind === 'push'
+      ? '물으신 시한 안에서 고르라면 <b>' + best.s.year + '년</b>입니다. ' + (best.grpHit || best.sig.yong ? '질문의 기운이 실제로 들어오고 마찰도 적은 해라서입니다.' : '마찰이 가장 적은 해라서입니다.') +
+        ' 다만 해가 좋다는 것은 조건이 좋다는 뜻이 아닙니다 — <b>그 해에 실제 조건(금액·상대·계약)이 갖춰졌을 때</b> 움직이십시오.'
+      : best
+      ? '물으신 시한 안에는 마찰이 적은 해가 없습니다. 그래도 정해야 한다면 <b>' + best.s.year + '년</b>이 그중 낫고, 이때는 <b>되돌릴 수 있는 형태</b> — 조건부 계약, 물릴 수 있는 약속 — 로 하는 것이 맞습니다.'
+      : '물으신 시한 안의 해가 전부 지키는 해입니다. 이 시한 자체를 한 해 늦출 수 있는지 먼저 검토하시길 권합니다. 늦출 수 없다면 결정의 크기를 줄여서 — 전부가 아니라 일부만 — 움직이는 방법이 남습니다.';
+
+    const p5 = '마지막으로, 이 답을 믿기 전에 뒤의 <b>「이 감명서가 맞는지 재는 법」</b> 장을 먼저 펴 보시길 권합니다. 이미 지나간 해의 굴곡이 맞아야, 앞으로의 해를 읽은 이 면도 무게가 생깁니다. 그것이 이 감명서가 스스로에게 요구하는 순서입니다.';
+
+    return page({
+      cls: 'rd-prose',
+      kicker: '물으신 결정',
+      title: C.you + '이 물으신 것 — ' + K.label.split(' — ')[0] + '에 대한 답',
+      lede: '입력창에 적어 주신 결정에 이 면이 직접 답합니다. 적지 않으면 이 면은 만들어지지 않습니다.',
+      blocks: [P_(p1), P_(p2), P_(yearSent), P_(verdict),
+        BOX('<b>이 면이 하는 일과 하지 않는 일</b><br>합니다 — 물으신 시한 안의 해를 마찰 기준으로 가르고, 그중 어느 해가 나은지 답합니다.<br>하지 않습니다 — 「하라/마라」의 최종 결정, 사건·성패의 단정, 상대와 조건에 대한 판단. 그것은 ' + C.you + '의 몫이고, 실제 조건과 계약서가 사주보다 큽니다.', 'warn'),
+        P_(p5)],
+      action: UL([
+        '<b>지금</b> — 위에서 답한 해를 달력에 적고, 그 해까지 갖춰야 할 실제 조건 세 가지를 밑에 쓰세요.',
+        '<b>그 해가 오면</b> — 조건 세 가지가 채워졌는지부터 확인하세요. 해가 좋아도 조건이 비면 미루는 것이 맞습니다.',
+        '<b>결정한 뒤</b> — 이 면을 다시 펴서 맞았는지 표시해 두세요. 다음 결정 때 이 감명서를 얼마나 믿을지가 거기서 정해집니다.'
+      ]),
+      evidence: '질문 ' + K.label + (q.text ? ' · 입력 문구 있음' : '') + ' · 시한 ' + n + '년 · ' +
+        rows.map(function (r) { return r.s.year + ' ' + r.s.str + '(' + r.sig.kind + (r.sig.fb ? '·' + r.sig.fb : '') + ')'; }).join(' / ') +
+        ' · 기준 = 처방 도착·궁위 충합·그해 십성·복음반음(삼명통회 「總論歲運」)'
+    });
+  });
+
 
   // ══════════════════════════════════════════════════
   //  1면 — 한눈에 보는 판정

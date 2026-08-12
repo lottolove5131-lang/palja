@@ -2612,6 +2612,8 @@ function render(y, m, dd, hh, mm, gender, knowTime, birthOpt = { placeLabel:'서
     if(title)title.insertAdjacentHTML('afterend',`<p class="print-credit chapter-credit">${MAKER}</p>`);
     else el.insertAdjacentHTML('afterbegin',`<p class="print-credit chapter-credit">${MAKER}</p>`);
   });
+  // 남아 있는 명리 용어에 장별 첫 등장 풀이를 자동 부착 (화면·PDF 공통)
+  try{ annotateJargon($('#report')); }catch(e){ console.error('용어 풀이 부착 실패', e); }
   window.__lastSaju = { A, P, DW, knowTime, personName, y, m, dd, hh, mm, gender, birthOpt, nowY };
   window.__pastChecks = [];
   $('#report').style.display = 'block';
@@ -2670,6 +2672,57 @@ function showInAppGuide(){
   box.classList.add('on');
   setTimeout(hidePrintGuide, 12000);
 }
+// ── 용어 자동 풀이 (8/12, "말이 여전히 어렵다" 피드백) ──────────
+// 본문 어디에 어떤 용어가 남아 있든, 각 장에서 처음 나올 때 괄호 풀이를 자동으로 붙인다.
+// 근거 줄(.method-note 등)은 전문 표기 자리라 건드리지 않는다.
+const GLOSS = {
+  '지장간':'아래 글자 속에 숨어 있는 기운','합충':'글자끼리 서로 끌리거나 부딪히는 관계',
+  '월령':'태어난 달이 쥐고 있는 계절의 기운','격국':'이 사주가 힘을 쓰는 기본 틀',
+  '용신':'이 사주에 가장 필요한 처방 기운','상신':'틀을 살리는 열쇠 글자',
+  '통근':'위 글자가 아래 글자에 뿌리를 내린 것','투출':'숨어 있던 기운이 겉으로 드러난 것',
+  '조후':'사주의 춥고 더운 균형','명식':'태어날 때 정해진 여덟 글자 판',
+  '원국':'타고난 여덟 글자 그 자체','일간':'여덟 글자 가운데 「나」를 뜻하는 글자',
+  '천간':'각 기둥의 위 글자','지지':'각 기둥의 아래 글자',
+  '십성':'글자들이 나에게 맡는 열 가지 역할 이름','귀인':'도움을 주는 사람이 온다는 표지',
+  '비겁':'나·동료·경쟁의 기운','비견':'나와 어깨를 나란히 하는 기운','겁재':'겨루고 경쟁하는 기운',
+  '식상':'표현하고 만들어 내는 기운','식신':'꾸준히 만들고 돌보는 기운','상관':'틀을 고치고 싶어 하는 표현의 기운',
+  '재성':'돈과 현실 감각의 기운','정재':'꾸준히 모으는 돈의 기운','편재':'크게 굴리는 돈과 기회의 기운',
+  '관성':'책임과 자리의 기운','정관':'질서를 지키는 책임의 기운','편관':'도전과 압박의 기운',
+  '인성':'배움과 보호의 기운','정인':'배움과 어른의 도움 기운','편인':'남다른 배움과 직감의 기운',
+  '신강':'내 기운이 넉넉한 상태','신약':'내 기운이 부족한 상태','세운':'그 한 해의 운','대운':'10년 단위로 바뀌는 운의 큰 흐름',
+};
+const GLOSS_TERMS = Object.keys(GLOSS).sort((a,b)=>b.length-a.length);
+const GLOSS_SKIP = '.method-note,.rd-src,.reading-confidence,.hanja,.tg,.print-credit,.cover-maker,small,.audit-box,.seal-mark,.dash-h';
+function annotateJargon(root){
+  const sections = root.querySelectorAll('.rd-page,.print-chapter,.print-month-page,.sec,.print-toc');
+  sections.forEach(sec=>{
+    const seen = new Set();
+    // 이미 「용어(풀이)」 꼴로 설명된 용어는 그 장에서 다시 안 붙인다.
+    GLOSS_TERMS.forEach(t=>{ if(sec.textContent.includes(t+'(')) seen.add(t); });
+    const walker = document.createTreeWalker(sec, NodeFilter.SHOW_TEXT, {
+      acceptNode(n){
+        if(!n.nodeValue || n.nodeValue.length<2) return NodeFilter.FILTER_REJECT;
+        if(n.parentElement && n.parentElement.closest(GLOSS_SKIP)) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    const nodes=[]; let nd; while(nd=walker.nextNode()) nodes.push(nd);
+    nodes.forEach(node=>{
+      let text=node.nodeValue, changed=false;
+      GLOSS_TERMS.forEach(t=>{
+        if(seen.has(t)) return;
+        const i=text.indexOf(t);
+        if(i===-1) return;
+        // 바로 뒤가 여는 괄호면 이미 풀이가 있는 것
+        if(text[i+t.length]==='(') { seen.add(t); return; }
+        text=text.slice(0,i+t.length)+'('+GLOSS[t]+')'+text.slice(i+t.length);
+        seen.add(t); changed=true;
+      });
+      if(changed) node.nodeValue=text;
+    });
+  });
+}
+
 // ── PDF 직접 내려받기 (8/12 신설) ──────────────────────
 // 사람들이 인쇄창에서 「PDF로 저장」을 못 찾아 실패한다는 보고가 반복돼,
 // 인쇄창 없이 버튼 한 번에 .pdf 파일이 바로 내려가게 바꿨다.
@@ -2693,11 +2746,12 @@ function applyPrintCSSTemporarily(){
     }
   }
   css=css.replace(/@page[^{]*\{[^}]*\}/g,'');
-  // 인쇄 CSS의 음수 여백(표지 풀블리드)·가변 폭은 캔버스 캡처에서 좌우 잘림을 만든다.
-  // 캡처 동안만 폭을 고정하고 음수 여백을 지운다.
-  css+='\n#report{width:716px!important;max-width:716px!important;margin:0!important;padding:0 0 0 12px!important;overflow:visible!important}';
-  css+='\n.print-cover{margin:0 0 0 -12px!important;min-height:250mm!important;width:740px!important}';
-  css+='\nbody{width:740px!important;margin:0!important}';
+  // ★폭은 html2pdf가 실제로 그리는 폭과 정확히 같아야 한다.
+  // html2pdf는 A4(210mm)에서 좌우 여백을 뺀 178mm를 96dpi 픽셀로 환산해 672px 컨테이너에 그린다.
+  // 이보다 1px라도 넓게 강제하면 그만큼 오른쪽이 캔버스 밖으로 잘린다(8/12 실측: 716px 강제 → 우측 절단).
+  css+='\n#report{width:672px!important;max-width:672px!important;margin:0!important;padding:0!important;overflow:visible!important}';
+  css+='\n.print-cover{margin:0!important;min-height:0!important;width:672px!important;box-sizing:border-box!important}';
+  css+='\nbody{width:672px!important;margin:0!important}';
   const style=document.createElement('style');
   style.id='pdfmode-style';
   style.textContent=css;
@@ -2716,8 +2770,8 @@ function pdfProgress(msg){
 // 경계에 걸리는 블록 앞에 받침(spacer)을 넣어 통째로 다음 쪽으로 민다.
 // 측정은 1회(리플로우 1번), 이후는 누적 이동량만 더해 계산한다.
 function paginateReport(report){
-  const CW=756, W_MM=178, H_MM=267;          // html2canvas 폭 756px = 본문 178mm
-  const SLICE=H_MM*CW/W_MM;                   // 한 쪽의 본문 높이(px) ≈ 1134.07
+  const CW=672, W_MM=178, H_MM=267;          // 본문 178mm를 96dpi로 환산한 672px — html2pdf의 실제 렌더 폭
+  const SLICE=H_MM*CW/W_MM;                   // 한 쪽의 본문 높이(px) ≈ 1008
   const SAFE=8;                               // 경계 직후 여유
   // 표지는 정확히 한 쪽을 차지하게 고정
   const cover=report.querySelector('.print-cover');
@@ -2769,14 +2823,35 @@ function paginateReport(report){
     if(need>0){ plans.push({el:it.el,need}); shift+=need; }
   }
   plans.forEach(({el,need})=>{
-    const sp=document.createElement('div');
-    sp.className='pdf-spacer'; sp.style.height=need+'px'; sp.style.flexShrink='0';
-    el.parentNode.insertBefore(sp,el);
+    let target=el;
+    // 그리드·플렉스 안에는 div를 끼울 수 없다(칸 배치가 깨진다).
+    // 그 컨테이너 통째로 밀 수 있으면 컨테이너 앞에 spacer를 넣고, 아니면 요소 윗여백으로 민다.
+    let pd=getComputedStyle(target.parentElement).display;
+    while((pd.includes('grid')||pd.includes('flex')) && target.parentElement!==report){
+      const host=target.parentElement;
+      if(host.getBoundingClientRect().height < SLICE*0.85){ target=host; pd=getComputedStyle(target.parentElement).display; }
+      else break;
+    }
+    pd=getComputedStyle(target.parentElement).display;
+    if(pd.includes('grid')||pd.includes('flex')){
+      if(target.dataset.pdfSpaced) return;
+      target.dataset.pdfOldMt=target.style.marginTop||'';
+      target.dataset.pdfSpaced='1';
+      target.style.marginTop=((parseFloat(getComputedStyle(target).marginTop)||0)+need)+'px';
+    } else {
+      const sp=document.createElement('div');
+      sp.className='pdf-spacer'; sp.style.height=need+'px'; sp.style.flexShrink='0';
+      target.parentNode.insertBefore(sp,target);
+    }
   });
   return plans.length;
 }
 function removeSpacers(report){
   report.querySelectorAll('.pdf-spacer').forEach(x=>x.remove());
+  report.querySelectorAll('[data-pdf-spaced]').forEach(h=>{
+    h.style.marginTop=h.dataset.pdfOldMt||'';
+    delete h.dataset.pdfSpaced; delete h.dataset.pdfOldMt;
+  });
   const cover=report.querySelector('.print-cover');
   if(cover){ cover.style.minHeight=''; cover.style.height=''; cover.style.boxSizing=''; cover.style.overflow=''; }
 }
@@ -2801,13 +2876,18 @@ window.createSajuPDF = async function() {
     await new Promise(r=>setTimeout(r,150)); // 스타일 적용 후 리플로우 대기
     paginateReport(report);                   // 쪽 경계 직접 계산 — 글줄 절단 0
     await new Promise(r=>setTimeout(r,100));  // spacer 삽입 후 리플로우 대기
-    // 브라우저 캔버스 최대 높이(약 32,767px)를 넘지 않게 배율을 문서 길이에 맞춰 정한다.
-    const scale=Math.max(1, Math.min(2, 30000/Math.max(1,report.scrollHeight)));
+    // ★배율 규칙 2가지 (8/12 실측으로 확정):
+    // ① 정수만 — 소수 배율은 지면을 가로로 밀어 자른다.
+    // ② 배율×문서높이가 32,000px를 넘으면 안 된다 — 브라우저 캔버스 한 변 최대치(32,767)를
+    //    넘으면 조용히 깨진 캔버스가 나와 쪽마다 가로로 어긋난다(29쪽 전멸 사고의 원인).
+    const scale=Math.max(1, Math.min(2, Math.floor(32000/Math.max(1,report.scrollHeight))));
     await html2pdf().set({
       margin:[14,16,16,16],
       filename:fileName,
       image:{type:'jpeg',quality:0.88},
-      html2canvas:{scale:scale,useCORS:true,logging:false,windowWidth:760,width:756,x:0,scrollX:0,scrollY:0},
+      // x:0,y:0 필수 — 없으면 html2canvas가 「라이브 창에서의 위치」로 크롭을 시작해
+      // 화면이 넓은 PC에서 가운데 정렬 여백만큼 지면이 왼쪽으로 밀려 잘린다(8/12 실측 ~304px).
+      html2canvas:{scale:scale,useCORS:true,logging:false,windowWidth:672,width:672,x:0,y:0,scrollX:0,scrollY:0},
       jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
       // 쪽나눔은 paginateReport가 spacer로 이미 끝냈다 — html2pdf의 자동 쪽나눔은 끈다.
       // (avoid-all은 배율이 소수일 때 반올림 오차로 글줄을 다시 자른다. 8/12 실측)

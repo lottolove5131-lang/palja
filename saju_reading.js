@@ -651,6 +651,8 @@
   // ── 신뢰도 계층 — 근거 겹수에 따라 문장의 형식 자체를 바꾼다 ──
   // 2겹 이상 = 단정 / 1겹 = 조건문(무엇이 확인되면 맞는지 같이 적음) / 0겹 = 점검 항목.
   // data-conf 속성은 confidence_gate.js가 어휘 규칙(조건문에 단정 어투 금지 등)을 검사하는 표지다.
+  // 받침 판정 조사 — 나열 join 뒤에 조사를 붙일 때 "쇠이/화가" 사고 방지 (8/11 조사엔진 사고 유형)
+  function GA(w, a, b) { const c = String(w).charCodeAt(String(w).length - 1); return w + (((c - 0xAC00) % 28 === 0) ? a : b); }
   function confTier(n) { return n >= 2 ? 'firm' : n === 1 ? 'cond' : 'check'; }
   function confSpan(tier, ev, txt) {
     return '<span data-conf="' + tier + '" data-conf-ev="' + ev + '">' + txt + '</span>';
@@ -980,6 +982,49 @@
     const dw = (DW.list || []).find(d => d.startYear <= F.nowYear && d.endYear > F.nowYear);
     const ageNow = dw ? Math.floor(dw.startAgeExact) + (F.nowYear - dw.startYear) : null;
 
+    // ── 인생 흐름 곡선 — 대운 10년 단위 마찰 점수(높을수록 순풍). 예언이 아니라 지형도.
+    const decades = (DW.list || []).slice(0, 9);
+    const scoreOf = function (d) {
+      let sc = 52;
+      const de = C.E.STEM_ELEM[d.stem], be = C.E.BRANCH_ELEM[d.branch];
+      if (A.yongshin && (de === A.yongshin || be === A.yongshin)) sc += 22;           // 처방 도착
+      [P.year.branch, P.month.branch, P.day.branch, P.hour && P.hour.branch].forEach(function (b) {
+        if (b == null) return;
+        if ((b + 6) % 12 === d.branch) sc -= 11;                                      // 원국과 충
+        else if (C.branchHap && C.branchHap(b, d.branch)) sc += 6;                    // 원국과 합
+      });
+      const grp = tenGodGroupOf(C.E.tenGodBranch(P.day.stem, d.branch));
+      if (F.band === 'weak' && (grp === '인성' || grp === '비겁')) sc += 9;           // 약한 사주를 받쳐주는 10년
+      if (F.band === 'strong' && (grp === '식상' || grp === '재성' || grp === '관성')) sc += 9; // 넘치는 힘을 내보내는 10년
+      return Math.max(18, Math.min(94, sc));
+    };
+    let lifeCurve = '';
+    if (decades.length >= 5) {
+      const W = 560, H = 110, PADL = 8, PADR = 8;
+      const step = (W - PADL - PADR) / (decades.length - 1);
+      const pts = decades.map(function (d, i) { return { x: PADL + i * step, y: 14 + (94 - scoreOf(d)) * (H - 34) / 76, d: d }; });
+      let path = 'M' + pts[0].x.toFixed(1) + ',' + pts[0].y.toFixed(1);
+      for (let i = 1; i < pts.length; i++) {
+        const cx = (pts[i - 1].x + pts[i].x) / 2;
+        path += ' C' + cx.toFixed(1) + ',' + pts[i - 1].y.toFixed(1) + ' ' + cx.toFixed(1) + ',' + pts[i].y.toFixed(1) + ' ' + pts[i].x.toFixed(1) + ',' + pts[i].y.toFixed(1);
+      }
+      const nowIdx = decades.findIndex(function (d) { return d.startYear <= F.nowYear && d.endYear > F.nowYear; });
+      const best = pts.slice().filter(function (pt, i) { return decades[i].endYear > F.nowYear; }).sort(function (a, b) { return a.y - b.y; })[0];
+      const labels = pts.map(function (pt, i) {
+        return '<text x="' + pt.x.toFixed(1) + '" y="' + (H - 4) + '" text-anchor="middle" font-size="9" fill="#8b8271">' + decades[i].countingAge + '</text>';
+      }).join('');
+      lifeCurve = '<div class="life-curve"><div class="dash-h">인생의 지형 — 10년 단위 순풍과 맞바람</div>' +
+        '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;display:block">' +
+        '<path d="' + path + '" fill="none" stroke="#c8a35a" stroke-width="2.4"/>' +
+        pts.map(function (pt, i) {
+          const isNow = i === nowIdx, isBest = best && pt.x === best.x && !isNow;
+          return '<circle cx="' + pt.x.toFixed(1) + '" cy="' + pt.y.toFixed(1) + '" r="' + (isNow ? 5 : 3) + '" fill="' + (isNow ? '#b23a2e' : isBest ? '#3d6b39' : '#c8a35a') + '"/>' +
+            (isNow ? '<text x="' + pt.x.toFixed(1) + '" y="' + (pt.y - 9).toFixed(1) + '" text-anchor="middle" font-size="10" font-weight="700" fill="#b23a2e">지금</text>' : '') +
+            (isBest ? '<text x="' + pt.x.toFixed(1) + '" y="' + (pt.y - 9).toFixed(1) + '" text-anchor="middle" font-size="10" font-weight="700" fill="#3d6b39">순풍</text>' : '');
+        }).join('') + labels + '</svg>' +
+        '<p class="dash-note">가로축은 세는나이(각 10년의 시작). 곡선이 높을수록 같은 노력에 마찰이 적은 시기입니다 — <b>좋고 나쁨의 예언이 아니라 바람의 방향</b>입니다. 맞바람 구간은 쌓는 시기로, 순풍 구간은 벌이는 시기로 쓰면 이 지형은 전부 내 편이 됩니다.</p></div>';
+    }
+
     return page({
       cls: 'rd-dash',
       kicker: '한눈에 보기',
@@ -997,6 +1042,7 @@
              <p class="dash-note">${missing ? `${C.you}은 <b>${missing}</b>의 힘을 타고나지 않았습니다. 없는 것이 아니라 <b>정해두고 하는</b> 쪽입니다.` : '다섯 기운이 고르게 갖춰져 있어 한쪽으로 몰리지 않습니다.'}</p></div>
            <div class="dash-luck"><div class="dash-h">네 가지 복</div>${cards}</div>
          </div>`,
+        lifeCurve,
         `<div class="rd-box"><b>지금 어디쯤 서 있나</b><br>
           ${ageNow != null ? `올해 <b>만 ${ageNow}세</b>. ` : ''}지금은 <b>${dw ? dw.str : '-'}</b> 흐름 위에 있고,
           <b>${dw ? dw.endYear : '-'}년</b>에 다음 10년으로 넘어갑니다.
@@ -1573,8 +1619,7 @@
       : '한 가지 기운으로 결론이 나지 않는 사주입니다. 그때그때 무엇이 과하고 무엇이 모자란지 보고 조절하는 쪽이 맞습니다.';
 
     const p6 = x.cur
-      ? '지금은 <b>만 ' + x.ageNow + '세</b>, ' + Math.floor(x.cur.startAgeExact) + '세부터 ' +
-        (Math.floor(x.cur.startAgeExact) + 10) + '세까지 이어지는 흐름의 한가운데에 있습니다. ' +
+      ? '지금은 <b>만 ' + x.ageNow + '세</b>, 세는나이 ' + x.cur.countingAge + '(만 ' + Math.floor(x.cur.startAgeExact) + '세)부터 시작된 10년 흐름의 한가운데에 있습니다. ' +
         '이 10년이 무엇을 요구하는지, 다음 10년에 무엇이 바뀌는지는 뒤에서 하나씩 적었습니다.'
       : '';
 
@@ -1633,6 +1678,9 @@
       const hp = touch.filter(function (t) { return t.t === '합'; });
       const nm = function (arr) { return arr.map(function (t) { return (POS_LIFE[t.k] || {}).name; }).join('·'); };
 
+      const KW = { 비견: '자립', 겁재: '승부', 식신: '축적', 상관: '혁신', 편재: '확장', 정재: '관리', 편관: '책임', 정관: '인정', 편인: '전환', 정인: '배움' };
+      const kws = [KW[gb], gs !== gb ? KW[gs] : null, sw.yongshinHit ? '기회' : null, cl.length ? '재편' : null].filter(Boolean).slice(0, 3);
+      const q0 = off === 0 && kws.length ? '올해의 키워드 — ' + kws.map(function (k) { return '<b>#' + k + '</b>'; }).join(' ') : '';
       const q1 = year + '년은 ' + C.you + '에게 <b>' + ((MONTH_SCENE[gb] || {}).s || '').replace(/ 달$/, ' 해') + '</b>입니다. ' +
         (age != null ? '이 해에 만 ' + age + '세가 됩니다. ' : '') + ((LIFE_BY_GOD[gb] || {}).money || '');
 
@@ -1710,7 +1758,7 @@
         cls: 'rd-prose',
         kicker: year + '년 운세',
         title: year + '년, ' + C.you + '에게 어떤 해인가',
-        blocks: [q1, q2, q3, q35, q4, q5, q55, q6].filter(Boolean).map(function (t) { return P_(t); }),
+        blocks: [q0, q1, q2, q3, q35, q4, q5, q55, q6].filter(Boolean).map(function (t) { return P_(t); }),
         action: UL([
           '<b>' + year + '년 초에</b> — 위에서 ' + (cl.length ? '흔들린다고 적힌 자리' : '가장 마음에 걸리는 대목') + '의 조건을 종이에 적으세요.',
           '<b>연중</b> — 큰 결정은 뒤의 월별 표에서 <b>잘 풀리는 달</b>에 배치하세요.',
@@ -1936,7 +1984,7 @@
     return page({
       cls: 'rd-prose',
       kicker: '제2장 — 인생의 네 계절',
-      title: C.you + '의 일생을 네 기둥으로 훑습니다',
+      title: C.you + '은 지금 인생의 어느 계절에 있나',
       lede: (C.recall && C.recall('core') ? '앞 장에서 ' + C.you + '을 <b>' + C.recall('core') + '</b>라 불렀습니다. 이번 장은 그 ' + C.recall('core').split(' ').pop() + '가 걸어온 길과 걸어갈 길입니다. ' : '') + '옛 명리서는 년을 뿌리, 월을 싹, 일을 꽃, 시를 열매에 비유했습니다 — 뿌리는 초년과 집안, 싹은 청년과 사회, 꽃은 한창때의 나, 열매는 말년과 남기는 것입니다.',
       blocks: paras.map(function (t) { return P_(t); }),
       action: UL([
@@ -2086,7 +2134,7 @@
       : '';
 
     const p3 = fy
-      ? '모이는 때도 적어 둡니다. 이 사주에 모자란 기운(' + EL_KO[A.yongshin] + ')이 대운으로 들어오는 <b>만 ' + ageAt(fy) + '세 무렵부터의 10년(' + fy.str + ')</b>이 돈의 마찰이 가장 적은 구간입니다. 그 전까지는 불리기보다 <b>새는 곳을 막는 것</b>이 수익률이 더 높습니다.'
+      ? '모이는 때도 적어 둡니다. 이 사주에 모자란 기운(' + EL_KO[A.yongshin] + ')이 대운으로 들어오는 <b>만 ' + ageAt(fy) + '세(세는나이 ' + fy.countingAge + ') 무렵부터의 10년(' + fy.str + ')</b>이 돈의 마찰이 가장 적은 구간입니다. 그 전까지는 불리기보다 <b>새는 곳을 막는 것</b>이 수익률이 더 높습니다.'
       : (A.yongshin && F.yongDecades && F.yongDecades.length === 0
         ? '처방 기운(' + EL_KO[A.yongshin] + ')이 대운으로는 따로 들어오지 않는 배치라, 돈의 확장은 해마다의 세운 신호(뒤의 12년 신호등)를 보고 해 단위로 잡는 것이 맞습니다.'
         : '');
@@ -2115,6 +2163,44 @@
     });
   });
 
+  // ── 개운 — 처방 기운을 생활에 심는 법 (8/12 16차, 점신 행운보고서·KB 개운카드 역설계) ──
+  // 부적이 아니다. 색·방향·숫자는 전부 오행의 고전 배속(方位·河圖 수리)에서 오고, 근거를 근거줄에 남긴다.
+  const EL_BOOST = {
+    목: { color: '초록·청록 계열', dir: '동쪽', num: '3과 8', season: '봄', when: '아침', act: '새로 배우고 시작하는 일, 식물 곁에 두기' },
+    화: { color: '붉은색·주홍 계열', dir: '남쪽', num: '2와 7', season: '여름', when: '한낮', act: '드러내고 발표하는 일, 햇볕을 쬐는 습관' },
+    토: { color: '노랑·황토 계열', dir: '중심(거처를 안정시키는 것)', num: '5와 10', season: '환절기', when: '오후', act: '정리하고 쌓는 일, 흙과 그릇을 만지는 취미' },
+    금: { color: '흰색·은회색 계열', dir: '서쪽', num: '4와 9', season: '가을', when: '저녁', act: '마감하고 자르는 일, 금속 소품 하나' },
+    수: { color: '검정·남색 계열', dir: '북쪽', num: '1과 6', season: '겨울', when: '밤', act: '읽고 쓰는 일, 물가를 걷는 습관' }
+  };
+  rule('luck_boost', 942, function (A, P, DW, C, F) {
+    const y = A.yongshin;
+    const jo = A.johu && A.johu.mainElem && A.johu.mainElem !== y ? A.johu.mainElem : null;
+    const tgt = y || (F.missing && F.missing[0]) || null;
+    if (!tgt || !EL_BOOST[tgt]) return null;
+    const B = EL_BOOST[tgt];
+    const p1 = '먼저 정직하게 적습니다. <b>색이나 숫자가 운을 바꾸지는 않습니다.</b> 그런데도 이 면을 만든 이유는 하나입니다 — ' +
+      C.you + '에게 필요한 기운(<b>' + EL_KO[tgt] + '</b>)을 <b>하루에 한 번 눈에 띄게 하는 물리적 장치</b>가 있으면, 그 방향의 선택이 실제로 잦아지기 때문입니다. 부적이 아니라 알림장입니다.';
+    const p2 = '<b>색</b> — ' + B.color + '. 옷 전부가 아니라 매일 몸에 지니는 것 하나(지갑·폰케이스·펜)면 충분합니다. ' +
+      '<b>방향</b> — ' + B.dir + '. 중요한 약속과 자리는 이 방향에 두면 마음이 정돈됩니다. ' +
+      '<b>숫자</b> — ' + B.num + '. 비밀번호·기념일처럼 자주 누르는 곳에 심어 두세요.';
+    const p3 = '<b>시간</b> — 이 사주의 기운이 가장 잘 붙는 시간대는 <b>' + B.when + '</b>, 계절로는 <b>' + B.season + '</b>입니다. 중요한 결정과 첫 만남은 되도록 이 시간에 두세요. ' +
+      '<b>습관</b> — ' + B.act + '. 이것이 이 사주의 개운법이 화려하지 않은 이유입니다: 필요한 기운은 사는 방식으로 채우는 것이 가장 빠릅니다.' +
+      (jo && EL_BOOST[jo] ? ' 계절을 타는 몸이라 <b>' + EL_KO[jo] + '</b>(' + EL_BOOST[jo].color.split('·')[0] + '·' + EL_BOOST[jo].when + ')의 장치를 보조로 하나 더 두면 좋습니다.' : '');
+    return page({
+      cls: 'rd-prose',
+      kicker: '개운 — 기운을 생활에 심는 법',
+      title: C.you + '에게 필요한 기운을 곁에 두는 여섯 가지',
+      lede: '이 면의 색·방향·숫자는 전부 옛 오행 배속표에서 나온 것이고, 효험의 약속이 아니라 <b>방향을 잊지 않게 하는 장치</b>입니다.',
+      blocks: [p1, p2, p3].map(function (t) { return P_(t); }),
+      action: UL([
+        '<b>오늘</b> — 위 색의 소지품 하나를 정해 매일 들고 다니는 자리에 두세요.',
+        '<b>이번 주</b> — 습관 항목 하나를 요일 하나에 고정하세요. 개운은 이벤트가 아니라 반복입니다.'
+      ]),
+      evidence: '처방 ' + (y ? EL_KO[y] + '(용신)' : EL_KO[tgt] + '(결손 보완)') + (jo ? ' · 보조 ' + EL_KO[jo] + '(조후)' : '') +
+        ' · 색·방위 = 오행 방위 배속(목동·화남·토중앙·금서·수북) · 숫자 = 하도(河圖) 수리(목3·8 화2·7 토5·10 금4·9 수1·6) · 효험 단정 없음'
+    });
+  });
+
   // ── 제7장 몸과 리듬 ────────────────────────────────
   rule('prose_body', 979, function (A, P, DW, C, F) {
     if (!C.E) return null;
@@ -2125,7 +2211,7 @@
     const p1 = '몸은 병명을 짚는 장이 아닙니다 — 그것은 병원의 일입니다. 사주가 말할 수 있는 것은 <b>기운의 쏠림이 만드는 생활의 리듬</b>까지고, 이 장은 거기까지만 정직하게 적습니다.';
 
     const p2 = '이 원국은 <b>' + most + ' 기운(' + (F.el[most] || 0) + '개)</b>이 가장 두텁고' +
-      (miss.length ? ', <b>' + miss.map(function (e) { return EL_KO[e]; }).join('·') + '</b>이 비어 있습니다' : ', 다섯 기운이 고루 깔려 있습니다') +
+      (miss.length ? ', <b>' + GA(miss.map(function (e) { return EL_KO[e]; }).join('·'), '가', '이') + '</b> 비어 있습니다' : ', 다섯 기운이 고루 깔려 있습니다') +
       '. 차고 덥고 마르고 눅눅한 정도로는 <b>' + (function () {
         const raw = String(t.label || '').replace(/\([^)]*\)/g, '');
         const M = { 한: '차가운', 난: '따뜻한', 조: '건조한', 습: '눅눅한' };

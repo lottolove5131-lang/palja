@@ -331,7 +331,11 @@ footer{text-align:center;padding:44px 0 60px;color:var(--hanji-dim);font-size:.7
 
 /* ── 인쇄 압축(13차): 10쪽 이내 ── */
 @media print{
-  .exhaustive-book .rd-prose .rd-act{display:none}
+  /* 한눈 판정 — 인생 곡선 추가 후 1쪽 유지 */
+  .exhaustive-book .rd-dash .life-curve svg{max-height:82px}
+  .exhaustive-book .rd-dash .dash-note{font-size:.78rem;line-height:1.5;margin:1.5mm 0 0}
+  .exhaustive-book .rd-dash .rd-box{padding:3mm 4mm;line-height:1.6}
+  .exhaustive-book .rd-dash .rd-src{margin-top:2mm}
   /* 12년 신호등 — 한 쪽에 들어가게: 표 압축 + 실행박스·닫는 문단은 화면에서만 */
   .exhaustive-book .rd-page:has(.rd-cal) .rd-act{display:none}
   .exhaustive-book .rd-page:has(.rd-cal)>p:not(.rd-lede){display:none}
@@ -342,7 +346,8 @@ footer{text-align:center;padding:44px 0 60px;color:var(--hanji-dim);font-size:.7
   .exhaustive-book .rd-page:has(.rd-cal) th,.exhaustive-book .rd-page:has(.rd-cal) td{padding:1.2mm 1.8mm;line-height:1.45}
   .exhaustive-book .rd-page:has(.rd-cal) .rd-src{font-size:.68rem;line-height:1.4;margin-top:2mm}
   .exhaustive-book .rd-page:has(.rd-cal) .rd-box{padding:2.5mm 3.5mm;line-height:1.6;font-size:.86rem}
-  .exhaustive-book .rd-prose p{font-size:.98rem;line-height:1.92;margin:0 0 3.6mm}
+  .exhaustive-book .rd-prose p{font-size:.98rem;line-height:1.88;margin:0 0 3.2mm}
+  .exhaustive-book .rd-prose .rd-src{font-size:.72rem;line-height:1.45;margin-top:2.5mm}
   .exhaustive-book .rd-prose .rd-lede{margin-bottom:5mm;line-height:1.85}
   .exhaustive-book .rd-src{margin-top:3mm}
 }
@@ -1965,7 +1970,8 @@ function exhaustiveNarrativeBookHTML(A,P,DW,age,gender,knowTime,nowYear,personNa
   }catch(e){ console.error('감명서 본문 생성 실패',e); }
   // [8/12 13차] 사장님 평 반영: PDF는 10쪽 이내 한 권. 책 세트만 인쇄하고
   // 나머지 면·부록은 보관층(rd-archive)으로 — DOM에 남아 화면 상세·회귀 게이트가 계속 쓴다.
-  const PRINT_BOOK = ['dashboard','prose_whole','prose_decision','prose_seasons','prose_people','prose_work','prose_money','when_calendar','prose_year_0','past_check'];
+  // [8/12 16차] 사장님 "20페이지여도 되어·자세히" — 성격·몸·타임라인 3종·결정별 시기·내년·개운 복귀/신설
+  const PRINT_BOOK = ['dashboard','prose_whole','prose_personality','prose_decision','prose_seasons','prose_people','prose_work','life_job','prose_money','life_money','life_love','prose_body','when_calendar','when_decisions','prose_year_0','prose_year_1','year_by_year','luck_boost','past_check'];
   const bookPages = (window.__sajuReadingPages||[]).filter(x=>PRINT_BOOK.includes(x.id)).map(x=>x.html).join('');
   const archivePages = (window.__sajuReadingPages||[]).filter(x=>!PRINT_BOOK.includes(x.id)).map(x=>x.html).join('');
   return `<section class="print-only exhaustive-book">
@@ -2035,7 +2041,7 @@ function printCoverHTML(personName,y,m,dd,hh,mm,gender,knowTime,birthOpt,P,nowYe
     ['10','이 감명서가 맞는지 재는 법','이미 지나간 굴곡 맞히기'],
     ['11','나는 어떤 사람인가','반복되는 강점과 실수, 회복하는 법'],
     ['12','부록 · 왜 이렇게 읽었나','명식·오행·십성·격국·용신 근거 (안 읽으셔도 됩니다)']];
-  return `<section class="print-only print-cover"><p class="cover-mark">여덟글자</p><h1 class="serif">평생 사주감명서</h1><p>한 권으로 읽는 내 사주<br>타고난 그릇 · 인생의 네 계절 · 사람 · 일 · 돈 · 앞으로 12년</p><p class="cover-name">${name} 님</p><p>${y}년 ${m}월 ${dd}일 ${time} · ${escapeHTML(birthOpt.placeLabel)} · ${gender==='F'?'여성':'남성'}</p><p>${pillars}</p><p class="cover-maker">만든이 ${MAKER}</p></section>
+  return `<section class="print-only print-cover"><p class="cover-mark">여덟글자</p><h1 class="serif">평생 사주감명서</h1><p>한 권으로 읽는 내 사주<br>타고난 그릇 · 성격 · 인생의 네 계절 · 사람 · 일 · 돈 · 몸 · 앞으로 12년 · 개운</p><p class="cover-name">${name} 님</p><p>${y}년 ${m}월 ${dd}일 ${time} · ${escapeHTML(birthOpt.placeLabel)} · ${gender==='F'?'여성':'남성'}</p><p>${pillars}</p><p class="cover-maker">만든이 ${MAKER}</p></section>
     <section class="rd-archive print-toc"><h2>이 한 권에 담긴 것</h2>${toc.map(x=>`<div class="print-toc-item"><b>${x[0]}</b><span><strong>${x[1]}</strong><br>${x[2]}</span></div>`).join('')}<p class="method-note" style="margin-top:6mm">각 결론은 쉬운 설명 뒤에 원국·십성·월령·합충·대운·세운 근거를 붙였습니다. 사건을 보장하지 않으며, 다른 유파와 갈리는 곳은 숨기지 않습니다.</p></section>`;
 }
 
